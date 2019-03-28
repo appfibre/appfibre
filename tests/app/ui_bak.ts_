@@ -1,0 +1,45 @@
+import assert from 'assert';
+import {describe, it} from 'mocha';
+import { App, types } from '@appfibre/jst';
+import * as preact from "@appfibre/jst-preact";
+import Enzyme from 'enzyme';
+import { Adapter } from 'enzyme-adapter-preact';
+ 
+Enzyme.configure({ adapter: new Adapter() });
+
+describe('<Foo />', () => {
+    var app = new App({main:[], options: {logLevel: types.LogLevel.Trace}, services: {UI: {processElement: preact.processElement, Component: preact.Component, render: Enzyme.render}}});
+    
+    it('allows us to set props', () => {
+        
+        console.log(app.render(["div", null, "hello"]).toString());
+    });
+   
+    
+  });
+
+
+/*
+describe('preact', () => {
+    var app = new App({main:[], options: {logLevel: types.LogLevel.Trace}, services: {UI: preact}});
+    it ('converts to html', () => {
+        const doc = new JSDOM('<!doctype html><html><body><div id="main" /></body></html>', {
+            url: 'http://localhost'
+          });
+          const win = doc.window.document.defaultView;
+          
+          Object.defineProperty(global, "HTMLElement", doc.window.HTMLElement);
+          Object.defineProperty(global, "document", doc.window.document);
+          if (win){
+            Object.defineProperty(global, "window", win);
+            Object.defineProperty(global, "navigator", win.navigator);
+          }
+          let document = doc.window.document;
+
+        app.options.web = app.options.web || {};
+        app.options.web.target = doc.window.document.getElementById("main");
+        
+        console.log(app.render(["div", null, "hello"]));
+    });
+
+});*/

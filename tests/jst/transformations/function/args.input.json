@@ -1,0 +1,6 @@
+{ ".function": "inject"
+    , "arguments": [ "app" ]
+    , "return":   [ "div"
+                , { }
+                , "Test"]
+}

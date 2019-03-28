@@ -1,0 +1,3 @@
+[
+   {".require": "./func.js#Test"}, null, [[{".require": "./func.js#Test"}, {}, [["div", null, "Text Content"]]]]
+]

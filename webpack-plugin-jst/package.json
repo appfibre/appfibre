@@ -1,0 +1,35 @@
+{
+  "author": {
+    "name": "Dawid Rautenbach",
+    "email": "dawid@rautenbach.za.net"
+  },
+  "bugs": {
+    "url": "https://github.com/appfibre/jst-syntax/issues"
+  },
+  "bundleDependencies": [],
+  "dependencies": {
+    "@appfibre/jst": "^0.1.4",
+    "@babel/core": "^7.1.2",
+    "@types/babel__core": "^7.1.0"
+  },
+  "deprecated": false,
+  "description": "JST Node/Babel Syntax Loader",
+  "devDependencies": {},
+  "homepage": "https://github.com/appfibre/jst-syntax#readme",
+  "keywords": [
+    "JST"
+  ],
+  "license": "MIT",
+  "main": "dist/loader.js",
+  "types": "dist/loader.d.ts",
+  "name": "@appfibre/webpack-plugin-jst",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/jst-syntax.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "version": "0.0.1"
+}

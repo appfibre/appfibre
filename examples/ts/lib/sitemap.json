@@ -1,0 +1,8 @@
+[ { "name": "Home", "path":"Home" }
+    , { "name": "About" }
+    , { "path": "Resources", "children": 
+           [ { "path": "Links" }
+           , { "path": "Archive" }
+           ]
+    }
+]

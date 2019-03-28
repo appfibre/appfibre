@@ -1,0 +1,24 @@
+{
+  "name": "@appfibre/jst",
+  "version": "0.0.1",
+  "description": "Appfibre Jst/App framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/appfibre.git"
+  },
+  "keywords": [
+    "appfibre",
+    "jst"
+  ],
+  "author": "Dawid Rautenbach",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/appfibre/appfibre/issues"
+  },
+  "homepage": "https://github.com/appfibre/appfibre#readme"
+}

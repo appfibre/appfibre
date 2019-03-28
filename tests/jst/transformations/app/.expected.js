@@ -1,0 +1,1 @@
+var _0=require("@appfibre/jst");return _0.app({app:["div",null,"Hello"],title:"App Title"});

@@ -1,0 +1,48 @@
+"use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var mocha_1 = require("mocha");
+var jst_1 = require("@appfibre/jst");
+var preact = __importStar(require("@appfibre/jst-preact"));
+var enzyme_1 = __importDefault(require("enzyme"));
+var enzyme_adapter_preact_1 = require("enzyme-adapter-preact");
+enzyme_1["default"].configure({ adapter: new enzyme_adapter_preact_1.Adapter() });
+mocha_1.describe('<Foo />', function () {
+    var app = new jst_1.App({ main: [], options: { logLevel: jst_1.types.LogLevel.Trace }, services: { UI: { processElement: preact.processElement, Component: preact.Component, render: enzyme_1["default"].render } } });
+    mocha_1.it('allows us to set props', function () {
+        console.log(app.render(["div", null, "hello"]).toString());
+    });
+});
+/*
+describe('preact', () => {
+    var app = new App({main:[], options: {logLevel: types.LogLevel.Trace}, services: {UI: preact}});
+    it ('converts to html', () => {
+        const doc = new JSDOM('<!doctype html><html><body><div id="main" /></body></html>', {
+            url: 'http://localhost'
+          });
+          const win = doc.window.document.defaultView;
+          
+          Object.defineProperty(global, "HTMLElement", doc.window.HTMLElement);
+          Object.defineProperty(global, "document", doc.window.document);
+          if (win){
+            Object.defineProperty(global, "window", win);
+            Object.defineProperty(global, "navigator", win.navigator);
+          }
+          let document = doc.window.document;
+
+        app.options.web = app.options.web || {};
+        app.options.web.target = doc.window.document.getElementById("main");
+        
+        console.log(app.render(["div", null, "hello"]));
+    });
+
+});*/

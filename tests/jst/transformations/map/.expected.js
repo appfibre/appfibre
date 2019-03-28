@@ -1,0 +1,1 @@
+return [1,2,3].map(function(i) {return i+1 });
