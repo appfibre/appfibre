@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 exports.__esModule = true;
 var types_1 = require("../types");
 var Transformer = /** @class */ (function () {
@@ -6,7 +17,7 @@ var Transformer = /** @class */ (function () {
         var _this = this;
         this.reservedWords = ['function', 'for', 'var', 'this', 'self', 'null'];
         this.type = "Transformer";
-        this.settings = settings ? { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports, preferConst: settings.preferConst } : { module: types_1.ModuleSystem.ES };
+        this.settings = settings ? __assign({}, settings, { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports }) : { module: types_1.ModuleSystem.ES };
         this.settings.parsers = this.settings.parsers || {};
         this.settings.parsers[".require"] = this.settings.parsers[".import"] = function (obj, parseSettings, offset) { return _this.loadModule(obj[".import"] || obj[".require"], parseSettings); };
         this.settings.parsers[".function"] = function (obj, parseSettings, offset) { return "function " + (obj[".function"] ? obj[".function"] : "") + "(" + (obj["arguments"] ? _this.process(obj["arguments"], false, true, parseSettings, offset) : "") + "){ return " + _this.process(obj["return"], true, false, parseSettings, offset) + " }"; };
@@ -66,9 +77,9 @@ var Transformer = /** @class */ (function () {
             output = typeof obj === "string" && esc ? JSON.stringify(obj) : obj;
         return output;
     };
-    Transformer.prototype.bundleModule = function (obj, parseSettings) {
+    Transformer.prototype.bundleModule = function (obj, name) {
         var _this = this;
-        var output = '';
+        var output = { name: name, imports: [], exports: {}, compositeObject: false, code: '' };
         var keys = Object.keys(obj);
         var validkeys = keys.filter(function (k) { return k.indexOf(' ') === -1 && k.indexOf('/') === -1 && k.indexOf('-') === -1 && _this.reservedWords.indexOf(k) === -1; });
         var isDefault = keys.length === 1 && keys[0] === 'default';
@@ -80,61 +91,85 @@ var Transformer = /** @class */ (function () {
             case "commonjs":
             case "cjs":
                 for (var req in r)
-                    output += vr + " _" + r[req] + sp + "=" + sp + "require('" + req + "');" + nl;
-                output += keys.map(function (key) { return "module.exports['" + key + "']" + sp + "=" + sp + _this.process(obj[key], true, false, parseSettings, 0) + ";"; }).join(nl);
+                    output.code += vr + " _" + r[req] + sp + "=" + sp + "require('" + req + "');" + nl;
+                output.code += keys.map(function (key) { return "module.exports['" + key + "']" + sp + "=" + sp + _this.process(obj[key], true, false, output, 0) + ";"; }).join(nl);
                 if (!isDefault)
-                    output += nl + "module.exports['default']" + sp + "=" + sp + "{" + sp + keys.map(function (key) { return key + ": " + _this.process(obj[key], true, false, parseSettings, 0); }).join(nl) + " };";
-                if (parseSettings.name)
-                    output += nl + "module.exports['__jst'] = '" + name + ";";
+                    output.code += nl + "module.exports['default']" + sp + "=" + sp + "{" + sp + keys.map(function (key) { return key + ": " + _this.process(obj[key], true, false, output, 0); }).join(nl) + " };";
+                if (output.name)
+                    output.code += nl + "module.exports['__jst'] = '" + name + ";";
                 break;
             case "es":
                 if (isDefault)
-                    output += "export default" + sp + this.process(obj["default"], true, false, parseSettings, 0) + ";";
+                    output.code += "export default" + sp + this.process(obj["default"], true, false, output, 0) + ";";
                 else {
-                    output += "export default" + sp + "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, parseSettings, 0) : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], true, false, parseSettings, 2)); }), parseSettings, 1) + "};";
+                    output.code += "export default" + sp + "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 0) : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], true, false, output, 2)); }), output, 1) + "};";
                     if (this.settings.namedExports && validkeys.length > 0)
-                        output = validkeys.map(function (key) { return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], true, false, parseSettings, 1) + ";"; }).join(nl) + ("" + (nl + output + nl));
+                        output.code = validkeys.map(function (key) { return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], true, false, output, 1) + ";"; }).join(nl) + ("" + (nl + output.code + nl));
                 }
                 break;
             default:
-                if (parseSettings.name)
-                    output += "return " + (isDefault ? "{'default' : " + this.process(obj["default"], true, false, parseSettings, 1) + ", '__jst': '" + parseSettings.name + "'}" : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, parseSettings, 1) : key + ":" + sp + _this.process(obj[key], true, false, parseSettings, 2); }), parseSettings, 1) + "}, '__jst': '" + parseSettings.name + "'") + ";";
+                if (output.name)
+                    output.code += "return " + (isDefault ? "{'default' : " + this.process(obj["default"], true, false, output, 1) + ", '__jst': '" + output.name + "'}" : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + "}, '__jst': '" + output.name + "'") + ";";
                 else
-                    output += "return " + (isDefault ? this.process(obj["default"], true, false, parseSettings, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, parseSettings, 1) : key + ":" + sp + _this.process(obj[key], true, false, parseSettings, 2); }), parseSettings, 1) + "}") + ";";
+                    output.code += "return " + (isDefault ? this.process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + "}") + ";";
         }
         var s = {};
         var r = {};
-        if (parseSettings.imports.length > 0)
-            for (var i = 0; i < parseSettings.imports.length; i++)
-                if (parseSettings.imports[i].indexOf('#') > -1) {
-                    var name = parseSettings.imports[i].substr(0, parseSettings.imports[i].indexOf('#'));
-                    if (s[name] === undefined)
-                        s[name] = {};
-                    s[name][parseSettings.imports[i].substr(name.length + 1)] = i;
+        if (output.imports.length > 0)
+            for (var i = 0; i < output.imports.length; i++)
+                if (output.imports[i].indexOf('#') > -1) {
+                    var module_name = output.imports[i].substr(0, output.imports[i].indexOf('#'));
+                    if (s[module_name] === undefined)
+                        s[module_name] = {};
+                    s[module_name][output.imports[i].substr(module_name.length + 1)] = i;
                 }
                 else
-                    r[parseSettings.imports[i]] = i;
+                    r[output.imports[i]] = i;
         switch (this.settings.module.toLowerCase()) {
             case "umd":
             case "commonjs":
             case "cjs":
                 for (var req in r)
-                    output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output;
+                    output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
                 break;
             case "amd":
-                output = "define([" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output + " });" + nl;
+                output.code = "define([" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output.code + " });" + nl;
                 break;
             case "es":
-                output = Object.keys(s).map(function (key) { return (key.charAt(0) === '~' ? "var {" + Object.keys(s[key]).map(function (k) { return k + ": _" + s[key][k]; }) + "}  = await import('" + key.substr(1) + "');" + nl : "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key + "';" + nl); }).join('') + Object.keys(r).map(function (key) { return (key.charAt(0) === '~' ? "var _" + r[key] + " = await import('" + key.substr(1) + "');" + nl : "import * as _" + r[key] + " from '" + key + "';" + nl); }).join('') + output;
+                output.code = Object.keys(s).map(function (key) { return (key.charAt(0) === '~' ? "var {" + Object.keys(s[key]).map(function (k) { return k + ": _" + s[key][k]; }) + "}  = await import('" + key.substr(1) + "');" + nl : "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key + "';" + nl); }).join('') + Object.keys(r).map(function (key) { return (key.charAt(0) === '~' ? "var _" + r[key] + " = await import('" + key.substr(1) + "');" + nl : "import * as _" + r[key] + " from '" + key + "';" + nl); }).join('') + output.code;
                 break;
             default:
                 for (var req in r)
-                    output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output;
+                    output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
         }
         return output;
     };
-    Transformer.prototype.transform = function (obj, name) {
-        return this.bundleModule(Array.isArray(obj) || typeof (obj) != 'object' || Object.keys(obj).filter(function (k) { return k[0] == '.'; }).length > 0 ? { "default": obj } : obj, { name: name, imports: [], exports: {}, compositeObject: false });
+    Transformer.prototype.transform = function (input, name) {
+        var obj;
+        try {
+            obj = typeof input === "string" ? JSON.parse(input) : input;
+        }
+        catch (e) {
+            //console.log(JSON.stringify(this.settings));
+            if (this.settings.dangerouslyProcessJavaScript || this.settings.dangerouslyProcessJavaScript === undefined) {
+                try {
+                    obj = eval("(" + input + ");");
+                    if (this.settings.dangerouslyProcessJavaScript === undefined)
+                        console.warn("Warning: " + (name || '') + " is not JSON compliant: " + e.message + ".  Set option \"dangerouslyProcessJavaScript\" to true to hide this message.\r\n" + input);
+                }
+                catch (f) {
+                    throw new Error("Unable to process " + (name || '') + " as JavaScript: " + f.message);
+                }
+            }
+            else
+                throw new Error("Unable to parse JSON file " + (name || '') + ": " + e.message);
+        }
+        try {
+            return this.bundleModule(Array.isArray(obj) || typeof (obj || '') !== 'object' || Object.keys(obj).filter(function (k) { return k[0] == '.'; }).length > 0 ? { "default": obj } : obj, name);
+        }
+        catch (e) {
+            throw new Error("Unable to transform js template: " + e.message + "\r\n" + e.stack);
+        }
     };
     return Transformer;
 }());

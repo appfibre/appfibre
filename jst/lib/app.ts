@@ -62,8 +62,10 @@ export class App implements IAppLoaded
     }*/
 
     private initApp() {
+        if (!this.options.web) this.options.web = {};
+        
+        try{
         if (document) { // web app
-            if (!this.options.web) this.options.web = {};
             if (!document.body) document.body = document.createElement('body');
             this.options.web.target = this.options.web.target || document.body;
             if (this.options.web.target === document.body) {
@@ -75,6 +77,10 @@ export class App implements IAppLoaded
             if (this.options.title) document.title = this.options.title;
             //if (module && module.hot) module.hot.accept();
             if (this.options.web.target.hasChildNodes()) this.options.web.target.innerHTML = "";
+        } }
+        catch 
+        {
+            //TODO: workaround for nodeJs as document element is not defined in Node runtime
         }
     }
 

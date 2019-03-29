@@ -152,7 +152,7 @@ var Processor = /** @class */ (function () {
         var isAsync = false;
         for (var idx = 0; idx < obj.length; idx++) {
             if (typeof obj[idx] === "function") {
-                obj[idx] = this.processElement([obj[idx]], supportAsync, true)[0];
+                //obj[idx] = this.processElement([obj[idx]], supportAsync, true)[0];
             }
             if (Array.isArray(obj[idx])) {
                 for (var i = 0; i < obj[idx].length; i++) {
@@ -280,7 +280,7 @@ var Processor = /** @class */ (function () {
             var isTemplate = visit(obj);
             try {
                 if (isTemplate) {
-                    _this.app.services.moduleSystem.exec(_this.app.services.transformer.transform(obj)).then(function (exported) {
+                    _this.app.services.moduleSystem.exec(_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
                         try {
                             var output = _this.parse(exported["default"] || exported);
                             resolve(output);

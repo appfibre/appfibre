@@ -95,20 +95,6 @@ export interface IContext {
 
 }
 
-export interface ITransformer {
-  type:"Transformer"
-  transform (obj:any, name?:string):string
-}
-
-export interface IParseSettings {
-  imports:any[string]
-  exports:{[key:string]:string}
-  compositeObject:boolean
-  name?:string
-}
-
-export type IParser = (obj:any, parseSettings:IParseSettings, offset:number, resolve?:Function, reject?:Function) => string|undefined;
-
 export interface ITransformSettings {
   async?: boolean
   indent?: string
@@ -117,7 +103,23 @@ export interface ITransformSettings {
   preferConst?: boolean
   module: ModuleSystem | ModuleSystem.None
   parsers?:{[key:string]:IParser}
+  dangerouslyProcessJavaScript?: boolean
  }
+
+export interface ITransformer {
+  type:"Transformer"
+  transform (intput:string|object, name?:string):ITransformOutput
+}
+
+export interface ITransformOutput {
+  code: string
+  imports:any[string]
+  exports:{[key:string]:string}
+  compositeObject:boolean
+  name?:string
+}
+
+export type IParser = (obj:any, output:ITransformOutput, offset:number, resolve?:Function, reject?:Function) => string|undefined;
 
 export enum ModuleSystem {
     None = "none",  

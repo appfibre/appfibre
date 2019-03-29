@@ -6,13 +6,18 @@ var WebUI = /** @class */ (function () {
         this.type = "UI";
         this.app = app;
         this.app.options = this.app.options || {};
-        if (window) {
-            var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "react"));
-            if (obj) {
-                this.processElement = obj.value.h;
-                this.Component = obj.value.Component;
-                this.renderInternal = obj.value.render;
+        try {
+            if (window) {
+                var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "react"));
+                if (obj) {
+                    this.processElement = obj.value.h;
+                    this.Component = obj.value.Component;
+                    this.renderInternal = obj.value.render;
+                }
             }
+        }
+        catch (_a) {
+            //TODO: find a workaround. in NodeJS ReferenceError: window is not defined
         }
     }
     WebUI.prototype.render = function (ui, parent, mergeWith) {

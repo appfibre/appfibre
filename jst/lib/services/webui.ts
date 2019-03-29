@@ -11,6 +11,7 @@ export class WebUI implements IUI
         this.type="UI";
         this.app = app;
         this.app.options = this.app.options || {};
+        try{
         if (window) {
             var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "react"));
             if (obj) {
@@ -18,6 +19,9 @@ export class WebUI implements IUI
                 this.Component = obj.value.Component;
                 this.renderInternal = obj.value.render;
             }
+        }}
+        catch {
+            //TODO: find a workaround. in NodeJS ReferenceError: window is not defined
         }
     }
 

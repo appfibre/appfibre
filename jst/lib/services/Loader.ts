@@ -49,7 +49,7 @@ export class Loader implements IModuleSystem {
         const app = Loader.app;
         return this.load(url, parent) 
           .then(function (source) {
-            return app.services.transformer.transform(url, source);
+            return app.services.transformer.transform(url, source).code;
           })
           .then(this.exec);
     }

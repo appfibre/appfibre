@@ -140,7 +140,7 @@ export class Processor implements IProcessor
 
         for (var idx = 0; idx < obj.length; idx++) {
             if (typeof obj[idx] === "function") {
-                obj[idx] = this.processElement([obj[idx]], supportAsync, true)[0];
+                //obj[idx] = this.processElement([obj[idx]], supportAsync, true)[0];
             }
 
             if (Array.isArray(obj[idx])) {
@@ -245,7 +245,7 @@ export class Processor implements IProcessor
             let isTemplate = visit(obj);
             try {
                 if (isTemplate) {
-                    this.app.services.moduleSystem.exec(this.app.services.transformer.transform(obj)).then((exported:any) => {
+                    this.app.services.moduleSystem.exec(this.app.services.transformer.transform(JSON.stringify(obj)).code).then((exported:any) => {
                         try{
                             var output = this.parse(exported.default || exported);
                             resolve(output);

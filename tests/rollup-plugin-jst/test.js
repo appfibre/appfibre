@@ -106,7 +106,7 @@ describe('rollup-plugin-jst', () => {
 			.then(() => {
 				throw new Error('Rollup did not throw');
 			})
-			.catch(err => assert.equal(err.message.indexOf('Unexpected token o'), 0));
+			.catch(err =>  assert.notEqual(err.message.indexOf('Unexpected token o'), -1));
 	});
 
 	it('does not generate an AST', () => {

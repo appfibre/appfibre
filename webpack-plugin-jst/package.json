@@ -8,9 +8,7 @@
   },
   "bundleDependencies": [],
   "dependencies": {
-    "@appfibre/jst": "^0.1.4",
-    "@babel/core": "^7.1.2",
-    "@types/babel__core": "^7.1.0"
+    "@appfibre/jst": "^0.1.4"
   },
   "deprecated": false,
   "description": "JST Node/Babel Syntax Loader",

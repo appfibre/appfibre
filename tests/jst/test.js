@@ -4,19 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var webpack_plugin_jst_1 = __importDefault(require("@appfibre/webpack-plugin-jst"));
-/*let fbt = new FBT((file) => fs.readFileSync(file, 'utf8'));
-fbt.run('jst transformations', 'jst\\transformations', '.input.json', '.expected.js', '.output.js', (input:any, filename:string, options?:any)=>{
-    return Loader(input, options ||  {module: types.ModuleSystem.None, compact: true, name: filename });
+var fbt_1 = require("../fbt");
+var fs_1 = __importDefault(require("fs"));
+var jst_1 = require("@appfibre/jst");
+var fbt = new fbt_1.FBT(function (file) { return fs_1["default"].readFileSync(file, 'utf8'); });
+fbt.run('jst transformations', 'jst\\transformations', '.input.json', '.expected.js', '.output.js', function (input, filename, options) {
+    return webpack_plugin_jst_1["default"](input, options || { module: jst_1.types.ModuleSystem.None, compact: true, name: filename });
 }, '.settings.json');
-
-fbt.run('jst babel transformations', 'jst\\transformations', '.input.json', '.expected.babel.js', '.output.babel.js', (input:any, filename:string, options?:any)=>{
-    try {
-     return Loader(input, options ||  {module: types.ModuleSystem.None, compact: true, name: filename });
-    } catch (e)
-    {
-        return e.message;
-    }
-}, '.settings.json');
-
-*/
-console.log(webpack_plugin_jst_1["default"]("{test: function test() { alert('test'); } }"));
+//console.log(Loader("{test: function test() { alert('test'); } }"));

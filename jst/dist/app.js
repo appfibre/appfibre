@@ -51,26 +51,31 @@ var App = /** @class */ (function () {
             l[logLevel](message, optionalParameters);
     }*/
     App.prototype.initApp = function () {
-        if (document) { // web app
-            if (!this.options.web)
-                this.options.web = {};
-            if (!document.body)
-                document.body = document.createElement('body');
-            this.options.web.target = this.options.web.target || document.body;
-            if (this.options.web.target === document.body) {
-                this.options.web.target = document.getElementById("main") || document.body.appendChild(document.createElement("div"));
-                if (!this.options.web.target.id)
-                    this.options.web.target.setAttribute("id", "main");
+        if (!this.options.web)
+            this.options.web = {};
+        try {
+            if (document) { // web app
+                if (!document.body)
+                    document.body = document.createElement('body');
+                this.options.web.target = this.options.web.target || document.body;
+                if (this.options.web.target === document.body) {
+                    this.options.web.target = document.getElementById("main") || document.body.appendChild(document.createElement("div"));
+                    if (!this.options.web.target.id)
+                        this.options.web.target.setAttribute("id", "main");
+                }
+                else if (typeof this.options.web.target === "string")
+                    this.options.web.target = document.getElementById(this.options.web.target);
+                if (this.options.web.target == null)
+                    throw new Error("Cannot locate target (" + (this.options.web.target ? 'not specified' : this.options.web.target) + ") in html document body.");
+                if (this.options.title)
+                    document.title = this.options.title;
+                //if (module && module.hot) module.hot.accept();
+                if (this.options.web.target.hasChildNodes())
+                    this.options.web.target.innerHTML = "";
             }
-            else if (typeof this.options.web.target === "string")
-                this.options.web.target = document.getElementById(this.options.web.target);
-            if (this.options.web.target == null)
-                throw new Error("Cannot locate target (" + (this.options.web.target ? 'not specified' : this.options.web.target) + ") in html document body.");
-            if (this.options.title)
-                document.title = this.options.title;
-            //if (module && module.hot) module.hot.accept();
-            if (this.options.web.target.hasChildNodes())
-                this.options.web.target.innerHTML = "";
+        }
+        catch (_a) {
+            //TODO: workaround for nodeJs as document element is not defined in Node runtime
         }
     };
     App.prototype.run = function () {
