@@ -3,10 +3,12 @@ export declare class Transformer implements ITransformer {
     type: "Transformer";
     settings: ITransformSettings;
     constructor(settings?: ITransformSettings);
-    loadModule(val: string, parseSettings: ITransformOutput): string;
+    private loadModule;
     reservedWords: string[];
-    format(lines: string[], parseSettings: ITransformOutput, indent: number): string;
-    process(obj: any, esc: boolean, et: boolean, parseSettings: ITransformOutput, offset: number): string;
-    bundleModule(obj: any, name?: string): ITransformOutput;
+    private format;
+    private process;
+    private processExports;
+    private processImports;
+    private bundleModule;
     transform(input: string | object, name?: string): ITransformOutput;
 }

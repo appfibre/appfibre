@@ -1,11 +1,17 @@
-import { IModuleSystem, IAppLoaded } from '../types';
+import { IModuleSystem, PromiseConstructor } from '../types';
+import { IPromise } from "./promise";
 export declare class Loader implements IModuleSystem {
     type: "ModuleSystem";
-    static app: IAppLoaded;
-    constructor(app: IAppLoaded);
-    load(url: string, parent?: any): Promise<string>;
-    require(url: string): any;
+    promise: PromiseConstructor & {
+        all(promises: IPromise<any>[]): IPromise<any>;
+    };
+    basePath?: string;
+    static base?: string;
+    constructor(promise: PromiseConstructor & {
+        all(promises: IPromise<any>[]): IPromise<any>;
+    }, basePath?: string);
+    private nodeRequire;
     private run;
+    load(url: string, parent?: any): Promise<string>;
     exec(source: string, url?: string): Promise<any>;
-    instanciate(url: string, parent?: any): any;
 }

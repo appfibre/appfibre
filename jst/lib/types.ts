@@ -78,6 +78,7 @@ export interface IProcessor {
   //parse(obj:any, key?:number|undefined, supportAsync?:boolean):any
 
   process(obj:any):Promise<any>
+  instanciate(url:string, parent?:any):Promise<any>
 }
 
 export interface IWebOptions {
@@ -88,7 +89,6 @@ export interface IModuleSystem {
   type:"ModuleSystem"
   load (url : string, parent?: any) : PromiseLike<any> 
   exec(source:string, url?:string) :any
-  instanciate(url:string, parent?:any):Promise<any>
 }
 
 export interface IContext {
@@ -104,7 +104,9 @@ export interface ITransformSettings {
   module: ModuleSystem | ModuleSystem.None
   parsers?:{[key:string]:IParser}
   dangerouslyProcessJavaScript?: boolean
+  runtimeModule?: ModuleSystem
  }
+
 
 export interface ITransformer {
   type:"Transformer"

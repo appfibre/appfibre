@@ -29,7 +29,7 @@ export class App implements IAppLoaded
         s.logger = {type: "Logger", log: (logLevel:LogLevel, title?:any, detail?:any, optionalParameters?:any[]) => { if (logLevel <= (this && this.options && this.options.logLevel ? (LogLevel[this.options.logLevel] || 2) : 2)) logger ? logger.log.bind(this, logLevel, title, detail, optionalParameters) : [function(title?:any,detail?:any, optionalParameters?:any[]){}, console.error, console.error, console.warn, console.info, console.trace][logLevel](`${this}: ${title} \r\n ${detail}`, optionalParameters) }};
         s.promise = s.promise || Promise;
         s.transformer = s.transformer ? ('type' in s.transformer ? s.transformer : new s.transformer(this)) : new Transformer();
-        s.moduleSystem = s.moduleSystem ? ('type' in s.moduleSystem ? s.moduleSystem : new s.moduleSystem(this)) : new Loader(this);
+        s.moduleSystem = s.moduleSystem ? ('type' in s.moduleSystem ? s.moduleSystem : new s.moduleSystem(this)) : new Loader(s.promise, this.options.basePath);
         s.UI = s.UI ? ('type' in s.UI ? s.UI : new s.UI(this)) : new WebUI(this);
         this.services = {moduleSystem: s.moduleSystem, processor: new Processor(this), promise: s.promise, transformer: s.transformer, logger: s.logger, UI: s.UI };
         this.modules = app.modules;

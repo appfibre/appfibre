@@ -192,7 +192,7 @@ var Processor = /** @class */ (function () {
         if (fullpath.substring(0, 1) == "~") {
             var parts = fullpath.substring(1, fullpath.length).split('#');
             //var obj = AppContext.xhr(parts[0], true);
-            var obj = this.app.services.moduleSystem.instanciate(parts[0], this);
+            var obj = this.instanciate(parts[0], this);
             if (parts.length == 1)
                 return obj;
             return obj.then(function (x) { return _this.locate(x, parts.slice(1, parts.length).join(".")); });
@@ -297,6 +297,13 @@ var Processor = /** @class */ (function () {
                 reject(e);
             }
         });
+    };
+    Processor.prototype.instanciate = function (url, parent) {
+        return this.app.services.moduleSystem.load(url, parent)
+            .then(function (source) {
+            return this.app.services.transformer.transform(url, source).code;
+        })
+            .then(this.app.services.moduleSystem.exec);
     };
     return Processor;
 }());

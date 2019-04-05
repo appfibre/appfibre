@@ -26,7 +26,7 @@ export class Transformer implements ITransformer {
         this.settings.parsers["."] = (obj:any, parseSettings:ITransformOutput, offset?:number) => obj["."];
     }
 
-    loadModule (val:string, parseSettings:ITransformOutput) {
+    private loadModule (val:string, parseSettings:ITransformOutput) {
         var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
         if (this.settings.module.toLowerCase() === ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length+2) > -1 ? val.substr(0, val.indexOf('#', m.length+2)-1) : val;
         if (parseSettings.imports.indexOf(m) === -1) parseSettings.imports.push(m);
@@ -35,13 +35,13 @@ export class Transformer implements ITransformer {
 
     reservedWords = ['function', 'for', 'var', 'this', 'self', 'null'];
 
-    format(lines: string[], parseSettings:ITransformOutput, indent:number) {
+    private format(lines: string[], parseSettings:ITransformOutput, indent:number) {
         var lt = this.settings.compact ? "" : "\n"; 
         var tab = this.settings.compact ? "" : this.settings.indent || "\t";
         return lt + new Array(indent+1).join(tab) + lines.join("," + lt + new Array(indent+1).join(tab)) + lt + new Array(indent).join(tab);
     }
 
-    process(obj:any, esc:boolean, et:boolean, parseSettings:ITransformOutput, offset:number) : string {
+    private process(obj:any, esc:boolean, et:boolean, parseSettings:ITransformOutput, offset:number) : string {
         var output;
         if (obj === null)
             output = "null";
@@ -68,8 +68,7 @@ export class Transformer implements ITransformer {
         return output;
     }
 
-    bundleModule(obj:any, name?:string) : ITransformOutput {
-        var output:ITransformOutput = {name:name, imports: [], exports: {}, compositeObject:false, code:''};
+    private processExports(output:ITransformOutput, obj:any) {
         var keys : any[string] = Object.keys(obj);
         var validkeys : any[string] = keys.filter((k:string) => k.indexOf(' ') === -1 && k.indexOf('/') === -1 && k.indexOf('-') === -1 && this.reservedWords.indexOf(k) === -1 );
         var isDefault = keys.length === 1 && keys[0] === 'default';
@@ -82,8 +81,8 @@ export class Transformer implements ITransformer {
             case "umd":
             case "commonjs":
             case "cjs":
-                for (var req in r) output.code += `${vr} _${r[req]}${sp}=${sp}require('${req}');${nl}`;
-                    output.code += keys.map((key:number) => `module.exports['${key}']${sp}=${sp}${this.process(obj[key], true, false, output, 0)};`).join(nl);
+                //for (var req in r) output.code += `${vr} _${r[req]}${sp}=${sp}require('${req}');${nl}`;
+                output.code += keys.map((key:number) => `module.exports['${key}']${sp}=${sp}${this.process(obj[key], true, false, output, 0)};`).join(nl);
                 if (!isDefault)
                     output.code += `${nl}module.exports['default']${sp}=${sp}{${sp}${keys.map((key:number) => `${key}: ${this.process(obj[key], true, false, output, 0)}`).join(nl)} };`;
                 if (output.name) output.code += `${nl}module.exports['__jst'] = '${name};`;
@@ -103,19 +102,29 @@ export class Transformer implements ITransformer {
                 else
                     output.code += `return ${isDefault ? this.process(obj["default"], true, false, output, 1) : `{${this.format(keys.map((key:string) => validkeys.indexOf(key) === -1 ? `"${key}": ${this.process(obj[key], true, false, output, 1)}` : `${key}:${sp}${this.process(obj[key], true, false, output, 2)}`), output, 1)}}`};`;
         }
+    }
+
+    private processImports(output:ITransformOutput) {
+        var nl = this.settings.compact ? '' : '\n';
+        var sp = this.settings.compact ? '' : ' ';
+        var vr = this.settings.preferConst ? 'const' : 'var'
 
         var s : any[string] = {};
         var r : any[string] = {};
+        var s2 : any[string] = {};
+        var r2 : any[string] = {};
         
         if (output.imports.length > 0) 
-            for (var i = 0; i < output.imports.length; i++)
-                if (output.imports[i].indexOf('#') > -1) {
-                    var module_name = output.imports[i].substr(0,output.imports[i].indexOf('#'));
-                    if (s[module_name] === undefined)    
-                        s[module_name] = { };
-                    s[module_name][output.imports[i].substr(module_name.length+1)] = i;
-                } else
-                    r[output.imports[i]] = i;
+            for (var i = 0; i < output.imports.length; i++) {
+                    var ext = output.imports[i][0] === "~";
+                    if (output.imports[i].indexOf('#') > -1) {
+                        var module_name = output.imports[i].substr(0,output.imports[i].indexOf('#'));
+                        if ((ext?s2:s)[module_name] === undefined)    
+                            (ext?s2:s)[module_name] = { };
+                        (ext?s2:s)[module_name][output.imports[i].substr(module_name.length+1)] = i;
+                    } else
+                        (ext?r2:r)[output.imports[i]] = i;
+            }
 
         switch (this.settings.module.toLowerCase())
         {
@@ -128,14 +137,43 @@ export class Transformer implements ITransformer {
                 output.code = `define([${Object.keys(r).map((key:string) => `'${key}'`).join(", ")}], function (${Object.keys(r).map((key:string) => '_'+r[key]).join(", ")}) { ${output.code} });${nl}`
                 break;
             case "es":
-                output.code = Object.keys(s).map((key:string) => (key.charAt(0) === '~' ? `var {${Object.keys(s[key]).map((k:string) => `${k}: _${s[key][k]}`)}}  = await import('${key.substr(1)}');${nl}` : `import {${Object.keys(s[key]).map((k:string) => `${k} as _${s[key][k]}` ).join(','+sp)}} from '${key}';${nl}`)).join('') + Object.keys(r).map((key:string) => (key.charAt(0) === '~' ? `var _${r[key]} = await import('${key.substr(1)}');${nl}` : `import * as _${r[key]} from '${key}';${nl}`)).join('') + output.code;
+                output.code = Object.keys(s).map((key:string) => `import {${Object.keys(s[key]).map((k:string) => `${k} as _${s[key][k]}` ).join(','+sp)}} from '${key}';${nl}`).join('') + Object.keys(r).map((key:string) => `import * as _${r[key]} from '${key.substr(key[0] == "~" ? 1 : 0)}';${nl}`).join('') + output.code;
                 break;
             default:
                 for (var req in r) output.code = `${vr} _${r[req]}${sp}=${sp}require("${req}");${nl}${output.code}`;
         }
-        return output;
+
+        if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
+            /*output.code += ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;' + JSON.stringify(s2) + ' ' + JSON.stringify(r2);   
+            if (this.settings.runtimeModule)
+                output.code += this.settings.runtimeModule;*/
+
+            switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none")
+            {
+                case "umd": 
+                case "commonjs":
+                case "cjs":
+                //throw new Error(JSON.stringify(s2));
+                    for (var req in r2) output.code = `${vr} _${r2[req]}${sp}=${sp}require("${req}");${nl}${output.code}`;
+                    break;
+                case "amd": 
+                    output.code = `define([${Object.keys(r2).map((key:string) => `'${key}'`).join(", ")}], function (${Object.keys(r2).map((key:string) => '_'+r2[key]).join(", ")}) { ${output.code} });${nl}`
+                    break;
+                case "es":
+                    output.code = Object.keys(s2).map((key:string) => `import {${Object.keys(s2[key]).map((k:string) => `${k.substr(1)} as _${s[key][k]}` ).join(','+sp)}} from '${key.substr(1)}';${nl}`).join('') + Object.keys(r2).map((key:string) => `import * as _${r2[key]} from '${key.substr(1)}';${nl}`).join('') + output.code;
+                    break;
+                default:
+                    for (var req in r2) output.code = `${vr} _${r2[req]}${sp}=${sp}require("${req}");${nl}${output.code}`;
+            }
+        }
     }
 
+    private bundleModule(obj:any, name?:string) : ITransformOutput {
+        var output:ITransformOutput = {name:name, imports: [], exports: {}, compositeObject:false, code:''};
+        this.processExports(output, obj);
+        this.processImports(output);
+        return output;        
+    }
 
     transform (input:string|object, name?:string) : ITransformOutput {
         var obj;

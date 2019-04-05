@@ -20,7 +20,7 @@ var App = /** @class */ (function () {
                 logger ? logger.log.bind(_this, logLevel, title, detail, optionalParameters) : [function (title, detail, optionalParameters) { }, console.error, console.error, console.warn, console.info, console.trace][logLevel](_this + ": " + title + " \r\n " + detail, optionalParameters); } };
         s.promise = s.promise || promise_1.Promise;
         s.transformer = s.transformer ? ('type' in s.transformer ? s.transformer : new s.transformer(this)) : new transformer_1.Transformer();
-        s.moduleSystem = s.moduleSystem ? ('type' in s.moduleSystem ? s.moduleSystem : new s.moduleSystem(this)) : new loader_1.Loader(this);
+        s.moduleSystem = s.moduleSystem ? ('type' in s.moduleSystem ? s.moduleSystem : new s.moduleSystem(this)) : new loader_1.Loader(s.promise, this.options.basePath);
         s.UI = s.UI ? ('type' in s.UI ? s.UI : new s.UI(this)) : new webui_1.WebUI(this);
         this.services = { moduleSystem: s.moduleSystem, processor: new processor_1.Processor(this), promise: s.promise, transformer: s.transformer, logger: s.logger, UI: s.UI };
         this.modules = app.modules;

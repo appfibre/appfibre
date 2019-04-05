@@ -12,7 +12,9 @@
   },
   "deprecated": false,
   "description": "JST Node/Babel Syntax Loader",
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/webpack": "^4.4.26"
+  },
   "homepage": "https://github.com/appfibre/jst-syntax#readme",
   "keywords": [
     "JST"

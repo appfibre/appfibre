@@ -1,12 +1,33 @@
-import { IModuleSystem, IAppLoaded } from '../types';
+import { IModuleSystem, IAppLoaded, PromiseConstructor } from '../types';
+import { IPromise } from "./promise";
 
 export class Loader implements IModuleSystem {
     type:"ModuleSystem"
-    static app:IAppLoaded;
-    constructor(app:IAppLoaded)
+    
+    promise:PromiseConstructor&{ all(promises:IPromise<any>[]) : IPromise<any> }
+    basePath?:string
+    static base?:string;
+    constructor(promise:PromiseConstructor&{ all(promises:IPromise<any>[]) : IPromise<any> }, basePath?:string)
     {
         this.type = "ModuleSystem";
-        Loader.app = app;
+        this.basePath = basePath;
+        this.promise = promise;
+    }
+
+    private nodeRequire(url:string) {
+        return new Function('url', 'tmpdir', 'tmpdir = tmpdir ? tmpdir : global.process.env.INIT_CWD; var __dirname__ = global.process.cwd(); if (__dirname__ != tmpdir) global.process.chdir(tmpdir); var _exp = (global.require || global.process.mainModule.constructor._load)(url); if (global.process.cwd() != __dirname__) global.process.chdir(__dirname__); return _exp;')(url, Loader.base);
+    }
+
+    private run(source:string, url?:string, basePath?:string) {
+        Loader.base = basePath;
+        let  m = { exports: {}};
+        try{
+            new Function('require', 'module', `${source};\n//# sourceURL=' + ${url}`)(this.nodeRequire, m); 
+        } catch(f) {
+            console.log('Error running script from from source'+url||source);
+            throw f;
+        }
+        return m.exports; 
     }
 
     load(url:string, parent?:any):Promise<string> {
@@ -18,39 +39,20 @@ export class Loader implements IModuleSystem {
           });
     }
 
-    require(url:string) {
-        return new Function('url', 'tmpdir', 'tmpdir = tmpdir ? tmpdir : global.process.env.INIT_CWD; var __dirname__ = global.process.cwd(); if (__dirname__ != tmpdir) global.process.chdir(tmpdir); var _exp = (global.require || global.process.mainModule.constructor._load)(url); if (global.process.cwd() != __dirname__) global.process.chdir(__dirname__); return _exp;')(url, Loader.app.options.basePath);
-    }
-
-    private run(source:string, url?:string) {
-        let  m = { exports: {}};
-        try{
-            new Function('require', 'module', `${source};\n//# sourceURL=' + ${url}`)(this.require, m); 
-        } catch(f) {
-            console.log('Error running script from from source'+url||source);
-            throw f;
-        }
-        return m.exports; 
-    }
-
     exec(source:string, url?:string):Promise<any> {
-        return new Loader.app.services.promise((resolve:Function, reject:Function) => {
+        Loader.base = this.basePath;
+        return new this.promise((resolve:Function, reject:Function) => {
             try {
-                var output = this.run(source, url);
+                var output = this.run(source, url, this.basePath);
                 resolve(output);
             } catch(e) {
                 console.log('Error executing script '+url+': ');
                 reject(e);
             }
         });
-    }
+    } 
 
-    instanciate(url:string, parent?:any):any {
-        const app = Loader.app;
-        return this.load(url, parent) 
-          .then(function (source) {
-            return app.services.transformer.transform(url, source).code;
-          })
-          .then(this.exec);
-    }
+    /*require(url:string) {
+        fetch
+    }*/
 }

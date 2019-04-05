@@ -3,16 +3,17 @@ const assert = require('assert');
 const rollup = require('rollup');
 const jst = require('@appfibre/rollup-plugin-jst');
 const resolve = require('rollup-plugin-node-resolve');
+const path = require('path');
 
 require('source-map-support').install();
 
-process.chdir(__dirname);
+//process.chdir(__dirname);
 
 describe('rollup-plugin-jst', () => {
 	it('converts json', () => {
 		return rollup
 			.rollup({
-				input: 'samples/basic/main.js',
+				input: path.join(__dirname, 'samples/basic/main.js'),
 				plugins: [jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -25,7 +26,7 @@ describe('rollup-plugin-jst', () => {
 	it('handles arrays', () => {
 		return rollup
 			.rollup({
-				input: 'samples/array/main.js',
+				input: path.join(__dirname, 'samples/array/main.js'),
 				plugins: [jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -38,7 +39,7 @@ describe('rollup-plugin-jst', () => {
 	it('handles literals', () => {
 		return rollup
 			.rollup({
-				input: 'samples/literal/main.js',
+				input: path.join(__dirname, 'samples/literal/main.js'),
 				plugins: [jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -51,7 +52,7 @@ describe('rollup-plugin-jst', () => {
 	it('generates named exports', () => {
 		return rollup
 			.rollup({
-				input: 'samples/named/main.js',
+				input: path.join(__dirname, 'samples/named/main.js'),
 				plugins: [jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -74,7 +75,7 @@ describe('rollup-plugin-jst', () => {
 	it('resolves extensionless imports in conjunction with the node-resolve plugin', () => {
 		return rollup
 			.rollup({
-				input: 'samples/extensionless/main.js',
+				input: path.join(__dirname, 'samples/extensionless/main.js'),
 				plugins: [resolve({ extensions: ['.js', '.json'] }), jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -87,7 +88,7 @@ describe('rollup-plugin-jst', () => {
 	it('handles JSON objects with no valid keys (#19)', () => {
 		return rollup
 			.rollup({
-				input: 'samples/no-valid-keys/main.js',
+				input: path.join(__dirname, 'samples/no-valid-keys/main.js'),
 				plugins: [jst()]
 			})
 			.then(bundle => bundle.generate({ format: 'cjs' }))
@@ -100,7 +101,7 @@ describe('rollup-plugin-jst', () => {
 	it('handles garbage', () => {
 		return rollup
 			.rollup({
-				input: 'samples/garbage/main.js',
+				input: path.join(__dirname, 'samples/garbage/main.js'),
 				plugins: [jst()]
 			})
 			.then(() => {
@@ -110,12 +111,12 @@ describe('rollup-plugin-jst', () => {
 	});
 
 	it('does not generate an AST', () => {
-		assert.equal(jst().transform(read('samples/form/input.json'), 'input.json').ast, undefined);
+		assert.equal(jst().transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).ast, undefined);
 	});
 
 	it('does not generate source maps', () => {
 		assert.deepEqual(
-			jst().transform(read('samples/form/input.json'), 'input.json').map,
+			jst().transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).map,
 			{ mappings: '' }
 		);
 	});
@@ -123,39 +124,39 @@ describe('rollup-plugin-jst', () => {
 	it('generates properly formatted code', () => {
 		//fs.writeFileSync('samples/form/default.jsout', jst().transform(read('samples/form/input.json'), 'input.json').code);
 		assert.deepEqual(
-			jst().transform(read('samples/form/input.json'), 'input.json').code,
-			read('samples/form/default.js')
+			jst().transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
+			read(path.join(__dirname, 'samples/form/default.js'))
 		);
 	});
 
 	it('generates correct code with preferConst', () => {
 		//fs.writeFileSync('samples/form/preferConst.jsout', jst({ preferConst: true }).transform(read('samples/form/input.json'), 'input.json').code);
 		assert.deepEqual(
-			jst({ preferConst: true }).transform(read('samples/form/input.json'), 'input.json').code,
-			read('samples/form/preferConst.js')
+			jst({ preferConst: true }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
+			read(path.join(__dirname, 'samples/form/preferConst.js'))
 		);
 	});
 
 	it('uses custom indent string', () => {
 		//fs.writeFileSync('samples/form/customIndent.jsout', jst({ indent: '  ' }).transform(read('samples/form/input.json'), 'input.json').code);
 		assert.deepEqual(
-			jst({ indent: '  ' }).transform(read('samples/form/input.json'), 'input.json').code,
-			read('samples/form/customIndent.js')
+			jst({ indent: '  ' }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
+			read(path.join(__dirname, 'samples/form/customIndent.js'))
 		);
 	});
 
 	it('generates correct code with compact=true', () => {
 		assert.deepEqual(
-			jst({ compact: true }).transform(read('samples/form/input.json'), 'input.json').code + '\n',
-			read('samples/form/compact.js')
+			jst({ compact: true }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code + '\n',
+			read(path.join(__dirname, 'samples/form/compact.js'))
 		);
 	});
 
 	it('generates correct code with namedExports=false', () => {
 		//fs.writeFileSync('samples/form/namedExports.jsout', jst({ namedExports: false }).transform(read('samples/form/input.json'), 'input.json').code);
 		assert.deepEqual(
-			jst({ namedExports: false }).transform(read('samples/form/input.json'), 'input.json').code + '\n',
-			read('samples/form/namedExports.js')
+			jst({ namedExports: false }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code + '\n',
+			read(path.join(__dirname, 'samples/form/namedExports.js'))
 		);
 	});
 });

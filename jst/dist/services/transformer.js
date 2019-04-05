@@ -77,9 +77,8 @@ var Transformer = /** @class */ (function () {
             output = typeof obj === "string" && esc ? JSON.stringify(obj) : obj;
         return output;
     };
-    Transformer.prototype.bundleModule = function (obj, name) {
+    Transformer.prototype.processExports = function (output, obj) {
         var _this = this;
-        var output = { name: name, imports: [], exports: {}, compositeObject: false, code: '' };
         var keys = Object.keys(obj);
         var validkeys = keys.filter(function (k) { return k.indexOf(' ') === -1 && k.indexOf('/') === -1 && k.indexOf('-') === -1 && _this.reservedWords.indexOf(k) === -1; });
         var isDefault = keys.length === 1 && keys[0] === 'default';
@@ -90,8 +89,7 @@ var Transformer = /** @class */ (function () {
             case "umd":
             case "commonjs":
             case "cjs":
-                for (var req in r)
-                    output.code += vr + " _" + r[req] + sp + "=" + sp + "require('" + req + "');" + nl;
+                //for (var req in r) output.code += `${vr} _${r[req]}${sp}=${sp}require('${req}');${nl}`;
                 output.code += keys.map(function (key) { return "module.exports['" + key + "']" + sp + "=" + sp + _this.process(obj[key], true, false, output, 0) + ";"; }).join(nl);
                 if (!isDefault)
                     output.code += nl + "module.exports['default']" + sp + "=" + sp + "{" + sp + keys.map(function (key) { return key + ": " + _this.process(obj[key], true, false, output, 0); }).join(nl) + " };";
@@ -113,18 +111,27 @@ var Transformer = /** @class */ (function () {
                 else
                     output.code += "return " + (isDefault ? this.process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + "}") + ";";
         }
+    };
+    Transformer.prototype.processImports = function (output) {
+        var nl = this.settings.compact ? '' : '\n';
+        var sp = this.settings.compact ? '' : ' ';
+        var vr = this.settings.preferConst ? 'const' : 'var';
         var s = {};
         var r = {};
+        var s2 = {};
+        var r2 = {};
         if (output.imports.length > 0)
-            for (var i = 0; i < output.imports.length; i++)
+            for (var i = 0; i < output.imports.length; i++) {
+                var ext = output.imports[i][0] === "~";
                 if (output.imports[i].indexOf('#') > -1) {
                     var module_name = output.imports[i].substr(0, output.imports[i].indexOf('#'));
-                    if (s[module_name] === undefined)
-                        s[module_name] = {};
-                    s[module_name][output.imports[i].substr(module_name.length + 1)] = i;
+                    if ((ext ? s2 : s)[module_name] === undefined)
+                        (ext ? s2 : s)[module_name] = {};
+                    (ext ? s2 : s)[module_name][output.imports[i].substr(module_name.length + 1)] = i;
                 }
                 else
-                    r[output.imports[i]] = i;
+                    (ext ? r2 : r)[output.imports[i]] = i;
+            }
         switch (this.settings.module.toLowerCase()) {
             case "umd":
             case "commonjs":
@@ -136,12 +143,40 @@ var Transformer = /** @class */ (function () {
                 output.code = "define([" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output.code + " });" + nl;
                 break;
             case "es":
-                output.code = Object.keys(s).map(function (key) { return (key.charAt(0) === '~' ? "var {" + Object.keys(s[key]).map(function (k) { return k + ": _" + s[key][k]; }) + "}  = await import('" + key.substr(1) + "');" + nl : "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key + "';" + nl); }).join('') + Object.keys(r).map(function (key) { return (key.charAt(0) === '~' ? "var _" + r[key] + " = await import('" + key.substr(1) + "');" + nl : "import * as _" + r[key] + " from '" + key + "';" + nl); }).join('') + output.code;
+                output.code = Object.keys(s).map(function (key) { return "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key + "';" + nl; }).join('') + Object.keys(r).map(function (key) { return "import * as _" + r[key] + " from '" + key.substr(key[0] == "~" ? 1 : 0) + "';" + nl; }).join('') + output.code;
                 break;
             default:
                 for (var req in r)
                     output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
         }
+        if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
+            /*output.code += ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;' + JSON.stringify(s2) + ' ' + JSON.stringify(r2);
+            if (this.settings.runtimeModule)
+                output.code += this.settings.runtimeModule;*/
+            switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none") {
+                case "umd":
+                case "commonjs":
+                case "cjs":
+                    //throw new Error(JSON.stringify(s2));
+                    for (var req in r2)
+                        output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+                    break;
+                case "amd":
+                    output.code = "define([" + Object.keys(r2).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r2).map(function (key) { return '_' + r2[key]; }).join(", ") + ") { " + output.code + " });" + nl;
+                    break;
+                case "es":
+                    output.code = Object.keys(s2).map(function (key) { return "import {" + Object.keys(s2[key]).map(function (k) { return k.substr(1) + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key.substr(1) + "';" + nl; }).join('') + Object.keys(r2).map(function (key) { return "import * as _" + r2[key] + " from '" + key.substr(1) + "';" + nl; }).join('') + output.code;
+                    break;
+                default:
+                    for (var req in r2)
+                        output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+            }
+        }
+    };
+    Transformer.prototype.bundleModule = function (obj, name) {
+        var output = { name: name, imports: [], exports: {}, compositeObject: false, code: '' };
+        this.processExports(output, obj);
+        this.processImports(output);
         return output;
     };
     Transformer.prototype.transform = function (input, name) {

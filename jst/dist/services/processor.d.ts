@@ -12,4 +12,5 @@ export declare class Processor implements IProcessor {
     parse(obj: any, key?: number | undefined, supportAsync?: boolean): any;
     resolve(fullpath: string): any;
     process(obj: any): IPromise<any>;
+    instanciate(url: string, parent?: any): any;
 }

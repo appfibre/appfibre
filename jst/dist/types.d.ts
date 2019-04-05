@@ -66,6 +66,7 @@ export interface IProcessor {
     construct(jstComponent: any): any;
     locate(resource: any, path: string): any;
     process(obj: any): Promise<any>;
+    instanciate(url: string, parent?: any): Promise<any>;
 }
 export interface IWebOptions {
     target?: string | HTMLElement | null;
@@ -74,7 +75,6 @@ export interface IModuleSystem {
     type: "ModuleSystem";
     load(url: string, parent?: any): PromiseLike<any>;
     exec(source: string, url?: string): any;
-    instanciate(url: string, parent?: any): Promise<any>;
 }
 export interface IContext {
 }
@@ -89,6 +89,7 @@ export interface ITransformSettings {
         [key: string]: IParser;
     };
     dangerouslyProcessJavaScript?: boolean;
+    runtimeModule?: ModuleSystem;
 }
 export interface ITransformer {
     type: "Transformer";
