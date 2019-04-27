@@ -1,4 +1,50 @@
-import { IModuleSystem, IAppLoaded, PromiseConstructor } from '../types';
+import { IModuleSystem, PromiseConstructor } from "../types";
+import { IPromise } from "./promise";
+
+export class Loader implements IModuleSystem {
+    proxy: IModuleSystem;
+    
+    constructor(promise:PromiseConstructor&{ all(promises:IPromise<any>[]) : IPromise<any> }, basePath?:string)
+    {
+        try {
+            //nodeJS does not regocnise "window"
+            if (window) {
+                var systemjs = Object.getOwnPropertyDescriptor(window, "System");
+                if (systemjs)
+                    this.proxy = { import: systemjs.value.import.bind(systemjs.value), instantiate: systemjs.value.instantiate.bind(systemjs.value), init: (basePath: string) => void {}};
+                else 
+                    this.proxy = require('../browser/loader').default;
+            } 
+        } catch
+        {
+        }
+        if (this['proxy'] == null) 
+            this.proxy = require('../nodeJS/loader').default;
+        this.proxy.init(basePath);
+    }
+    
+    /*load(url: string, parent?: any): PromiseLike<any> {
+        return this.proxy.load(url, parent);
+    }
+    exec(source: string, url?: string | undefined) {
+        return this.proxy.exec(source, url);
+    }*/
+
+    import(moduleName: string, normalizedParentName?: string): PromiseLike<any> {
+        return this.proxy.import(moduleName, normalizedParentName);
+    }
+
+    instantiate(url:string, parent?:any):any {
+        return this.proxy.instantiate(url, parent);
+    }
+
+    init(basePath:string) {
+
+    }
+
+}
+
+/*import { IModuleSystem, IAppLoaded, PromiseConstructor } from '../types';
 import { IPromise } from "./promise";
 
 export class Loader implements IModuleSystem {
@@ -44,6 +90,7 @@ export class Loader implements IModuleSystem {
         return new this.promise((resolve:Function, reject:Function) => {
             try {
                 var output = this.run(source, url, this.basePath);
+                debugger;
                 resolve(output);
             } catch(e) {
                 console.log('Error executing script '+url+': ');
@@ -51,8 +98,4 @@ export class Loader implements IModuleSystem {
             }
         });
     } 
-
-    /*require(url:string) {
-        fetch
-    }*/
-}
+}*/

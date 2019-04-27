@@ -19,7 +19,7 @@ var Transformer = /** @class */ (function () {
         this.type = "Transformer";
         this.settings = settings ? __assign({}, settings, { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports }) : { module: types_1.ModuleSystem.ES };
         this.settings.parsers = this.settings.parsers || {};
-        this.settings.parsers[".require"] = this.settings.parsers[".import"] = function (obj, parseSettings, offset) { return _this.loadModule(obj[".import"] || obj[".require"], parseSettings); };
+        this.settings.parsers[".require"] = this.settings.parsers[".import"] = function (obj, parseSettings, offset) { return _this.loadModule(_this.process(obj[".import"] || obj[".require"], false, false, parseSettings, offset), parseSettings, offset); };
         this.settings.parsers[".function"] = function (obj, parseSettings, offset) { return "function " + (obj[".function"] ? obj[".function"] : "") + "(" + (obj["arguments"] ? _this.process(obj["arguments"], false, true, parseSettings, offset) : "") + "){ return " + _this.process(obj["return"], true, false, parseSettings, offset) + " }"; };
         this.settings.parsers[".map"] = function (obj, parseSettings, offset) { return _this.process(obj[".map"], false, false, parseSettings, offset) + ".map(function(" + obj["arguments"] + ") {return " + (settings && settings.indent ? new Array(offset).join(' ') : "") + _this.process(obj["return"], true, false, parseSettings, offset) + " })"; };
         this.settings.parsers[".filter"] = function (obj, parseSettings, offset) { return _this.process(obj[".filter"], false, false, parseSettings, offset) + ".filter(function(" + obj["arguments"] + ") {return " + _this.process(obj["condition"], true, false, parseSettings, offset) + " })"; };
@@ -36,8 +36,11 @@ var Transformer = /** @class */ (function () {
         };
         this.settings.parsers["."] = function (obj, parseSettings, offset) { return obj["."]; };
     }
-    Transformer.prototype.loadModule = function (val, parseSettings) {
+    Transformer.prototype.loadModule = function (val, parseSettings, offset) {
         var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
+        if (val[0] === "~") {
+            return "" + this.process({ ".function": null, arguments: "loader", "return": { ".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) + "')" + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '') + ";" } }, false, false, parseSettings, offset);
+        }
         if (this.settings.module.toLowerCase() === types_1.ModuleSystem.ES.toLowerCase())
             m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
         if (parseSettings.imports.indexOf(m) === -1)
@@ -107,12 +110,12 @@ var Transformer = /** @class */ (function () {
                 break;
             default:
                 if (output.name)
-                    output.code += "return " + (isDefault ? "{'default' : " + this.process(obj["default"], true, false, output, 1) + ", '__jst': '" + output.name + "'}" : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + "}, '__jst': '" + output.name + "'") + ";";
+                    output.code += "return " + (isDefault ? "{'default' : " + this.process(obj["default"], true, false, output, 1) + ", \"__jst\": \"" + output.name + "\"}" : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + ", \"__jst\": \"" + output.name + "\"}") + (output.name.indexOf('#') > -1 ? output.name.slice(output.name.indexOf('#') + 1).split('#').map(function (p) { return "['" + p + "']"; }) : '') + ";";
                 else
                     output.code += "return " + (isDefault ? this.process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], true, false, output, 1) : key + ":" + sp + _this.process(obj[key], true, false, output, 2); }), output, 1) + "}") + ";";
         }
     };
-    Transformer.prototype.processImports = function (output) {
+    Transformer.prototype.processImports = function (output, name) {
         var nl = this.settings.compact ? '' : '\n';
         var sp = this.settings.compact ? '' : ' ';
         var vr = this.settings.preferConst ? 'const' : 'var';
@@ -140,7 +143,7 @@ var Transformer = /** @class */ (function () {
                     output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
                 break;
             case "amd":
-                output.code = "define([" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output.code + " });" + nl;
+                output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output.code + " });" + nl;
                 break;
             case "es":
                 output.code = Object.keys(s).map(function (key) { return "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key + "';" + nl; }).join('') + Object.keys(r).map(function (key) { return "import * as _" + r[key] + " from '" + key.substr(key[0] == "~" ? 1 : 0) + "';" + nl; }).join('') + output.code;
@@ -162,7 +165,7 @@ var Transformer = /** @class */ (function () {
                         output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
                     break;
                 case "amd":
-                    output.code = "define([" + Object.keys(r2).map(function (key) { return "'" + key + "'"; }).join(", ") + "], function (" + Object.keys(r2).map(function (key) { return '_' + r2[key]; }).join(", ") + ") { " + output.code + " });" + nl;
+                    output.code = "define(" + (Object.keys(r2).length > 0 ? "[" + Object.keys(r).map(function (key) { return "'" + key + "'"; }).join(", ") + "], " : '') + "function (" + Object.keys(r2).map(function (key) { return '_' + r2[key]; }).join(", ") + ") { " + output.code + " });" + nl;
                     break;
                 case "es":
                     output.code = Object.keys(s2).map(function (key) { return "import {" + Object.keys(s2[key]).map(function (k) { return k.substr(1) + " as _" + s[key][k]; }).join(',' + sp) + "} from '" + key.substr(1) + "';" + nl; }).join('') + Object.keys(r2).map(function (key) { return "import * as _" + r2[key] + " from '" + key.substr(1) + "';" + nl; }).join('') + output.code;
@@ -176,7 +179,7 @@ var Transformer = /** @class */ (function () {
     Transformer.prototype.bundleModule = function (obj, name) {
         var output = { name: name, imports: [], exports: {}, compositeObject: false, code: '' };
         this.processExports(output, obj);
-        this.processImports(output);
+        this.processImports(output, name || '');
         return output;
     };
     Transformer.prototype.transform = function (input, name) {
@@ -188,7 +191,7 @@ var Transformer = /** @class */ (function () {
             //console.log(JSON.stringify(this.settings));
             if (this.settings.dangerouslyProcessJavaScript || this.settings.dangerouslyProcessJavaScript === undefined) {
                 try {
-                    obj = eval("(" + input + ");");
+                    obj = Function("return (" + input + ");")();
                     if (this.settings.dangerouslyProcessJavaScript === undefined)
                         console.warn("Warning: " + (name || '') + " is not JSON compliant: " + e.message + ".  Set option \"dangerouslyProcessJavaScript\" to true to hide this message.\r\n" + input);
                 }

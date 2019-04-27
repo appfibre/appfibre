@@ -5,5 +5,11 @@ require('./app/ui.react');
 //require('./app/ui.test');
 require('./rollup-plugin-jst/test');
 
+
 //require('./webpack-plugin-jst/test');
 require('./dist/webpack-plugin-jst-tests');
+
+
+
+
+//require('./app/ui.play');

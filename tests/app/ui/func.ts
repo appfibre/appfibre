@@ -1,24 +1,29 @@
-const Test = function inject (app:any) {
+const Test = function inject(app:any) {
 	return class extends app.services.UI.Component
 	{
 		render () {
-			if (Array.isArray(this.props.children) && this.props.children.length == 1 && typeof this.props.children[0] === 'string') return super.render(this.props.children[0]);
-			return super.render(this.props.children);
+			return app.services.UI.processElement(["div", null, this.props.children]);
 		}
+
 	};
+
 };
 
-const Transform = function transform(obj:any) {
-    return ["div", obj[1], obj[2]];
+const Transform = function transform(t: string, a:object, c:any) {
+    return ["div", a, c];
 }
 
-const TransformOwn = function transform(obj:any) {
-    obj[1] = obj[1] || {};
+const Children = function transform(c:any) {
+    return c;
+}
+
+const TransformOwn = function transform(a:object, c:any[]) {
+    a = a || {};
     return   [ "a"
-             , obj[1]
+             , a
              , [ ["span", {"area-hidden": "true", "key": 1}], ["span", {"area-hidden": "true", "key": 2}]] 
              ];
 }
 
 
-export { Test, Transform, TransformOwn}
+export { Test, Transform, TransformOwn, Children}

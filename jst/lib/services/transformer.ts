@@ -9,7 +9,7 @@ export class Transformer implements ITransformer {
         this.type = "Transformer";
         this.settings = settings ? {...settings, indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports} : { module: ModuleSystem.ES};
         this.settings.parsers = this.settings.parsers || {};
-        this.settings.parsers[".require"] = this.settings.parsers[".import"] = (obj:any, parseSettings:ITransformOutput, offset:number) => this.loadModule(obj[".import"] || obj[".require"], parseSettings);
+        this.settings.parsers[".require"] = this.settings.parsers[".import"] = (obj:any, parseSettings:ITransformOutput, offset:number) => this.loadModule(this.process(obj[".import"] || obj[".require"], false, false, parseSettings, offset), parseSettings, offset);
         this.settings.parsers[".function"] = (obj:any, parseSettings:ITransformOutput, offset:number) => { return `function ${obj[".function"]?obj[".function"]:""}(${obj["arguments"] ? this.process(obj["arguments"], false, true, parseSettings, offset) : ""}){ return ${this.process(obj["return"], true, false, parseSettings, offset)} }`;};
         this.settings.parsers[".map"] = (obj:any, parseSettings:ITransformOutput, offset:number) => { return `${this.process(obj[".map"], false, false, parseSettings, offset)}.map(function(${obj["arguments"]}) {return ${settings && settings.indent ? new Array(offset).join(' ') :""}${this.process(obj["return"], true, false, parseSettings, offset)} })` };
         this.settings.parsers[".filter"] = (obj:any, parseSettings:ITransformOutput, offset:number) => { return `${this.process(obj[".filter"], false, false, parseSettings, offset)}.filter(function(${obj["arguments"]}) {return ${this.process(obj["condition"], true, false, parseSettings, offset)} })` };
@@ -26,10 +26,14 @@ export class Transformer implements ITransformer {
         this.settings.parsers["."] = (obj:any, parseSettings:ITransformOutput, offset?:number) => obj["."];
     }
 
-    private loadModule (val:string, parseSettings:ITransformOutput) {
+    private loadModule (val:string, parseSettings:ITransformOutput, offset:number) {
         var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
+        if (val[0] === "~") {
+            return `${this.process({".function":null, arguments: "loader", return: {".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) +"')" + (val.length > m.length ? val.substring(m.length).replace('#','.'):'') + ";"}}, false, false, parseSettings, offset)}`;
+        }
         if (this.settings.module.toLowerCase() === ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length+2) > -1 ? val.substr(0, val.indexOf('#', m.length+2)-1) : val;
         if (parseSettings.imports.indexOf(m) === -1) parseSettings.imports.push(m);
+
         return `_${parseSettings.imports.indexOf(m)}${val.length>m.length?val.substring(m.length).replace('#','.'):''}`;
     }
 
@@ -98,13 +102,13 @@ export class Transformer implements ITransformer {
                 break;
             default:
                 if (output.name)
-                    output.code += `return ${isDefault ? "{'default' : " + this.process(obj["default"], true, false, output, 1) + ", '__jst': '" + output.name + "'}" : `{${this.format(keys.map((key:string) => validkeys.indexOf(key) === -1 ? `"${key}": ${this.process(obj[key], true, false, output, 1)}` : `${key}:${sp}${this.process(obj[key], true, false, output, 2)}`), output, 1)}}, '__jst': '${output.name}'`};`;
+                    output.code += `return ${isDefault ? "{'default' : " + this.process(obj["default"], true, false, output, 1) + ", \"__jst\": \"" + output.name + "\"}" : `{${this.format(keys.map((key:string) => validkeys.indexOf(key) === -1 ? `"${key}": ${this.process(obj[key], true, false, output, 1)}` : `${key}:${sp}${this.process(obj[key], true, false, output, 2)}`), output, 1)}, \"__jst\": \"${output.name}\"}`}${output.name.indexOf('#')>-1?output.name.slice(output.name.indexOf('#')+1).split('#').map(p => "['"+p+"']"):''};`;
                 else
                     output.code += `return ${isDefault ? this.process(obj["default"], true, false, output, 1) : `{${this.format(keys.map((key:string) => validkeys.indexOf(key) === -1 ? `"${key}": ${this.process(obj[key], true, false, output, 1)}` : `${key}:${sp}${this.process(obj[key], true, false, output, 2)}`), output, 1)}}`};`;
         }
     }
 
-    private processImports(output:ITransformOutput) {
+    private processImports(output:ITransformOutput, name:string) {
         var nl = this.settings.compact ? '' : '\n';
         var sp = this.settings.compact ? '' : ' ';
         var vr = this.settings.preferConst ? 'const' : 'var'
@@ -134,7 +138,7 @@ export class Transformer implements ITransformer {
                 for (var req in r) output.code = `${vr} _${r[req]}${sp}=${sp}require("${req}");${nl}${output.code}`;
                 break;
             case "amd": 
-                output.code = `define([${Object.keys(r).map((key:string) => `'${key}'`).join(", ")}], function (${Object.keys(r).map((key:string) => '_'+r[key]).join(", ")}) { ${output.code} });${nl}`
+                output.code = `define(${(Object.keys(r).length > 0 ? `[${Object.keys(r).map((key:string) => `'${key}'`).join(", ")}], ` : '')}function (${Object.keys(r).map((key:string) => '_'+r[key]).join(", ")}) { ${output.code} });${nl}`
                 break;
             case "es":
                 output.code = Object.keys(s).map((key:string) => `import {${Object.keys(s[key]).map((k:string) => `${k} as _${s[key][k]}` ).join(','+sp)}} from '${key}';${nl}`).join('') + Object.keys(r).map((key:string) => `import * as _${r[key]} from '${key.substr(key[0] == "~" ? 1 : 0)}';${nl}`).join('') + output.code;
@@ -157,7 +161,7 @@ export class Transformer implements ITransformer {
                     for (var req in r2) output.code = `${vr} _${r2[req]}${sp}=${sp}require("${req}");${nl}${output.code}`;
                     break;
                 case "amd": 
-                    output.code = `define([${Object.keys(r2).map((key:string) => `'${key}'`).join(", ")}], function (${Object.keys(r2).map((key:string) => '_'+r2[key]).join(", ")}) { ${output.code} });${nl}`
+                    output.code = `define(${(Object.keys(r2).length > 0 ? `[${Object.keys(r).map((key:string) => `'${key}'`).join(", ")}], ` : '')}function (${Object.keys(r2).map((key:string) => '_'+r2[key]).join(", ")}) { ${output.code} });${nl}`
                     break;
                 case "es":
                     output.code = Object.keys(s2).map((key:string) => `import {${Object.keys(s2[key]).map((k:string) => `${k.substr(1)} as _${s[key][k]}` ).join(','+sp)}} from '${key.substr(1)}';${nl}`).join('') + Object.keys(r2).map((key:string) => `import * as _${r2[key]} from '${key.substr(1)}';${nl}`).join('') + output.code;
@@ -171,7 +175,7 @@ export class Transformer implements ITransformer {
     private bundleModule(obj:any, name?:string) : ITransformOutput {
         var output:ITransformOutput = {name:name, imports: [], exports: {}, compositeObject:false, code:''};
         this.processExports(output, obj);
-        this.processImports(output);
+        this.processImports(output, name||'');
         return output;        
     }
 
@@ -186,7 +190,7 @@ export class Transformer implements ITransformer {
             //console.log(JSON.stringify(this.settings));
             if (this.settings.dangerouslyProcessJavaScript || this.settings.dangerouslyProcessJavaScript === undefined) {
                 try {
-                    obj = eval(`(${input});`);
+                    obj = Function(`return (${input});`)();
                     if (this.settings.dangerouslyProcessJavaScript === undefined) console.warn(`Warning: ${name || ''} is not JSON compliant: ${e.message}.  Set option "dangerouslyProcessJavaScript" to true to hide this message.\r\n${input}`);
                 } catch (f)
                 {

@@ -9,4 +9,4 @@ export default function (url) {
 	for (let k = 1; k < parts.length; k++)
 		output = output[parts[k]];
 	return output;
-}
+}	

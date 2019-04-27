@@ -1,32 +1,43 @@
 import { IPromise } from "./services/promise";
-export interface IApp extends IModule {
+export interface IApp {
     main: object | Array<object>;
     defaultState?: Object;
     stateChanged?: Function;
     disableIntercept?: boolean;
     options?: IOptions;
     services?: IServices;
+    controllers?: {
+        [index: string]: IController | Constructable<IController>;
+    };
     context?: IContext;
+    components?: {
+        [name: string]: any;
+    } | Function;
 }
 export interface IAppLoaded extends IApp {
     services: IServicesLoaded;
+    controllers: {
+        [name: string]: IController;
+    };
     options: IOptions;
     run(): PromiseLike<any>;
+}
+export interface IController {
+    path: string;
+    match: {
+        test: (url: string) => boolean;
+    };
+    resolve(args: {
+        [key: string]: string;
+        [index: number]: string;
+    }): any;
+    container?: string;
 }
 export interface Constructable<T> {
     new (app: IAppLoaded): T;
 }
-export interface IModule {
-    modules?: (IModule | string)[];
-    components?: Object | Function;
-    events?: IEvents;
-}
-export interface IEvents {
-    init: (app: IApp, module: IModule) => void;
-}
 export interface ILogger {
-    type: "Logger";
-    log: (logLevel: LogLevel, title?: string, detail?: any, optionalParameters?: any[]) => void;
+    log: (logLevel: LogLevel, title?: string, optionalParameters?: any[]) => string | void;
 }
 export declare type PromiseConstructor = new <T>(executor: (resolve: (value?: T | IPromise<T>) => void, reject: (reason?: any) => void) => void) => IPromise<T>;
 export interface IServices {
@@ -37,6 +48,7 @@ export interface IServices {
     transformer?: ITransformer | Constructable<ITransformer>;
     logger?: ILogger | Constructable<ILogger>;
     UI?: IUI | Constructable<IUI>;
+    navigation?: INavigation | Constructable<INavigation>;
 }
 export interface IServicesLoaded extends IServices {
     promise: PromiseConstructor & {
@@ -46,13 +58,18 @@ export interface IServicesLoaded extends IServices {
     transformer: ITransformer;
     logger: ILogger;
     UI: IUI;
+    navigation: INavigation;
     processor: IProcessor;
 }
 export interface IUI {
-    type: "UI";
     render(ui: any, parent?: any, mergeWith?: any): any;
-    processElement(tag: any, attributes?: object | undefined, children?: any | undefined): any;
+    processElement(element: any, depth: number, index?: number): any;
     Component: any;
+}
+export interface INavigation {
+    resolve(container?: string): any;
+    a: Function;
+    container: Function;
 }
 export interface IOptions {
     title?: string;
@@ -61,20 +78,18 @@ export interface IOptions {
     basePath?: string;
 }
 export interface IProcessor {
-    type: "Processor";
     resolve(fullpath: string): any;
     construct(jstComponent: any): any;
     locate(resource: any, path: string): any;
-    process(obj: any): Promise<any>;
-    instanciate(url: string, parent?: any): Promise<any>;
+    process(obj: any): IPromise<any>;
 }
 export interface IWebOptions {
     target?: string | HTMLElement | null;
 }
 export interface IModuleSystem {
-    type: "ModuleSystem";
-    load(url: string, parent?: any): PromiseLike<any>;
-    exec(source: string, url?: string): any;
+    import(moduleName: string, normalizedParentName?: string): PromiseLike<any>;
+    instantiate(url: string, parent?: any): Promise<any>;
+    init(basePath?: string): void;
 }
 export interface IContext {
 }
@@ -92,7 +107,6 @@ export interface ITransformSettings {
     runtimeModule?: ModuleSystem;
 }
 export interface ITransformer {
-    type: "Transformer";
     transform(intput: string | object, name?: string): ITransformOutput;
 }
 export interface ITransformOutput {

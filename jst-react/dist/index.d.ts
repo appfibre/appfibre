@@ -10,23 +10,20 @@ export declare enum LogLevel {
 interface IApp {
     services: {
         logger: {
-            "type": "Logger";
-            log: (logLevel: LogLevel, title?: string, detail?: any, optionalParameters?: any[]) => void;
+            log: (logLevel: LogLevel, title?: string, optionalParameters?: any[]) => string | void;
         };
     };
 }
 interface IUI {
-    type: "UI";
     render(ui: any, parent?: any, mergeWith?: any): any;
-    processElement(tag: any, attributes?: object | undefined, children?: any | undefined): any;
+    processElement(element: any, depth: number, index?: number): any;
     Component: any;
 }
 export default class react implements IUI {
-    "type": 'UI';
     app: IApp;
     render(ui: any, parent?: any, mergeWith?: any): any;
     Component: typeof Component;
     constructor(app: IApp);
-    processElement(tag: any, attributes?: object | undefined, children?: any | undefined): any;
+    processElement(element: any, depth: number, index?: number): any;
 }
 export {};

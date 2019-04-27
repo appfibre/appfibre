@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/appfibre/appfibre/issues"
   },
-  "homepage": "https://github.com/appfibre/appfibre#readme"
+  "homepage": "https://github.com/appfibre/appfibre#readme",
+  "dependencies": {
+    "@types/node": "^11.13.4"
+  }
 }

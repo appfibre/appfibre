@@ -12,7 +12,7 @@ describe('webpack-plugin-jst', function () {
     it('loads dependencies', function () {
         assert.deepEqual(require('./samples/require.jst')["default"], { "A": 1, "B": "C" });
     });
-    it('copies assets', function () {
-        assert.deepEqual(require('./samples/includeasset.jst')["default"], ["test", Date.now()]);
-    });
+    /*it('copies assets', () => {
+        assert.deepEqual(require('./samples/includeasset.jst').default, ["test", Date.now()]);
+    });*/
 }).run();

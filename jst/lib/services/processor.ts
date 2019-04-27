@@ -1,4 +1,4 @@
-import { IAppLoaded, IProcessor } from "../types";
+import { IAppLoaded, IProcessor, LogLevel } from "../types";
 import { Intercept } from "../components/intercept";
 import { Async } from "../components/async";
 import { Promise, IPromise } from "./promise";
@@ -68,8 +68,8 @@ export class Processor implements IProcessor
         let ctx = this;
         return class extends jstComponent {
             render(obj : any) {
-                if (Array.isArray(obj) && obj.length === 1 && !Array.isArray(obj[0])) return typeof obj[0] == "string" ? ctx.parse(obj) : obj[0];
-                return obj == null || typeof obj === "string" || obj.$$typeof ? obj : ctx.parse(obj);
+                if (Array.isArray(obj) && obj.length === 1 && !Array.isArray(obj[0])) return typeof obj[0] == "string" ? ctx.parse(obj, 0, '') : obj[0];
+                return obj == null || typeof obj === "string" || obj.$$typeof ? obj : ctx.parse(obj, 0, '');
             }
         }
     }
@@ -98,113 +98,65 @@ export class Processor implements IProcessor
         return name.trim();
     }
 
-    processElement(ar : Array<any>, supportAsync?: boolean, light?:boolean) {
-        var done = false;
-        while (!done) {
-            if (typeof ar[0] === "function")
-                switch (this.getFunctionName(ar[0])) {
-                    case "inject": 
-                        ar[0] = ar[0](Inject(this.app, this.construct(this.app.services.UI.Component)));
-                        break;
-                    case "transform":
-                        return this.parse(ar[0](ar), undefined, supportAsync);
-                    default:
-                        done = true;
+    private parse(obj:any, level:number, path:string, index?:number) : any {
+        this.app.services.logger.log.call(this, LogLevel.Trace, 'Processor.parse', obj);
+        let processor = this;
+        return new this.app.services.promise(function (r, f) {
+            if (Array.isArray(obj)) {
+                if (typeof obj[0] === "string")
+                    obj[0] = processor.resolve(obj[0]);
+                if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") 
+                    processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
+                else if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "inject") {
+                    obj[0] = obj[0](Inject(processor.app, processor.construct(processor.app.services.UI.Component)));
+                    //processor.parse(obj, level, path, index).then(function (o:any) {console.log(o); r(o)}, f);
+                    processor.parse(obj, level, path, index).then(r, f);
                 }
-            else if (typeof ar[0] === "string") {
-                var tag = ar[0];
-                ar[0] = this.resolve(ar[0]);
-                done = ar[0] === tag;
-                if (ar[0].then && supportAsync && !light)
-                    return new this.app.services.promise((resolve:Function) => ar[0].then((x:any) => resolve(this.parse(x, ar[1].key, supportAsync))));
-            } else if (ar[0] && ar[0].then && !supportAsync  && !light)
-                return this.app.services.UI.processElement(Async, {"value": ar});
-            else
-                done = true;
-        }
-        return light ? ar : this.app.services.UI.processElement(ar[0], ar[1], ar[2]);
-    }
-
-    parse(obj:any, key?:number|undefined, supportAsync?:boolean):any {  
-        if (obj && obj.default) 
-            obj = obj.__jst ? [Intercept, { file: obj.__jst }, [obj.default]] : obj.default;
-
-        if (Array.isArray(obj)) {
-            if (key && !obj[1]) obj[1] = {key:key};
-            if (key && !obj[1].key) obj[1].key = key;
-        }
-        else
-            obj = [obj, key ? {key:key} : null];
-
-        var isAsync = false;
-
-        for (var idx = 0; idx < obj.length; idx++) {
-            if (typeof obj[idx] === "function") {
-                //obj[idx] = this.processElement([obj[idx]], supportAsync, true)[0];
+                else 
+                    processor.app.services.promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '.[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
-
-            if (Array.isArray(obj[idx])) {
-                for (var i = 0; i < obj[idx].length; i++) {
-                    if (Array.isArray(obj[idx][i]) || typeof obj[idx][i] === "function" || typeof obj[idx][i] === "object" ) {
-                        if (typeof obj[idx][i] === "function" || Array.isArray(obj[idx][i])) obj[idx][i] = (idx==2) ? this.parse(obj[idx][i], undefined, supportAsync) : this.processElement(obj[idx][i], supportAsync, true);
-                        if (obj[idx][i] && obj[idx][i].then) isAsync = true;
-                    } else if (idx == 2)
-                        throw new Error(`Expected either double array or string for children Parent:${String(obj[0])}, Child:${JSON.stringify(obj[idx][i], (key,value) => typeof value === "function" ? String(value) : value)}`);
-                }
-            }
-        }
-        
-        //if (isAsync && !obj[idx].then) obj[idx] = new Promise((resolve,reject) => Promise.all(obj[idx]).then(output => resolve(output), reason => reject(reason)));
-        if (isAsync) for (var idx = 0; idx < obj.length; idx++) if (!obj[idx].then) obj[idx] = this.app.services.promise.all(obj[idx]);
-        if (!isAsync && ((typeof obj[0] === "function" &&  obj[0].then) || (typeof obj[1] === "function" &&  obj[1].then))) isAsync = true;
-
-        if (!isAsync) {
-            obj = this.processElement(obj, supportAsync);
-            if (typeof obj === 'function' && obj.then && !supportAsync) 
-                return  this.processElement([Async, {value: obj}], supportAsync);
-            else 
-                return obj;
-        }
-
-        if (!supportAsync && isAsync) 
-            return this.processElement([Async, {value: this.app.services.promise.all(obj).then(o => this.processElement(o, supportAsync))}]);
-        
-        return isAsync ? new this.app.services.promise((resolve:any) => this.app.services.promise.all(obj).then(o => resolve(this.processElement(o, supportAsync)))) : this.processElement([obj[0], obj[1], obj[2]], supportAsync);
+            else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
+                processor.app.services.promise.all([ (obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(o => r(processor.parse(o[0], level,path, index)), f);
+            else if (obj && obj.then)  
+                processor.app.services.promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+            else if (obj)
+                {try {r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
+            else r(obj);
+        });
     }
 
     resolve(fullpath: string) {
-        if (this.cache[fullpath])  return this.cache[fullpath];
+        this.app.services.logger.log.call(this, LogLevel.Trace, 'Processor.resolve', [fullpath]);
+
+        if (this.cache[fullpath]) return this.cache[fullpath];
         if (fullpath.substring(0, 1) == "~") {
             var parts = fullpath.substring(1, fullpath.length).split('#');
-            //var obj = AppContext.xhr(parts[0], true);
-            var obj = this.instanciate(parts[0], this);
+            var obj = this.app.services.moduleSystem.instantiate(parts[0], this);
             if (parts.length == 1)
                 return obj;
             
             return obj.then((x:any) => this.locate(x, parts.slice(1, parts.length).join(".")));
         } else {
-            let path = fullpath.split('.');
+            let path = fullpath ? fullpath.split('.') : [''];
             let obj:any = this.app.components || Object;
             let jst = false;
             let prop = "default";
             
             for (var part = 0; part < path.length; part++) {
                 if (typeof obj === "function" && this.getFunctionName(obj) === "inject") 
-                        //obj = obj( Inject( app.designer ? class Component extends app.ui.Component { render(obj) { return parse(jst ? [require("@appfibre/jst/intercept.js").default, {"file": jst, "method": prop}, obj] : obj); }}:obj));
-                        obj = obj(Inject(this.app, this.construct(this.app.services.UI.Component)));
-                
+                    obj = obj(Inject(this.app, this.construct(this.app.services.UI.Component)));
                 if (obj[path[part]] !== undefined) {
                     if (part == path.length-1) jst = obj.__jst;
                     obj = obj[path[part]];
                 }
-                else if (path.length == 1 && path[0].toLowerCase() == path[0])
+                else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj = path[part];
                 else {
                     if (fullpath === "Exception")
                         return function transform(obj:any):any { return ["pre", {"style":{"color":"red"}}, obj[1].stack ? obj[1].stack : obj[1]]; }
                     else {
-                        console.error('Cannot load ' + fullpath);
-                        return class extends this.app.services.UI.Component { render () { return super.render(["span", {"style":{"color":"red"}}, `${fullpath} not found!`]) }};
+                        this.app.services.logger.log.call(this, LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
+                        return class extends this.app.services.UI.Component { render () { return super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) }};
                     }
                 }
             }
@@ -225,6 +177,8 @@ export class Processor implements IProcessor
 
     process(obj:any):IPromise<any>
     {
+        this.app.services.logger.log.call(this, LogLevel.Trace, 'Processor.process', obj);
+
         function visit(obj:any):boolean {
             if (Array.isArray(obj)) {
                 for (var i in obj)
@@ -245,10 +199,10 @@ export class Processor implements IProcessor
             let isTemplate = visit(obj);
             try {
                 if (isTemplate) {
-                    this.app.services.moduleSystem.exec(this.app.services.transformer.transform(JSON.stringify(obj)).code).then((exported:any) => {
+                    this.app.services.moduleSystem.init(this.app.options.basePath);
+                    this.app.services.moduleSystem.import(this.app.services.transformer.transform(JSON.stringify(obj)).code).then((exported:any) => {
                         try{
-                            var output = this.parse(exported.default || exported);
-                            resolve(output);
+                            this.parse(exported.default || exported, 0, '').then(resolve, reject);
                         }
                         catch(e) {
                             reject(e);
@@ -257,7 +211,7 @@ export class Processor implements IProcessor
                     }, (rs:any) =>reject(rs)); 
                 }
                 else 
-                    resolve(this.parse(obj));
+                    this.parse(obj, 0, '').then(resolve, reject);
             }
             catch(e) {
                 reject(e);
@@ -265,11 +219,14 @@ export class Processor implements IProcessor
         });
     }
 
-    instanciate(url:string, parent?:any):any {
-        return this.app.services.moduleSystem.load(url, parent) 
-          .then(function (this:Processor, source) {
-            return this.app.services.transformer.transform(url, source).code;
+    /*instanciate(url:string, parent?:any):any {
+        const app = this.app;
+        app.services.logger.log.call(this, LogLevel.Trace, 'Processor.instanciate', [url]);
+
+        return app.services.moduleSystem.load(url, parent) 
+          .then(function (source) {
+            return app.services.transformer.transform(source, url).code;
           })
-          .then(this.app.services.moduleSystem.exec);
-    }
+          .then(function(source) {return app.services.moduleSystem.exec(source, url)});
+    }*/
 }

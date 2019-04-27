@@ -8,9 +8,7 @@ export declare class Processor implements IProcessor {
     construct(jstComponent: any): any;
     locate(resource: any, path: string): any;
     getFunctionName(obj: any): string;
-    processElement(ar: Array<any>, supportAsync?: boolean, light?: boolean): any;
-    parse(obj: any, key?: number | undefined, supportAsync?: boolean): any;
+    private parse;
     resolve(fullpath: string): any;
     process(obj: any): IPromise<any>;
-    instanciate(url: string, parent?: any): any;
 }

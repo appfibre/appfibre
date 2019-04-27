@@ -20,22 +20,24 @@ var Test = function inject(app) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         class_1.prototype.render = function () {
-            if (Array.isArray(this.props.children) && this.props.children.length == 1 && typeof this.props.children[0] === 'string')
-                return _super.prototype.render.call(this, this.props.children[0]);
-            return _super.prototype.render.call(this, this.props.children);
+            return app.services.UI.processElement(["div", null, this.props.children]);
         };
         return class_1;
     }(app.services.UI.Component));
 };
 exports.Test = Test;
-var Transform = function transform(obj) {
-    return ["div", obj[1], obj[2]];
+var Transform = function transform(t, a, c) {
+    return ["div", a, c];
 };
 exports.Transform = Transform;
-var TransformOwn = function transform(obj) {
-    obj[1] = obj[1] || {};
+var Children = function transform(c) {
+    return c;
+};
+exports.Children = Children;
+var TransformOwn = function transform(a, c) {
+    a = a || {};
     return ["a",
-        obj[1],
+        a,
         [["span", { "area-hidden": "true", "key": 1 }], ["span", { "area-hidden": "true", "key": 2 }]]
     ];
 };

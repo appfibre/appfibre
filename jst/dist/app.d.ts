@@ -1,4 +1,4 @@
-import { IApp, IModule, IAppLoaded, IServicesLoaded, IOptions, IContext, IEvents } from "./types";
+import { IApp, IAppLoaded, IServicesLoaded, IOptions, IContext, IController } from "./types";
 import { IPromise } from "./services/promise";
 export declare class App implements IAppLoaded {
     main: object | object[];
@@ -7,13 +7,14 @@ export declare class App implements IAppLoaded {
     disableIntercept?: boolean | undefined;
     options: IOptions;
     context?: IContext | undefined;
-    modules?: (string | IModule)[] | undefined;
-    components?: Object | Function | undefined;
-    events?: IEvents | undefined;
+    components?: {
+        [name: string]: any;
+    } | Function | undefined;
     services: IServicesLoaded;
+    controllers: {
+        [index: string]: IController;
+    };
     constructor(app?: IApp);
-    loadModule(module: IModule): void;
-    initModule(this: any, module: IModule): void;
     private initApp;
     run(): IPromise<any>;
     private render;

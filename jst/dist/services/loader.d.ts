@@ -1,17 +1,11 @@
-import { IModuleSystem, PromiseConstructor } from '../types';
+import { IModuleSystem, PromiseConstructor } from "../types";
 import { IPromise } from "./promise";
 export declare class Loader implements IModuleSystem {
-    type: "ModuleSystem";
-    promise: PromiseConstructor & {
-        all(promises: IPromise<any>[]): IPromise<any>;
-    };
-    basePath?: string;
-    static base?: string;
+    proxy: IModuleSystem;
     constructor(promise: PromiseConstructor & {
         all(promises: IPromise<any>[]): IPromise<any>;
     }, basePath?: string);
-    private nodeRequire;
-    private run;
-    load(url: string, parent?: any): Promise<string>;
-    exec(source: string, url?: string): Promise<any>;
+    import(moduleName: string, normalizedParentName?: string): PromiseLike<any>;
+    instantiate(url: string, parent?: any): any;
+    init(basePath: string): void;
 }

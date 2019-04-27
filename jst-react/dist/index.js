@@ -14,13 +14,12 @@ var LogLevel;
 var react = /** @class */ (function () {
     function react(app) {
         this.Component = react_1.Component;
-        this.type = 'UI';
         this.app = app;
     }
     react.prototype.render = function (ui, parent, mergeWith) {
         return react_dom_1.render(ui, parent, mergeWith);
     };
-    react.prototype.processElement = function (tag, attributes, children) {
+    /*processElement(tag:any, attributes?:object|undefined, children?:any|undefined) : any {
         if (typeof tag === "function" && Array.isArray(children)) {
             if (children.length > 1) {
                 this.app.services.logger.log.bind(this, LogLevel.Warn, "Class/function tags cannot have more than one direct child elements, wrapping elements in a div tag", children);
@@ -30,7 +29,22 @@ var react = /** @class */ (function () {
                 children = children[0];
             }
         }
-        return react_1.createElement(tag, attributes, children ? children : null);
+    
+        return createElement(tag, attributes, children ? children : null);
+    }*/
+    react.prototype.processElement = function (element, depth, index) {
+        if (depth % 2 === 0) {
+            if (typeof element !== "string" && !Array.isArray(element)) {
+                this.app.services.logger.log.bind(this, LogLevel.Error, "Child element [2] should be either a string or array", element);
+                throw new Error("Child element [2] should be either a string or array");
+            }
+            else if (index !== undefined && Array.isArray(element)) {
+                element[1] = element[1] || {};
+                if (!element[1].key)
+                    element[1].key = index;
+            }
+        }
+        return depth % 2 === 1 || !Array.isArray(element) ? element : react_1.createElement(element[0], element[1], element[2]);
     };
     return react;
 }());
