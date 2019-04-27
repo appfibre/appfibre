@@ -1,0 +1,8 @@
+[   { "name": "Introduction", "path": "?Introduction", "content": {".require": "~/Introduction.jst"} },
+    { "name": "JST", "path": "?JST" },
+    { "name": "App", "path": "?App" } ,
+    { "name": "About", "path": "?About", "children": 
+        [ { "name": "Support", "children": [], "path": "?About/Support" }
+        ] 
+    }
+]

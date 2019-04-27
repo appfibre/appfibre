@@ -1,1 +1,0 @@
-{ ".function": "inject", "arguments": ["app"], "return": [["div", null, {".code": "app.services.moduleSystem.load('./sitemap.json')" }]] }

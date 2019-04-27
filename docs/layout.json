@@ -1,0 +1,14 @@
+{ ".function": "inject"
+, "arguments": [ "app" ]
+, "return":   [ "div"
+    , {}
+    , [ [ "div"
+        , { "style" : {  "minHeight": "calc(100vh - 40px)" }, "key": 1}
+        , [ [ "Menus" ] 
+          , [ "Navigation.resolve", "content" ]
+          ]
+        ]
+      , [ "nav", { "style": { "textAlign": "center"}, "key": 2}, [ [ "i", { "style": {"position": "relative", "top": "5px"} , "key":3}, "fibre - 2019" ] ] ]
+      ]
+    ]
+}
