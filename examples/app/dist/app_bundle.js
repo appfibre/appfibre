@@ -182,7 +182,7 @@ var App = /** @class */ (function () {
     App.prototype.run = function () {
         var _this = this;
         this.services.logger.log.call(this, types_1.LogLevel.Trace, 'App.run');
-        return new this.services.promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 _this.initApp();
                 _this.initModule(_this);
@@ -195,7 +195,7 @@ var App = /** @class */ (function () {
     };
     App.prototype.render = function (ui) {
         var _this = this;
-        return new this.services.promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             _this.services.logger.log.call(_this, types_1.LogLevel.Trace, 'App.render', [{ ui: ui }]);
             _this.services.processor.process(ui).then(function (value) {
                 try {

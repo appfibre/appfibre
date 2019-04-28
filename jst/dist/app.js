@@ -2,7 +2,6 @@
 exports.__esModule = true;
 var types_1 = require("./types");
 //import { Intercept } from "./intercept";
-var promise_1 = require("./services/promise");
 var loader_1 = require("./services/loader");
 var transformer_1 = require("./services/transformer");
 var processor_1 = require("./services/processor");
@@ -24,12 +23,11 @@ var App = /** @class */ (function () {
                     if (logLevel <= (_this && _this.options && _this.options.logLevel ? (types_1.LogLevel[_this.options.logLevel] || 2) : 2))
                         logger_1 ? logger_1.log.bind(_this, logLevel, title, optionalParameters) : [function (title, optionalParameters) { }, console.error, console.error, console.warn, console.info, console.info][logLevel](title + '\r\n', optionalParameters || [_this]);
                 } };
-            s.promise = s.promise || promise_1.Promise;
             s.transformer = s.transformer ? (typeof s.transformer === "object" ? s.transformer : new s.transformer(this)) : new transformer_1.Transformer({ module: types_1.ModuleSystem.None });
-            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new loader_1.Loader(s.promise, this.options.basePath);
+            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new loader_1.Loader(this.options.basePath);
             s.navigation = s.navigation ? (typeof s.navigation === "object" ? s.navigation : new s.navigation(this)) : navigation_1.Navigation;
             s.UI = s.UI ? (typeof s.UI === "object" ? s.UI : new s.UI(this)) : new webui_1.WebUI(this);
-            this.services = { moduleSystem: s.moduleSystem, processor: new processor_1.Processor(this), promise: s.promise, transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
+            this.services = { moduleSystem: s.moduleSystem, processor: new processor_1.Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
             this.controllers = {};
             if (app.controllers)
                 for (var c in app.controllers) {
@@ -77,7 +75,7 @@ var App = /** @class */ (function () {
         var _this = this;
         this.services.logger.log.call(this, types_1.LogLevel.Trace, 'App.run');
         var main = null;
-        return new this.services.promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             try {
                 _this.initApp();
                 main = _this.services.navigation.resolve.apply(_this);
@@ -91,7 +89,7 @@ var App = /** @class */ (function () {
     };
     App.prototype.render = function (ui) {
         var _this = this;
-        return new this.services.promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             _this.services.logger.log.call(_this, types_1.LogLevel.Trace, 'App.render', [{ ui: ui }]);
             _this.services.processor.process(ui).then(function (value) {
                 try {

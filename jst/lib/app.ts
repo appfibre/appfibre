@@ -1,6 +1,13 @@
 import { IApp, IAppLoaded, IServicesLoaded, IOptions, IContext, LogLevel, ModuleSystem, IController } from "./types";
+declare class Promise<T>  {
+    constructor(resolver: Function);
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
+    static all(promises: Promise<any>[]): Promise<any>;
+    static race(promises: Promise<any>[]): Promise<{}>;
+}
+  
 //import { Intercept } from "./intercept";
-import { Promise, IPromise } from "./services/promise";
 import { Loader } from "./services/loader";
 import { Transformer } from "./services/transformer";
 import { Processor } from "./services/processor";
@@ -33,12 +40,11 @@ export class App implements IAppLoaded
                 if (logLevel <= (this && this.options && this.options.logLevel ? (LogLevel[this.options.logLevel] || 2) : 2)) 
                     logger ? logger.log.bind(this, logLevel, title, optionalParameters) : [function(title?:any, optionalParameters?:any[]){}, console.error, console.error, console.warn, console.info, console.info][logLevel](title +'\r\n', optionalParameters || [this]); 
                 }};
-            s.promise = s.promise || Promise;
             s.transformer = s.transformer ? (typeof s.transformer === "object" ? s.transformer : new s.transformer(this)) : new Transformer( {module: ModuleSystem.None} );
-            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new Loader(s.promise, this.options.basePath);
+            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new Loader(this.options.basePath);
             s.navigation = s.navigation ? (typeof s.navigation === "object" ? s.navigation : new s.navigation(this)) : Navigation;
             s.UI = s.UI ? (typeof s.UI === "object" ? s.UI : new s.UI(this)) : new WebUI(this);
-            this.services = {moduleSystem: s.moduleSystem, processor: new Processor(this), promise: s.promise, transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
+            this.services = {moduleSystem: s.moduleSystem, processor: new Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
             this.controllers = {};
             if (app.controllers)
                 for (let c in app.controllers) {
@@ -47,6 +53,7 @@ export class App implements IAppLoaded
                 }
             this.components = app.components;
             if (typeof this.components === "object" && !this.components["Navigation"]) this.components["Navigation"] = Navigation;
+
         } catch (ex) {
             console.error(ex);
             throw ex;
@@ -77,10 +84,10 @@ export class App implements IAppLoaded
         }
     }
 
-    run():IPromise<any> {
+    run():Promise<any> {
         this.services.logger.log.call(this, LogLevel.Trace, 'App.run');
         let main:any = null;
-        return new this.services.promise((resolve:any, reject:any) => {
+        return new Promise((resolve:any, reject:any) => {
             try {
                 this.initApp();
                 main = this.services.navigation.resolve.apply(this);
@@ -92,9 +99,9 @@ export class App implements IAppLoaded
         });
     }
 
-    private render(ui:any) : IPromise<any> 
+    private render(ui:any) : Promise<any> 
     {
-        return new this.services.promise( (resolve:Function, reject:Function) => {
+        return new Promise( (resolve:Function, reject:Function) => {
             this.services.logger.log.call(this, LogLevel.Trace, 'App.render', [{ui}]);
             this.services.processor.process(ui).then((value) => { 
                 try {

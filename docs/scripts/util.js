@@ -10,9 +10,8 @@ define([], function() {
         },
 
         resolve: function transform(args) {
-            //return new this.services.promise(function(r) { r(["div", {} , "TEST"]);});
-            let app = this;
-            return new this.services.promise(function(r,f ) { 
+            var app = this;
+            return new Promise(function(r,f ) { 
                 app.services.moduleSystem.import.call(app.services.moduleSystem,'./pages/latest/' + (args[0] || "Introduction") +'.json#default').then(function (o) {
                     //debugger;
                     r(o.default);
@@ -21,5 +20,5 @@ define([], function() {
             });
 
         }
-    }
+    };
 });

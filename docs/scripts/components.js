@@ -11,7 +11,7 @@ var Navbar = function transform(a, c) {
     return  [ "div"
             , _extend({"className": "navbar "+(a.className||""), role: "navigation", "area-label": "main navigation"},a)
             , c];
-}
+};
 
 var NavbarBurger = function transform(a, c) {
     a = a || {};
@@ -19,7 +19,7 @@ var NavbarBurger = function transform(a, c) {
              , _extend({ "className": "navbar-burger "+(a.className||""), "role": "button", "aria-label": "menu", "aria-expanded":"true"}, a)
              , [ ["span", {"areahidden": "true"}], ["span", {"areahidden": "true"}], ["span", {"areahidden": "true"}] ] 
              ];
-}
+};
 
 var NavbarMenu = function transform(a, c) {
     a = a || {};
@@ -27,7 +27,7 @@ var NavbarMenu = function transform(a, c) {
              , _extend({ "className": "navbar-menu "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarStart = function transform(a, c) {
     a = a || {};
@@ -35,7 +35,7 @@ var NavbarStart = function transform(a, c) {
              , _extend({ "className": "navbar-start "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarEnd = function transform(a, c) {
     a = a || {};
@@ -43,7 +43,7 @@ var NavbarEnd = function transform(a, c) {
              , _extend({ "className": "navbar-end "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarItem = function transform(a, c) {
     a = a || {};
@@ -51,7 +51,7 @@ var NavbarItem = function transform(a, c) {
              , _extend({ "className": "navbar-item has-dropdown is-hoverable "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarItemLink = function transform(a, c) {
     a = a || {};
@@ -59,7 +59,7 @@ var NavbarItemLink = function transform(a, c) {
              , _extend({ "className": "navbar-item has-dropdown is-hoverable "(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarLink = function transform(a, c) {
     a = a || {};
@@ -67,7 +67,7 @@ var NavbarLink = function transform(a, c) {
              , _extend({ "className": "navbar-link "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 var NavbarDropdown = function transform(a, c) {
     a = a || {};
@@ -75,15 +75,12 @@ var NavbarDropdown = function transform(a, c) {
              , _extend({ "className": "navbar-dropdown "+(a.className||"")}, a)
              , c 
              ];
-}
+};
 
 define(['../pages/sitemap.json'], function(menus) {
     var Bulma = { Navbar: Navbar, NavbarBurger: NavbarBurger, NavbarMenu: NavbarMenu, NavbarStart: NavbarStart, NavbarEnd: NavbarEnd, NavbarItem: NavbarItem, NavbarItemLink: NavbarItemLink, NavbarDropdown: NavbarDropdown, NavbarLink: NavbarLink };
     var Menus = function transform() {
-        /*return ["Bulma.Navbar", { "className": "is-transparent", "style": { "maxWidth": "1000px", "align": "center", "margin": "auto" }, "key": "menus" }, menus.map(function (menu, index) {
-            return ["div", {"key":'menu'+index}, menu.name];
-        })];*/
-        let app = this;
+    var app = this;
         return  [ "Bulma.Navbar",
                 { "className": "is-transparent", "style": { "margin": "auto", "background": "gray" }, "aria-label": "main navigation" },
                 [["div",
@@ -122,7 +119,7 @@ define(['../pages/sitemap.json'], function(menus) {
                     ]]
             ];
         
-    }
+    };
 
     return { Menus: Menus, Bulma: Bulma };
 });

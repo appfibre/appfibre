@@ -25,12 +25,12 @@ var Async = function inject(app) {
         }
         Async.prototype.componentDidMount = function () {
             var _this = this;
-            if (app.services.promise.prototype.isPrototypeOf(this.props.value))
+            if (Promise.prototype.isPrototypeOf(this.props.value))
                 this.props.value.then(function (value) { return _this.setState({ "value": value }); }, function (err) { return _this.setState({ "value": _this.props.value[4] ? _this.props.value[4](err) : ["Exception", err] }); });
             else if (this.props.value[0] && this.props.value[0].then)
                 this.props.value[0].then(function (value) { return _this.setState({ "value": value }); }, function (err) { return _this.setState({ "value": _this.props.value[4] ? _this.props.value[4](err) : ["Exception", err] }); });
             else
-                app.services.promise.all(this.props.value).then(function (value) { return _this.setState({ "value": value }); })["catch"](function (err) { if (_this.props.value[4])
+                Promise.all(this.props.value).then(function (value) { return _this.setState({ "value": value }); })["catch"](function (err) { if (_this.props.value[4])
                     _this.setState({ "value": _this.props.value[4] }); });
         };
         Async.prototype.render = function () {

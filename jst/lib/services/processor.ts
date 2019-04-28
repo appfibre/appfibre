@@ -1,46 +1,20 @@
 import { IAppLoaded, IProcessor, LogLevel } from "../types";
 import { Intercept } from "../components/intercept";
-import { Async } from "../components/async";
-import { Promise, IPromise } from "./promise";
 
-
+declare class Promise<T>  {
+    constructor(resolver: Function);
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
+    static all(promises: Promise<any>[]): Promise<any>;
+    static race(promises: Promise<any>[]): Promise<{}>;
+}
+  
 function s_xa(a:any,b?:any){return Object.prototype.hasOwnProperty.call(a,b)}
 function clone(a:any,b?:any){for(var c=1;c<arguments.length;c++){var d=arguments[c];if(d)for(var e in d)s_xa(d,e)&&(a[e]=d[e])}return a}
 
 function Inject (app : IAppLoaded, Proxy:any) : any {
     let inj = clone(app);
     inj.services.UI.Component = Proxy || app.services.UI.Component;
-
-    /*class Loader extends Component {
-        load() {
-            JstContext.load(this.state.url, true).then(obj => {this.setState({children: obj})}, err => {this.setState({children: ["Exception", err]})});
-        }
-
-        componentWillMount()
-        {
-            this.componentWillUpdate({}, this.props);
-        }
-
-        componentWillUpdate(props:any, nextprops:any) 
-        {
-            this.checkurl(nextprops);
-        }
-        
-        shouldComponentUpdate(props:any) {
-            return this.checkurl(props);
-        }
-
-        checkurl(props:any) {
-            var url = typeof props.url === "function" ? props.url() : props.url;
-            if (!this.state || this.state.url !== url)
-                this.setState({children: this.props.children, url: url}, this.load);
-            return !this.state || this.state.url === url;
-        }
-
-        render () {
-            return super.render(this.checkurl(this.props) && this.state.children && this.state.children.length > 0 ? this.state.children : this.props.children);
-        }
-    }*/
 
     /*let { title, designer, ui, target, ...inject } = app;
     return { Component 
@@ -101,7 +75,8 @@ export class Processor implements IProcessor
     private parse(obj:any, level:number, path:string, index?:number) : any {
         this.app.services.logger.log.call(this, LogLevel.Trace, 'Processor.parse', obj);
         let processor = this;
-        return new this.app.services.promise(function (r, f) {
+       
+        return new Promise(function (r:Function, f:any) {
             if (Array.isArray(obj)) {
                 if (typeof obj[0] === "string")
                     obj[0] = processor.resolve(obj[0]);
@@ -109,16 +84,15 @@ export class Processor implements IProcessor
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "inject") {
                     obj[0] = obj[0](Inject(processor.app, processor.construct(processor.app.services.UI.Component)));
-                    //processor.parse(obj, level, path, index).then(function (o:any) {console.log(o); r(o)}, f);
                     processor.parse(obj, level, path, index).then(r, f);
                 }
                 else 
-                    processor.app.services.promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '.[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
+                    Promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '.[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
-                processor.app.services.promise.all([ (obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(o => r(processor.parse(o[0], level,path, index)), f);
+                Promise.all([ (obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(o => r(processor.parse(o[0], level,path, index)), f);
             else if (obj && obj.then)  
-                processor.app.services.promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+                Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
             else if (obj)
                 {try {r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
             else r(obj);
@@ -175,7 +149,7 @@ export class Processor implements IProcessor
         } 
     }
 
-    process(obj:any):IPromise<any>
+    process(obj:any):Promise<any>
     {
         this.app.services.logger.log.call(this, LogLevel.Trace, 'Processor.process', obj);
 
@@ -195,7 +169,7 @@ export class Processor implements IProcessor
             return false;
         }
 
-        return new this.app.services.promise((resolve:Function, reject:Function) => {
+        return new Promise((resolve:Function, reject:Function) => {
             let isTemplate = visit(obj);
             try {
                 if (isTemplate) {

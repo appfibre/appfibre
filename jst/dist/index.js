@@ -13,7 +13,5 @@ var transformer_1 = require("./services/transformer");
 exports.Transformer = transformer_1.Transformer;
 var loader_1 = require("./services/loader");
 exports.Loader = loader_1.Loader;
-var promise_1 = require("./services/promise");
-exports.Promise = promise_1.Promise;
 var types = __importStar(require("./types"));
 exports.types = types;

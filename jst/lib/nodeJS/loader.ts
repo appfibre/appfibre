@@ -1,5 +1,4 @@
 import { IModuleSystem } from '../types';
-import path from 'path';
 
 let basepath:string|undefined;
 function nodeRequire(url:string) {

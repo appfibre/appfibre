@@ -1,4 +1,10 @@
-import { IPromise } from "./services/promise";
+declare class Promise<T> {
+    constructor(resolver: Function);
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
+    static all(promises: Promise<any>[]): Promise<any>;
+    static race(promises: Promise<any>[]): Promise<{}>;
+}
 export interface IApp {
     main: object | Array<object>;
     defaultState?: Object;
@@ -39,11 +45,7 @@ export interface Constructable<T> {
 export interface ILogger {
     log: (logLevel: LogLevel, title?: string, optionalParameters?: any[]) => string | void;
 }
-export declare type PromiseConstructor = new <T>(executor: (resolve: (value?: T | IPromise<T>) => void, reject: (reason?: any) => void) => void) => IPromise<T>;
 export interface IServices {
-    promise?: PromiseConstructor & {
-        all(promises: IPromise<any>[]): IPromise<any>;
-    };
     moduleSystem?: IModuleSystem | Constructable<IModuleSystem>;
     transformer?: ITransformer | Constructable<ITransformer>;
     logger?: ILogger | Constructable<ILogger>;
@@ -51,9 +53,6 @@ export interface IServices {
     navigation?: INavigation | Constructable<INavigation>;
 }
 export interface IServicesLoaded extends IServices {
-    promise: PromiseConstructor & {
-        all(promises: IPromise<any>[]): IPromise<any>;
-    };
     moduleSystem: IModuleSystem;
     transformer: ITransformer;
     logger: ILogger;
@@ -81,7 +80,7 @@ export interface IProcessor {
     resolve(fullpath: string): any;
     construct(jstComponent: any): any;
     locate(resource: any, path: string): any;
-    process(obj: any): IPromise<any>;
+    process(obj: any): Promise<any>;
 }
 export interface IWebOptions {
     target?: string | HTMLElement | null;
@@ -134,3 +133,4 @@ export declare enum LogLevel {
     "Info" = 4,
     "Trace" = 5
 }
+export {};

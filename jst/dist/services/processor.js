@@ -25,36 +25,6 @@ function clone(a, b) { for (var c = 1; c < arguments.length; c++) {
 function Inject(app, Proxy) {
     var inj = clone(app);
     inj.services.UI.Component = Proxy || app.services.UI.Component;
-    /*class Loader extends Component {
-        load() {
-            JstContext.load(this.state.url, true).then(obj => {this.setState({children: obj})}, err => {this.setState({children: ["Exception", err]})});
-        }
-
-        componentWillMount()
-        {
-            this.componentWillUpdate({}, this.props);
-        }
-
-        componentWillUpdate(props:any, nextprops:any)
-        {
-            this.checkurl(nextprops);
-        }
-        
-        shouldComponentUpdate(props:any) {
-            return this.checkurl(props);
-        }
-
-        checkurl(props:any) {
-            var url = typeof props.url === "function" ? props.url() : props.url;
-            if (!this.state || this.state.url !== url)
-                this.setState({children: this.props.children, url: url}, this.load);
-            return !this.state || this.state.url === url;
-        }
-
-        render () {
-            return super.render(this.checkurl(this.props) && this.state.children && this.state.children.length > 0 ? this.state.children : this.props.children);
-        }
-    }*/
     /*let { title, designer, ui, target, ...inject } = app;
     return { Component
         , Context
@@ -112,7 +82,7 @@ var Processor = /** @class */ (function () {
     Processor.prototype.parse = function (obj, level, path, index) {
         this.app.services.logger.log.call(this, types_1.LogLevel.Trace, 'Processor.parse', obj);
         var processor = this;
-        return new this.app.services.promise(function (r, f) {
+        return new Promise(function (r, f) {
             if (Array.isArray(obj)) {
                 if (typeof obj[0] === "string")
                     obj[0] = processor.resolve(obj[0]);
@@ -120,11 +90,10 @@ var Processor = /** @class */ (function () {
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "inject") {
                     obj[0] = obj[0](Inject(processor.app, processor.construct(processor.app.services.UI.Component)));
-                    //processor.parse(obj, level, path, index).then(function (o:any) {console.log(o); r(o)}, f);
                     processor.parse(obj, level, path, index).then(r, f);
                 }
                 else
-                    processor.app.services.promise.all(obj.map(function (v, i) { return processor.parse(v, level + 1, path + '.[' + i + ']', i); })).then(function (o) { try {
+                    Promise.all(obj.map(function (v, i) { return processor.parse(v, level + 1, path + '.[' + i + ']', i); })).then(function (o) { try {
                         r(processor.app.services.UI.processElement(o, level, index));
                     }
                     catch (e) {
@@ -133,9 +102,9 @@ var Processor = /** @class */ (function () {
                     } }, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")
-                processor.app.services.promise.all([(obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(function (o) { return r(processor.parse(o[0], level, path, index)); }, f);
+                Promise.all([(obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(function (o) { return r(processor.parse(o[0], level, path, index)); }, f);
             else if (obj && obj.then)
-                processor.app.services.promise.all([obj]).then(function (o) { return processor.parse(o[0], level, path, index).then(function (o2) { return r(o2); }, f); }, f);
+                Promise.all([obj]).then(function (o) { return processor.parse(o[0], level, path, index).then(function (o2) { return r(o2); }, f); }, f);
             else if (obj) {
                 try {
                     r(processor.app.services.UI.processElement(obj, level, index));
@@ -240,7 +209,7 @@ var Processor = /** @class */ (function () {
             }
             return false;
         }
-        return new this.app.services.promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var isTemplate = visit(obj);
             try {
                 if (isTemplate) {

@@ -2,7 +2,6 @@ require('systemjs/dist/s.js');
 require('systemjs/dist/extras/transform');
 require('systemjs/dist/extras/amd.js');
 require('systemjs/dist/extras/named-register.js');
-
 const jst = require('@appfibre/jst');
 if (!this.Promise) this.Promise = require('pinkie');
 
