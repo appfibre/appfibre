@@ -32,6 +32,7 @@ var WebUI = /** @class */ (function () {
     WebUI.prototype.processElement = function (element, depth, index) {
         if (depth % 2 === 0) {
             if (typeof element != "string" && !Array.isArray(element)) {
+                debugger;
                 this.app.services.logger.log.call(this, types_1.LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
                 throw new Error("Child element [2] should be either a string or array");
             }

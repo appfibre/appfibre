@@ -28,6 +28,13 @@ export interface IAppLoaded extends IApp {
     options: IOptions;
     run(): PromiseLike<any>;
 }
+export interface IEventType {
+    type: string;
+    correlationId?: string;
+}
+export interface IEventData extends IEventType {
+    data: any;
+}
 export interface IController {
     path: string;
     match: {
@@ -51,6 +58,7 @@ export interface IServices {
     logger?: ILogger | Constructable<ILogger>;
     UI?: IUI | Constructable<IUI>;
     navigation?: INavigation | Constructable<INavigation>;
+    data?: IData | Constructable<IData>;
 }
 export interface IServicesLoaded extends IServices {
     moduleSystem: IModuleSystem;
@@ -59,6 +67,10 @@ export interface IServicesLoaded extends IServices {
     UI: IUI;
     navigation: INavigation;
     processor: IProcessor;
+    events: {
+        subscribe(eventType: IEventType, callback: (data: IEventData) => any): void;
+        publish(data: IEventData): any;
+    };
 }
 export interface IUI {
     render(ui: any, parent?: any, mergeWith?: any): any;
@@ -68,7 +80,11 @@ export interface IUI {
 export interface INavigation {
     resolve(container?: string): any;
     a: Function;
-    container: Function;
+    Container: Function;
+}
+export interface IData {
+    bind: Function;
+    format: Function;
 }
 export interface IOptions {
     title?: string;
@@ -78,7 +94,7 @@ export interface IOptions {
 }
 export interface IProcessor {
     resolve(fullpath: string): any;
-    construct(jstComponent: any): any;
+    BaseComponent(): any;
     locate(resource: any, path: string): any;
     process(obj: any): Promise<any>;
 }

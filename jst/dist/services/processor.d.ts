@@ -11,7 +11,19 @@ export declare class Processor implements IProcessor {
     cache: any;
     type: "Processor";
     constructor(app: IAppLoaded);
-    construct(jstComponent: any): any;
+    BaseComponent(): {
+        new (): {
+            [x: string]: any;
+            render(obj: any): any;
+        };
+        [x: string]: any;
+    };
+    createClass(B: any, d: any): {
+        new (tag: any, attributes: any, children: any): {
+            [x: string]: any;
+        };
+        [x: string]: any;
+    };
     locate(resource: any, path: string): any;
     getFunctionName(obj: any): string;
     private parse;

@@ -5,7 +5,7 @@ const babel = require('rollup-plugin-babel');
 export default {
 	input: 'src/system.js',
 	output: [
-		{ file: 'dist/systemjs-jst.js', format: 'iife', sourcemap: true, name: 'sjst', globals: { '@appfibre/jst': 'jst'} },
+		{ file: 'dist/systemjs-jst.js', format: 'iife', sourcemap: true, name: 'sjst', globals: { '@appfibre/jst': 'jst', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} },
 	],
 	plugins: [ /*babel()
 			 , */resolve(),

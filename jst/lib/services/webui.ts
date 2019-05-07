@@ -3,7 +3,7 @@ import { IUI, IAppLoaded, LogLevel } from "../types";
 export class WebUI implements IUI
 {
     Component: any;
-    app:IAppLoaded;
+    private app:IAppLoaded;
     renderInternal:any;
     processElementInternal:any;
     type:"UI"
@@ -41,6 +41,7 @@ export class WebUI implements IUI
         if (depth % 2 === 0) 
         {
             if (typeof element != "string" && !Array.isArray(element)) {
+                debugger;
                 this.app.services.logger.log.call(this, LogLevel.Error, "Child element [2] should be either a string or array", [{element: element}]);
                 throw new Error("Child element [2] should be either a string or array");
             }

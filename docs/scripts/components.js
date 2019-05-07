@@ -77,6 +77,10 @@ var NavbarDropdown = function transform(a, c) {
              ];
 };
 
+var CodeMirror = function inject(app) {
+    return new Promise(function (r, f) { app.services.moduleSystem.import('./scripts/codemirror.js').then(function(o) { r(o.default)})});
+}
+
 define(['../pages/sitemap.json'], function(menus) {
     var Bulma = { Navbar: Navbar, NavbarBurger: NavbarBurger, NavbarMenu: NavbarMenu, NavbarStart: NavbarStart, NavbarEnd: NavbarEnd, NavbarItem: NavbarItem, NavbarItemLink: NavbarItemLink, NavbarDropdown: NavbarDropdown, NavbarLink: NavbarLink };
     var Menus = function transform() {
@@ -93,12 +97,12 @@ define(['../pages/sitemap.json'], function(menus) {
                                             return x.children && x.children.length > 0 
                                             ?   [ "Bulma.NavbarItem"
                                                 , { className: ((location.pathname == x.path) ? " is-active" : "") }
-                                                , [["a", { className: "navbar-link", href: x.path }, [[location.pathname == x.path ? "em" : "span", {}, x.name]]],
-                                                    ["Bulma.NavbarDropdown", { "className": "is-boxed"}, x.children.map(function (y) { return ["a", { className: "navbar-item", onClick: function () { debugger; return navigate(y.path); } }, [[location.pathname == x.path ? "em" : "span", {}, y.name]]]; })
+                                                , [["Navigation.a", { className: "navbar-link", href: x.path, container: "content" }, [[location.pathname == x.path ? "em" : "span", {}, x.name]]],
+                                                    ["Bulma.NavbarDropdown", { "className": "is-boxed"}, x.children.map(function (y) { return ["Navigation.a", { className: "navbar-item", href: y.path, container: "content"}, [[location.pathname == x.path ? "em" : "span", {}, y.name]]]; })
                                                 ]]
                                                 ]
-                                            :   ["Navigation.a"
-                                                , { className: "navbar-item" + ((location.pathname == x.path) ? " is-active" : ""), href: x.path/*, onClick: function () { debugger; alert(app); return navigate(x.path); }*/ },
+                                            :   [ "Navigation.a"
+                                                , { className: "navbar-item" + ((location.pathname == x.path) ? " is-active" : ""), href: x.path, container: "content"/*, onClick: function () { debugger; alert(app); return navigate(x.path); }*/ },
                                                 [[location.pathname == x.path ? "em" : "span", {}, x.name]]
                                                 ]; 
                                         })
@@ -121,5 +125,5 @@ define(['../pages/sitemap.json'], function(menus) {
         
     };
 
-    return { Menus: Menus, Bulma: Bulma };
+    return { Menus: Menus, Bulma: Bulma, CodeMirror: CodeMirror};
 });

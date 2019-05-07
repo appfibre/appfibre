@@ -2,11 +2,7 @@
 exports.__esModule = true;
 var types_1 = require("./types");
 //import { Intercept } from "./intercept";
-var loader_1 = require("./services/loader");
-var transformer_1 = require("./services/transformer");
-var processor_1 = require("./services/processor");
-var webui_1 = require("./services/webui");
-var navigation_1 = require("./services/navigation");
+var services_1 = require("./services");
 var App = /** @class */ (function () {
     function App(app) {
         if (app === void 0) { app = { main: [] }; }
@@ -23,11 +19,12 @@ var App = /** @class */ (function () {
                     if (logLevel <= (_this && _this.options && _this.options.logLevel ? (types_1.LogLevel[_this.options.logLevel] || 2) : 2))
                         logger_1 ? logger_1.log.bind(_this, logLevel, title, optionalParameters) : [function (title, optionalParameters) { }, console.error, console.error, console.warn, console.info, console.info][logLevel](title + '\r\n', optionalParameters || [_this]);
                 } };
-            s.transformer = s.transformer ? (typeof s.transformer === "object" ? s.transformer : new s.transformer(this)) : new transformer_1.Transformer({ module: types_1.ModuleSystem.None });
-            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new loader_1.Loader(this.options.basePath);
-            s.navigation = s.navigation ? (typeof s.navigation === "object" ? s.navigation : new s.navigation(this)) : navigation_1.Navigation;
-            s.UI = s.UI ? (typeof s.UI === "object" ? s.UI : new s.UI(this)) : new webui_1.WebUI(this);
-            this.services = { moduleSystem: s.moduleSystem, processor: new processor_1.Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
+            s.transformer = s.transformer ? (typeof s.transformer === "object" ? s.transformer : new s.transformer(this)) : new services_1.Transformer({ module: types_1.ModuleSystem.None });
+            s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new services_1.Loader(this.options.basePath);
+            s.navigation = s.navigation ? (typeof s.navigation === "object" ? s.navigation : new s.navigation(this)) : services_1.Navigation;
+            s.data = s.data ? (typeof s.data === "object" ? s.data : new s.data(this)) : services_1.Data;
+            s.UI = s.UI ? (typeof s.UI === "object" ? s.UI : new s.UI(this)) : new services_1.WebUI(this);
+            this.services = { moduleSystem: s.moduleSystem, processor: new services_1.Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation, events: new services_1.Events(this) };
             this.controllers = {};
             if (app.controllers)
                 for (var c in app.controllers) {
@@ -36,7 +33,9 @@ var App = /** @class */ (function () {
                 }
             this.components = app.components;
             if (typeof this.components === "object" && !this.components["Navigation"])
-                this.components["Navigation"] = navigation_1.Navigation;
+                this.components["Navigation"] = services_1.Navigation;
+            if (typeof this.components === "object" && !this.components["Data"])
+                this.components["Data"] = services_1.Data;
         }
         catch (ex) {
             console.error(ex);

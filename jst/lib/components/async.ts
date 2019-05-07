@@ -8,7 +8,7 @@ declare class Promise<T>  {
 }
 
 let Async = function inject(app:IAppLoaded) {
-    return class Async extends app.services.processor.construct(app.services.UI.Component)
+    return class Async extends app.services.processor.BaseComponent()
     {
         constructor(props:any)
         {

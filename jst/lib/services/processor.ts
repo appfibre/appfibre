@@ -1,5 +1,6 @@
 import { IAppLoaded, IProcessor, LogLevel } from "../types";
 import { Intercept } from "../components/intercept";
+import { basename } from "path";
 
 declare class Promise<T>  {
     constructor(resolver: Function);
@@ -12,7 +13,7 @@ declare class Promise<T>  {
 function s_xa(a:any,b?:any){return Object.prototype.hasOwnProperty.call(a,b)}
 function clone(a:any,b?:any){for(var c=1;c<arguments.length;c++){var d=arguments[c];if(d)for(var e in d)s_xa(d,e)&&(a[e]=d[e])}return a}
 
-function Inject (app : IAppLoaded, Proxy:any) : any {
+function Inject (app : IAppLoaded, Proxy?:any) : any {
     let inj = clone(app);
     inj.services.UI.Component = Proxy || app.services.UI.Component;
 
@@ -38,14 +39,26 @@ export class Processor implements IProcessor
         this.app = app;
     }
 
-    construct(jstComponent : any) : any {
-        let ctx = this;
-        return class extends jstComponent {
+    BaseComponent() {
+        let app = this.app;
+        return class extends app.services.UI.Component {
             render(obj : any) {
-                if (Array.isArray(obj) && obj.length === 1 && !Array.isArray(obj[0])) return typeof obj[0] == "string" ? ctx.parse(obj, 0, '') : obj[0];
-                return obj == null || typeof obj === "string" || obj.$$typeof ? obj : ctx.parse(obj, 0, '');
+                return app.services.UI.processElement(obj, 0);
             }
         }
+    }
+
+    createClass(B:any, d:any) {
+        return class extends B {
+            constructor(tag:any, attributes:any, children:any) 
+            {
+                let b = super(tag, attributes, children);
+                var i = typeof d === "function" ? d.call(b, b) : d;
+                if (b !== undefined) for (var p in b.__proto__) if (!i[p]) i[p] = b[p];
+                if (i["constructor"]) i.constructor.call(i, i);
+                return i;
+            }
+        };        
     }
 
     locate(resource:any, path:string) {
@@ -82,19 +95,17 @@ export class Processor implements IProcessor
                     obj[0] = processor.resolve(obj[0]);
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") 
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
-                else if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "inject") {
-                    obj[0] = obj[0](Inject(processor.app, processor.construct(processor.app.services.UI.Component)));
-                    processor.parse(obj, level, path, index).then(r, f);
-                }
                 else 
-                    Promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '.[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
+                    Promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
-                Promise.all([ (obj)(Inject(processor.app, processor.construct(processor.app.services.UI.Component)))]).then(o => r(processor.parse(o[0], level,path, index)), f);
+                Promise.all([ (obj)(Inject(processor.app))]).then(o => r(processor.parse(o[0], level,path, index)), f);
+            else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") 
+                try{r(processor.createClass( processor.BaseComponent(), obj));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
             else if (obj && obj.then)  
                 Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
             else if (obj)
-                {try {r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
+                { try { r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
             else r(obj);
         });
     }
@@ -115,13 +126,12 @@ export class Processor implements IProcessor
             let obj:any = this.app.components || Object;
             let jst = false;
             let prop = "default";
-            
             for (var part = 0; part < path.length; part++) {
-                if (typeof obj === "function" && this.getFunctionName(obj) === "inject") 
-                    obj = obj(Inject(this.app, this.construct(this.app.services.UI.Component)));
+                if (typeof obj === "function" && this.getFunctionName(obj) === "inject") obj = obj(Inject(this.app, this.BaseComponent()));
                 if (obj[path[part]] !== undefined) {
                     if (part == path.length-1) jst = obj.__jst;
                     obj = obj[path[part]];
+                    if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, this.BaseComponent()));
                 }
                 else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj = path[part];
@@ -141,11 +151,11 @@ export class Processor implements IProcessor
             }
             else if (jst) 
                 prop = path[path.length-1];
+            //if (typeof obj == "function" && this.getFunctionName(obj) === "inject")
+            //    obj = obj(Inject(this.app, jst ? class Component extends this.app.services.UI.Component { render(obj:any):any { return this.parse(!this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, this.construct(this.app.UI.Component)] : obj); }} : this.construct(this.app.services.UI.Component)));
 
-            if (typeof obj == "function" && this.getFunctionName(obj) === "inject")
-                obj = obj(Inject(this.app, jst ? class Component extends this.app.services.UI.Component { render(obj:any):any { return this.parse(!this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, this.construct(this.app.UI.Component)] : obj); }} : this.construct(this.app.services.UI.Component)));
-
-            return this.cache[fullpath] = Array.isArray(obj) ? class Wrapper extends this.app.services.UI.Component { shouldComponentUpdate() { return true; } render() {if (!obj[1]) obj[1] = {}; if   (!obj[1].key) obj[1].key = 0; return this.parse(jst && !this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, [obj]] : obj); }} : obj;
+            //return this.cache[fullpath] = Array.isArray(obj) ? class Wrapper extends this.app.services.UI.Component { shouldComponentUpdate() { return true; } render() {if (!obj[1]) obj[1] = {}; if   (!obj[1].key) obj[1].key = 0; return this.parse(jst && !this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, [obj]] : obj); }} : obj;
+            return this.cache[fullpath] = obj;
         } 
     }
 

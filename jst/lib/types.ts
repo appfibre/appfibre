@@ -1,3 +1,5 @@
+import { types } from ".";
+
 declare class Promise<T>  {
   constructor(resolver: Function);
   then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
@@ -28,6 +30,15 @@ export interface IAppLoaded extends IApp {
   run():PromiseLike<any>
 }
 
+export interface IEventType {
+  type:string
+  correlationId?:string
+}
+
+export interface IEventData extends IEventType {
+  data:any
+}
+
 export interface IController {
   path:string
   match:{test:(url:string)=>boolean}
@@ -52,6 +63,7 @@ export interface IServices {
     logger?:ILogger|Constructable<ILogger>
     UI?:IUI|Constructable<IUI>
     navigation?:INavigation|Constructable<INavigation>
+    data?:IData|Constructable<IData>
 }
 
 export interface IServicesLoaded extends IServices {
@@ -61,6 +73,10 @@ export interface IServicesLoaded extends IServices {
    UI:IUI
    navigation:INavigation
    processor:IProcessor
+   events: {
+    subscribe(eventType:IEventType, callback:(data:IEventData)=>any):void
+    publish(data:IEventData):any
+  }
 }
 
 export interface IUI {
@@ -74,7 +90,12 @@ export interface IUI {
 export interface INavigation {
     resolve(container?:string):any
     a:Function
-    container:Function
+    Container:Function
+}
+
+export interface IData {
+  bind:Function
+  format:Function
 }
 
 export interface IOptions {
@@ -86,7 +107,7 @@ export interface IOptions {
 
 export interface IProcessor {
   resolve(fullpath:string) : any
-  construct(jstComponent : any) : any
+  BaseComponent() : any
   locate(resource:any, path:string) : any
   //processElement(ar : Array<any>, supportAsync?: boolean, light?:boolean):any
   //parse(obj:any, key?:number|undefined, supportAsync?:boolean):any

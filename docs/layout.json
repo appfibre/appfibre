@@ -5,7 +5,7 @@
     , [ [ "div"
         , { "style" : {  "minHeight": "calc(100vh - 40px)" }, "key": 1}
         , [ [ "Menus" ] 
-          , [ "Navigation.resolve", "content" ]
+          , [ "Navigation.Container", {"container": "content", "style": { "margin": "5px"}}]
           ]
         ]
       , [ "nav", { "style": { "textAlign": "center"}, "key": 2}, [ [ "i", { "style": {"position": "relative", "top": "5px"} , "key":3}, "fibre - 2019" ] ] ]

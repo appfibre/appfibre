@@ -1,7 +1,7 @@
 import { IUI, IAppLoaded } from "../types";
 export declare class WebUI implements IUI {
     Component: any;
-    app: IAppLoaded;
+    private app;
     renderInternal: any;
     processElementInternal: any;
     type: "UI";

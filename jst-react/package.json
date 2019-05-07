@@ -8,10 +8,10 @@
   },
   "bundleDependencies": [],
   "dependencies": {
-    "@types/react": "^16.4.18",
-    "@types/react-dom": "^16.0.10",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2"
+    "@types/react": "^16.8.14",
+    "@types/react-dom": "^16.8.4",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
   },
   "deprecated": false,
   "description": "JST to React converstion",

@@ -27,8 +27,8 @@ exports.__esModule = true;
 var types_1 = require("../types");
 var Navigation = {
     resolve: function transform(container) {
-        var url = (Object.getOwnPropertyDescriptor(global, "location")) ? location.href : '';
-        if (Object.keys(this.controllers).length === 0)
+        var url = typeof location === "undefined" ? '' : location.href;
+        if (this.controllers && Object.keys(this.controllers).length === 0)
             return this.main;
         for (var c in this.controllers)
             if (this.controllers[c].container ? this.controllers[c].container : '' == (container || '')) {
@@ -57,7 +57,7 @@ var Navigation = {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
             a.prototype.click = function () {
-                alert(this.props.href);
+                app.services.events.publish({ type: "Navigation.Redirect", correlationId: this.props.container, data: this.props.href });
                 if (event)
                     event.preventDefault();
             };
@@ -67,15 +67,61 @@ var Navigation = {
             return a;
         }(app.services.UI.Component));
     },
-    container: function transform(app, t, a, c) {
+    Container: function inject(app) {
         return /** @class */ (function (_super) {
             __extends(Container, _super);
-            function Container() {
-                return _super.call(this) || this;
+            function Container(props) {
+                var _this = _super.call(this) || this;
+                _this.state = {};
+                _this.renderInternal = _this.renderInternal.bind(_this);
+                _this.resolve = _this.resolve.bind(_this);
+                app.services.events.subscribe({ type: "Navigation.Redirect", correlationId: props ? props.container : undefined }, _this.onRedirect.bind(_this));
+                return _this;
             }
+            Container.prototype.onRedirect = function (event) {
+                if (history && history.pushState)
+                    history.pushState(null, '', event.data);
+                else
+                    location.replace(event.data);
+                return this.resolve(event.correlationId);
+            };
+            Container.prototype.resolve = function (correlationId) {
+                var result = app.services.navigation.resolve.call(app, correlationId);
+                if (result.then)
+                    result.then(this.renderInternal);
+                else
+                    this.renderInternal(result);
+                return result != null;
+            };
+            Container.prototype._extend = function (obj, props) {
+                if (obj == undefined)
+                    obj = {};
+                for (var i in props)
+                    if (obj[i] !== props[i])
+                        obj[i] = typeof obj[i] == "object" && typeof props[i] == "object" ? this._extend(obj[i], props[i]) : obj[i] || props[i];
+                return obj;
+            };
+            Container.prototype.renderInternal = function (obj) {
+                var _this = this;
+                if (Array.isArray(obj) && obj[1])
+                    try {
+                        obj[1] = this._extend(obj[1], this.props);
+                    }
+                    catch (e) {
+                        app.services.logger.log(types_1.LogLevel.Warn, "Could not copy navigation properties: " + e.message, [e]);
+                    }
+                app.services.processor.process(obj).then(function (o) { return _this.setState({ data: o }); });
+            };
+            Container.prototype.componentDidMount = function () {
+                this.resolve(this.props.container);
+            };
             Container.prototype.render = function () {
-                return app.services.UI.processElement([t, __assign({}, a, { onClick: this.click.bind(this) }), c], 0, undefined);
-                //return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
+                if (this.state.data) {
+                    return app.services.UI.processElement(this.state.data, 1);
+                }
+                else if (this.props.container) {
+                    return "";
+                }
             };
             return Container;
         }(app.services.UI.Component));

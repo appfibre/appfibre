@@ -1377,6 +1377,52 @@ var sjst = (function () {
     };
   }, collectionStrong, true);
 
+  var nativeAssign = Object.assign; // should work with symbols and should have deterministic property order (V8 bug)
+
+  var objectAssign = !nativeAssign || fails(function () {
+    var A = {};
+    var B = {}; // eslint-disable-next-line no-undef
+
+    var symbol = Symbol();
+    var alphabet = 'abcdefghijklmnopqrst';
+    A[symbol] = 7;
+    alphabet.split('').forEach(function (chr) {
+      B[chr] = chr;
+    });
+    return nativeAssign({}, A)[symbol] != 7 || objectKeys(nativeAssign({}, B)).join('') != alphabet;
+  }) ? function assign(target, source) {
+    // eslint-disable-line no-unused-vars
+    var T = toObject(target);
+    var argumentsLength = arguments.length;
+    var index = 1;
+    var getOwnPropertySymbols = objectGetOwnPropertySymbols.f;
+    var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+    while (argumentsLength > index) {
+      var S = indexedObject(arguments[index++]);
+      var keys = getOwnPropertySymbols ? objectKeys(S).concat(getOwnPropertySymbols(S)) : objectKeys(S);
+      var length = keys.length;
+      var j = 0;
+      var key;
+
+      while (length > j) {
+        if (propertyIsEnumerable.call(S, key = keys[j++])) T[key] = S[key];
+      }
+    }
+
+    return T;
+  } : nativeAssign;
+
+  // https://tc39.github.io/ecma262/#sec-object.assign
+
+  _export({
+    target: 'Object',
+    stat: true,
+    forced: Object.assign !== objectAssign
+  }, {
+    assign: objectAssign
+  });
+
   var TO_STRING_TAG$2 = wellKnownSymbol('toStringTag');
   var test = {};
   test[TO_STRING_TAG$2] = 'z'; // `Object.prototype.toString` method implementation

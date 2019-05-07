@@ -8,7 +8,7 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "preact": "^8.2.7"
+    "preact": "^8.4.2"
   },
   "deprecated": false,
   "description": "JST Preact templating add-in",

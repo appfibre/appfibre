@@ -8,11 +8,7 @@ declare class Promise<T>  {
 }
   
 //import { Intercept } from "./intercept";
-import { Loader } from "./services/loader";
-import { Transformer } from "./services/transformer";
-import { Processor } from "./services/processor";
-import { WebUI } from "./services/webui";
-import { Navigation } from "./services/navigation";
+import { Data, Events, Loader, Navigation, Processor, Transformer, WebUI } from "./services";
 
 export class App implements IAppLoaded
 {
@@ -43,8 +39,9 @@ export class App implements IAppLoaded
             s.transformer = s.transformer ? (typeof s.transformer === "object" ? s.transformer : new s.transformer(this)) : new Transformer( {module: ModuleSystem.None} );
             s.moduleSystem = s.moduleSystem ? (typeof s.moduleSystem === "object" ? s.moduleSystem : new s.moduleSystem(this)) : new Loader(this.options.basePath);
             s.navigation = s.navigation ? (typeof s.navigation === "object" ? s.navigation : new s.navigation(this)) : Navigation;
+            s.data = s.data ? (typeof s.data === "object" ? s.data : new s.data(this)) : Data;
             s.UI = s.UI ? (typeof s.UI === "object" ? s.UI : new s.UI(this)) : new WebUI(this);
-            this.services = {moduleSystem: s.moduleSystem, processor: new Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation };
+            this.services = {moduleSystem: s.moduleSystem, processor: new Processor(this), transformer: s.transformer, logger: s.logger, UI: s.UI, navigation: s.navigation, events: new Events(this) };
             this.controllers = {};
             if (app.controllers)
                 for (let c in app.controllers) {
@@ -53,6 +50,7 @@ export class App implements IAppLoaded
                 }
             this.components = app.components;
             if (typeof this.components === "object" && !this.components["Navigation"]) this.components["Navigation"] = Navigation;
+            if (typeof this.components === "object" && !this.components["Data"]) this.components["Data"] = Data;
 
         } catch (ex) {
             console.error(ex);

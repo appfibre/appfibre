@@ -64,7 +64,7 @@ export class Transformer implements ITransformer {
                         throw new Error(`Could not locate parser ${keys[k].substr(1)}`)
                 }
             if (!processed) 
-                output = (et ? "" : "{") + this.format(keys.filter(k => k.length < 2 || k.substr(0, 2) != '..').map((k,i) => ( this.reservedWords.indexOf(k) > -1 ? "\"" + k + "\"" : k ) + ":" + (this.settings.compact ? '' : ' ') + this.process(obj[k], esc, false, parseSettings, offset+1)), parseSettings, offset) + (et ? "" : "}");
+                output = (et ? "" : "{") + this.format(keys.filter(k => k.length < 2 || k.substr(0, 2) != '..').map((k,i) => ( this.reservedWords.indexOf(k) > -1 || /[^a-z0-9]/i.test(k) ? "\"" + k + "\"" : k ) + ":" + (this.settings.compact ? '' : ' ') + this.process(obj[k], esc, false, parseSettings, offset+1)), parseSettings, offset) + (et ? "" : "}");
         } else if (typeof obj === "function") // object not JSON...
             output = obj.toString();
         else

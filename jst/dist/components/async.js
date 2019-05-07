@@ -37,6 +37,6 @@ var Async = function inject(app) {
             return this.state.value && typeof this.state.value !== "string" ? _super.prototype.render.call(this, this.state.value) : "";
         };
         return Async;
-    }(app.services.processor.construct(app.services.UI.Component)));
+    }(app.services.processor.BaseComponent()));
 };
 exports.Async = Async;

@@ -1,6 +1,25 @@
-[   { "name": "Introduction", "path": "?Introduction", "content": {".require": "~/Introduction.jst"} },
-    { "name": "JST", "path": "?JST" },
-    { "name": "App", "path": "?App" } ,
+[   { "name": "Introduction", "path": "?index", "content": {".require": "~/index.jst"} },
+    { "name": "JST Transform", "path": "?jst/index", "children": 
+        [
+            {"name":"Plugins", "path": "?jst/plugins"}
+        ] },
+    { "name": "App Framework", "path": "?App/index" , "children": 
+        [
+              {"name":"Components", "path": "?app/components"}
+            , {"name":"Services", "path": "?app/services"}
+        ]
+    },
+    { "name": "Server", "path": "?server/index", "children": 
+        [
+            {"name":"Introduction", "path": "?server/index"}
+        ]
+    } ,
+    { "name": "Demos", "path": "?Demo", "children": 
+        [
+              {"name":"JST", "path": "?demo/jst"}
+            , {"name":"App", "path": "?demo/app"}
+        ]
+    } ,
     { "name": "About", "path": "?About", "children": 
         [ { "name": "Support", "children": [], "path": "?About/Support" }
         ] 

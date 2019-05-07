@@ -1,8 +1,9 @@
 require('systemjs/dist/s.js');
 require('systemjs/dist/extras/transform');
-require('systemjs/dist/extras/amd.js');
+require('systemjs/dist/extras/named-exports.js');
 require('systemjs/dist/extras/named-register.js');
-const jst = require('@appfibre/jst');
+require('systemjs/dist/extras/amd.js');
+const externals = { "@appfibre/jst": require('@appfibre/jst') };
 if (!this.Promise) this.Promise = require('pinkie');
 
 const systemJSPrototype = System.constructor.prototype;
@@ -11,13 +12,23 @@ const instantiate = systemJSPrototype.instantiate;
 systemJSPrototype.instantiate = function (url, parent) {
 	if (url.slice(-5) === '.wasm')
 		return instantiate.call(this, url, parent);
+	else if (url.slice(-4) === '.css')
+	{
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = url;
+		document.head.appendChild(link);
+		return [[], function () { return {"execute": undefined }}];
+	}
+
 
 	const loader = this;
 	if (url[0] === '@')
 		return [[], function (_export) {
-			_export('default', jst);
-			const k = Object.keys(jst);
-			for (let i in k) _export(k[i], jst[k[i]]);
+			_export('default', externals[url]);
+			const k = Object.keys(externals[url]);
+			for (let i in k) _export(k[i], externals[url][k[i]]);
 			return { execute (z) {}};
 		}];
 
@@ -46,7 +57,7 @@ systemJSPrototype.instantiate = function (url, parent) {
 
 // Hookable transform function!
 function transform (id, source) {
-	return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new jst.Transformer({ module: 'amd'}).transform(source, id).code/*.replace('function (_0) {', 'function (_0) { debugger;')*/ : source;
+	return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new externals['@appfibre/jst'].Transformer({ module: 'amd'}).transform(source, id).code/*.replace('function (_0) {', 'function (_0) { debugger;')*/ : source;
 }
 
 const resolve = systemJSPrototype.resolve;
