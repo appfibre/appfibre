@@ -1,0 +1,20 @@
+{
+  "name": "app-components",
+  "version": "0.0.1",
+  "description": "Fibre App component library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@appfibre/jst": "^0.1.4",
+    "rollup": "^1.12.1",
+    "rollup-plugin-buble": "^0.19.6",
+    "rollup-plugin-typescript2": "^0.21.0",
+    "rollup-plugin-uglify": "^6.0.2",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {}
+}
