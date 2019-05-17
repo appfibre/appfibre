@@ -1,13 +1,41 @@
-import { INavigation, IAppLoaded, LogLevel, IEventData} from "../types";
+import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
+import { BaseComponent } from "../components";
+
+function parse(url:string)  {
+    var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
+    var params:{[key:string]:string} = {};
+    var index = 0;
+    if (qs) qs[1].split('&').forEach(function(p:string) {
+        var v = p.split('=');
+        params[v.length === 2 ? v[0] : index++] = v[v.length-1];
+    });
+    return {
+        path: qs && qs[1] ? qs[1] : ''
+    }
+}
+
+function clone(o:any):any {
+    if (Array.isArray(o)) 
+        return o.map(o => clone(o));
+    else if (typeof o === "object") {
+        var z = Object.create(o);
+        Object.keys(o).forEach(k => z[k] = o[k]);
+        return z;
+    } else 
+    return o;
+}
+
 
 const Navigation:INavigation = {
+
+    current: parse(typeof location === "object" ? location.href : ''),
+    
     resolve: function transform(this:IAppLoaded, container:string) {
         let url = typeof location === "undefined" ? '' : location.href;
-        
         if (this.controllers && Object.keys(this.controllers).length === 0) 
             return this.main;
         for (let c in this.controllers)
-            if (this.controllers[c].container ? this.controllers[c].container : '' == (container || '')) {
+            if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
                 this.services.logger.log(LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
                 if (match) {
@@ -30,6 +58,8 @@ const Navigation:INavigation = {
         return class a extends app.services.UI.Component 
         {
             click() {
+                app.services.navigation.current = parse(this.props.href);
+                if (history && history.pushState) history.pushState(null, '', this.props.href); else location.replace(this.props.href);
                 app.services.events.publish({type: "Navigation.Redirect", correlationId: this.props.container, data:this.props.href});
                 if (event) event.preventDefault();
             }
@@ -40,58 +70,37 @@ const Navigation:INavigation = {
         }
     },
 
-    Container: function inject(app:IAppLoaded) {
-        return class Container extends app.services.UI.Component 
-        {
-            state:{data?:any}
-            constructor(props?:{container?:string}) {
-                super();
-                this.state = {};
-                this.renderInternal = this.renderInternal.bind(this);
-                this.resolve = this.resolve.bind(this);
-                app.services.events.subscribe({type:"Navigation.Redirect", correlationId: props ? props.container : undefined}, this.onRedirect.bind(this));
-            }
+    Container: function transform(this:IAppLoaded, a:any, c:any) {
+            let app = this;
+            return [class Container extends BaseComponent(app) {
+                state:{a?:any, c:any}
 
-            onRedirect(event:IEventData) {
-                if (history && history.pushState) history.pushState(null, '', event.data); else location.replace(event.data);
-                return this.resolve(event.correlationId);
-            }
-
-            resolve(correlationId:any) {
-                var result = app.services.navigation.resolve.call(app, correlationId);
-                if (result.then) result.then(this.renderInternal); else this.renderInternal(result);
-                return result != null;
-            }
-
-            _extend(obj:any, props:any) {
-                if (obj == undefined) obj = {};
-                for (var i in props) 
-                    if (obj[i] !== props[i])
-                        obj[i] = typeof obj[i] == "object" && typeof props[i] == "object" ? this._extend(obj[i], props[i]) : obj[i] || props[i];
-                return obj;
-            }
-
-            renderInternal(obj:object) {
-                if (Array.isArray(obj) && obj[1])
-                try { obj[1] = this._extend(obj[1], this.props); } catch(e) {app.services.logger.log(LogLevel.Warn, "Could not copy navigation properties: " + e.message, [e])}
-                app.services.processor.process(obj).then(o => this.setState({data: o}));
-            }
-
-            componentDidMount() {
-                this.resolve(this.props.container);
-            }
-
-            render() {
-                if (this.state.data) {
-                    return app.services.UI.processElement(this.state.data, 1);
+                constructor(props:{a?:any, c:any}) {
+                    super();
+                    this.state = { a: props.a, c: props.c };
+                    this.onRedirect = this.onRedirect.bind(this)
                 }
-                else if (this.props.container) {
-                    return "";
+
+                onRedirect(event:IEventData) {
+                    var e = clone(this.props.c);
+                    if (Array.isArray(e)) e.forEach( (c, i) => { if (Array.isArray(c)) c[1].key = Date.now() + i ;} );
+                    this.setState( {c: e });
                 }
-            }
-        }
-    }
+
+                componentWillMount() {
+                    app.services.events.subscribe({type:"Navigation.Redirect"}, this.onRedirect);
+                }
     
+                componentWillUnmount() {
+                    app.services.events.unsubscribe({type:"Navigation.Redirect"}, this.onRedirect);
+                }
+
+                render() {
+                    return super.render(this.state.c);
+                }
+
+            }, {a, c}];
+        }
 };
 
 export {Navigation};

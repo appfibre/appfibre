@@ -1,9 +1,10 @@
-declare class Promise<T> {
+export declare class Promise<T> {
     constructor(resolver: Function);
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
     static all(promises: Promise<any>[]): Promise<any>;
     static race(promises: Promise<any>[]): Promise<{}>;
+    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 export interface IApp {
     main: object | Array<object>;
@@ -13,7 +14,7 @@ export interface IApp {
     options?: IOptions;
     services?: IServices;
     controllers?: {
-        [index: string]: IController | Constructable<IController>;
+        [index: number]: IController | Constructable<IController>;
     };
     context?: IContext;
     components?: {
@@ -69,6 +70,7 @@ export interface IServicesLoaded extends IServices {
     processor: IProcessor;
     events: {
         subscribe(eventType: IEventType, callback: (data: IEventData) => any): void;
+        unsubscribe(eventType: IEventType, callback: (data: IEventData) => any): void;
         publish(data: IEventData): any;
     };
 }
@@ -78,6 +80,9 @@ export interface IUI {
     Component: any;
 }
 export interface INavigation {
+    current: {
+        path: string;
+    };
     resolve(container?: string): any;
     a: Function;
     Container: Function;
@@ -94,9 +99,9 @@ export interface IOptions {
 }
 export interface IProcessor {
     resolve(fullpath: string): any;
-    BaseComponent(): any;
     locate(resource: any, path: string): any;
     process(obj: any): Promise<any>;
+    processElement(obj: element | promisedElement, index?: number): any;
 }
 export interface IWebOptions {
     target?: string | HTMLElement | null;
@@ -149,4 +154,12 @@ export declare enum LogLevel {
     "Info" = 4,
     "Trace" = 5
 }
-export {};
+export declare type elementBase = [string | Function, {
+    [key: string]: any;
+}?, (string | Function | {} | {
+    [index: number]: elementBase;
+})?];
+export declare type element = elementBase | string | Function | {} | undefined | {
+    [index: number]: element | Promise<element>;
+};
+export declare type promisedElement = Promise<element>;

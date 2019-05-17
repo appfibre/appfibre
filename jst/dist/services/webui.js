@@ -29,12 +29,14 @@ var WebUI = /** @class */ (function () {
         else
             this.app.services.logger.log.call(this, types_1.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
     };
+    // ether an element, or array of elements depending on depth == even or odd
     WebUI.prototype.processElement = function (element, depth, index) {
         if (depth % 2 === 0) {
             if (typeof element != "string" && !Array.isArray(element)) {
                 debugger;
                 this.app.services.logger.log.call(this, types_1.LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
-                throw new Error("Child element [2] should be either a string or array");
+                //throw new Error("Child element [2] should be either a string or array");
+                return element;
             }
             else if (index !== undefined && Array.isArray(element)) {
                 element[1] = element[1] || {};

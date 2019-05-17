@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var types_1 = require("../types");
+var components_1 = require("../components");
 function s_xa(a, b) { return Object.prototype.hasOwnProperty.call(a, b); }
 function clone(a, b) { for (var c = 1; c < arguments.length; c++) {
     var d = arguments[c];
@@ -23,7 +24,7 @@ function clone(a, b) { for (var c = 1; c < arguments.length; c++) {
 } return a; }
 function Inject(app, Proxy) {
     var inj = clone(app);
-    inj.services.UI.Component = Proxy || app.services.UI.Component;
+    inj.services.UI.Component = Proxy || components_1.BaseComponent(app) /*app.services.UI.Component*/;
     /*let { title, designer, ui, target, ...inject } = app;
     return { Component
         , Context
@@ -39,35 +40,26 @@ var Processor = /** @class */ (function () {
         this.type = "Processor";
         this.app = app;
     }
-    Processor.prototype.BaseComponent = function () {
-        var app = this.app;
-        return /** @class */ (function (_super) {
-            __extends(class_1, _super);
-            function class_1() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            class_1.prototype.render = function (obj) {
-                return app.services.UI.processElement(obj, 0);
-            };
-            return class_1;
-        }(app.services.UI.Component));
+    Processor.prototype.Async = function () {
+        this.async = this.async || components_1.Async(this.app);
+        return this.async;
     };
     Processor.prototype.createClass = function (B, d) {
         return /** @class */ (function (_super) {
-            __extends(class_2, _super);
-            function class_2(tag, attributes, children) {
+            __extends(class_1, _super);
+            function class_1() {
                 var _this = this;
-                var b = _this = _super.call(this, tag, attributes, children) || this;
+                var b = _this = _super.call(this, arguments) || this;
                 var i = typeof d === "function" ? d.call(b, b) : d;
                 if (b !== undefined)
                     for (var p in b.__proto__)
                         if (!i[p])
                             i[p] = b[p];
                 if (i["constructor"])
-                    i.constructor.call(i, i);
+                    i.constructor.apply(i, arguments);
                 return i;
             }
-            return class_2;
+            return class_1;
         }(B));
     };
     Processor.prototype.locate = function (resource, path) {
@@ -99,8 +91,9 @@ var Processor = /** @class */ (function () {
         var processor = this;
         return new Promise(function (r, f) {
             if (Array.isArray(obj)) {
-                if (typeof obj[0] === "string")
+                if (typeof obj[0] === "string") {
                     obj[0] = processor.resolve(obj[0]);
+                }
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform")
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else
@@ -113,17 +106,18 @@ var Processor = /** @class */ (function () {
                     } }, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")
-                Promise.all([(obj)(Inject(processor.app))]).then(function (o) { return r(processor.parse(o[0], level, path, index)); }, f);
+                Promise.resolve((obj)(Inject(processor.app))).then(function (o) { return processor.parse(o, level, path, index).then(r, f); }, f);
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component")
                 try {
-                    r(processor.createClass(processor.BaseComponent(), obj));
+                    r(processor.createClass(components_1.BaseComponent(processor.app), obj));
                 }
                 catch (e) {
                     processor.app.services.logger.log(types_1.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
                     f(e);
                 }
-            else if (obj && obj.then)
-                Promise.all([obj]).then(function (o) { return processor.parse(o[0], level, path, index).then(function (o2) { return r(o2); }, f); }, f);
+            else if (Promise.resolve(obj) === obj) {
+                Promise.resolve(obj).then(function (o) { return processor.parse(o, level, path, index).then(function (o2) { return r(o2); }, f); }, f);
+            }
             else if (obj) {
                 try {
                     r(processor.app.services.UI.processElement(obj, level, index));
@@ -156,13 +150,13 @@ var Processor = /** @class */ (function () {
             var prop = "default";
             for (var part = 0; part < path.length; part++) {
                 if (typeof obj_1 === "function" && this.getFunctionName(obj_1) === "inject")
-                    obj_1 = obj_1(Inject(this.app, this.BaseComponent()));
+                    obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
                 if (obj_1[path[part]] !== undefined) {
                     if (part == path.length - 1)
                         jst = obj_1.__jst;
                     obj_1 = obj_1[path[part]];
                     if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject")
-                        obj_1 = obj_1(Inject(this.app, this.BaseComponent()));
+                        obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
                 }
                 else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj_1 = path[part];
@@ -172,12 +166,12 @@ var Processor = /** @class */ (function () {
                     else {
                         this.app.services.logger.log.call(this, types_1.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
                         return /** @class */ (function (_super) {
-                            __extends(class_3, _super);
-                            function class_3() {
+                            __extends(class_2, _super);
+                            function class_2() {
                                 return _super !== null && _super.apply(this, arguments) || this;
                             }
-                            class_3.prototype.render = function () { return _super.prototype.render.call(this, ["span", { "style": { "color": "red" } }, (fullpath || 'undefined') + " not found!"]); };
-                            return class_3;
+                            class_2.prototype.render = function () { return _super.prototype.render ? _super.prototype.render.call(this, ["span", { "style": { "color": "red" } }, (fullpath || 'undefined') + " not found!"]) : (fullpath || 'undefined') + " not found!"; };
+                            return class_2;
                         }(this.app.services.UI.Component));
                     }
                 }
@@ -194,6 +188,42 @@ var Processor = /** @class */ (function () {
             //return this.cache[fullpath] = Array.isArray(obj) ? class Wrapper extends this.app.services.UI.Component { shouldComponentUpdate() { return true; } render() {if (!obj[1]) obj[1] = {}; if   (!obj[1].key) obj[1].key = 0; return this.parse(jst && !this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, [obj]] : obj); }} : obj;
             return this.cache[fullpath] = obj_1;
         }
+    };
+    Processor.prototype.processElement = function (obj, index) {
+        var _this = this;
+        if (Array.isArray(obj)) {
+            if (typeof obj[0] === "string") {
+                obj[0] = this.resolve(obj[0]);
+            }
+            if (typeof obj[0] === "function") {
+                var name = this.getFunctionName(obj[0]);
+                switch (name) {
+                    case "transform":
+                        var key = index;
+                        if (obj[1] && obj[1].key)
+                            key = obj[1].key;
+                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+                    case "inject":
+                        obj[0] = (obj[0])(Inject(this.app));
+                        return this.processElement(obj);
+                    case "Component":
+                        obj[0] = this.createClass(components_1.BaseComponent(this.app), obj[0]);
+                        return this.processElement(obj);
+                }
+            }
+        }
+        if (Array.isArray(obj) && obj.some(function (c) { return Promise.resolve(c) === c; }))
+            return this.app.services.UI.processElement([this.Async(), { id: Date.now() }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+        else if (typeof obj === "string" || !obj)
+            return obj;
+        //else if (obj.then)  
+        //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+        if (Promise.resolve(obj) === obj)
+            obj = [this.Async(), { index: index }, obj];
+        if (Array.isArray(obj))
+            return this.app.services.UI.processElement([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) { return Array.isArray(c) ? _this.processElement(c, idx) : c; }) : obj[2]], 0, index);
+        else
+            return obj;
     };
     Processor.prototype.process = function (obj) {
         var _this = this;

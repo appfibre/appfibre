@@ -25,13 +25,39 @@ var __assign = (this && this.__assign) || function () {
 };
 exports.__esModule = true;
 var types_1 = require("../types");
+var components_1 = require("../components");
+function parse(url) {
+    var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
+    var params = {};
+    var index = 0;
+    if (qs)
+        qs[1].split('&').forEach(function (p) {
+            var v = p.split('=');
+            params[v.length === 2 ? v[0] : index++] = v[v.length - 1];
+        });
+    return {
+        path: qs && qs[1] ? qs[1] : ''
+    };
+}
+function clone(o) {
+    if (Array.isArray(o))
+        return o.map(function (o) { return clone(o); });
+    else if (typeof o === "object") {
+        var z = Object.create(o);
+        Object.keys(o).forEach(function (k) { return z[k] = o[k]; });
+        return z;
+    }
+    else
+        return o;
+}
 var Navigation = {
+    current: parse(typeof location === "object" ? location.href : ''),
     resolve: function transform(container) {
         var url = typeof location === "undefined" ? '' : location.href;
         if (this.controllers && Object.keys(this.controllers).length === 0)
             return this.main;
         for (var c in this.controllers)
-            if (this.controllers[c].container ? this.controllers[c].container : '' == (container || '')) {
+            if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
                 this.services.logger.log(types_1.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
                 if (match) {
@@ -57,6 +83,11 @@ var Navigation = {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
             a.prototype.click = function () {
+                app.services.navigation.current = parse(this.props.href);
+                if (history && history.pushState)
+                    history.pushState(null, '', this.props.href);
+                else
+                    location.replace(this.props.href);
                 app.services.events.publish({ type: "Navigation.Redirect", correlationId: this.props.container, data: this.props.href });
                 if (event)
                     event.preventDefault();
@@ -67,64 +98,34 @@ var Navigation = {
             return a;
         }(app.services.UI.Component));
     },
-    Container: function inject(app) {
-        return /** @class */ (function (_super) {
-            __extends(Container, _super);
-            function Container(props) {
-                var _this = _super.call(this) || this;
-                _this.state = {};
-                _this.renderInternal = _this.renderInternal.bind(_this);
-                _this.resolve = _this.resolve.bind(_this);
-                app.services.events.subscribe({ type: "Navigation.Redirect", correlationId: props ? props.container : undefined }, _this.onRedirect.bind(_this));
-                return _this;
-            }
-            Container.prototype.onRedirect = function (event) {
-                if (history && history.pushState)
-                    history.pushState(null, '', event.data);
-                else
-                    location.replace(event.data);
-                return this.resolve(event.correlationId);
-            };
-            Container.prototype.resolve = function (correlationId) {
-                var result = app.services.navigation.resolve.call(app, correlationId);
-                if (result.then)
-                    result.then(this.renderInternal);
-                else
-                    this.renderInternal(result);
-                return result != null;
-            };
-            Container.prototype._extend = function (obj, props) {
-                if (obj == undefined)
-                    obj = {};
-                for (var i in props)
-                    if (obj[i] !== props[i])
-                        obj[i] = typeof obj[i] == "object" && typeof props[i] == "object" ? this._extend(obj[i], props[i]) : obj[i] || props[i];
-                return obj;
-            };
-            Container.prototype.renderInternal = function (obj) {
-                var _this = this;
-                if (Array.isArray(obj) && obj[1])
-                    try {
-                        obj[1] = this._extend(obj[1], this.props);
-                    }
-                    catch (e) {
-                        app.services.logger.log(types_1.LogLevel.Warn, "Could not copy navigation properties: " + e.message, [e]);
-                    }
-                app.services.processor.process(obj).then(function (o) { return _this.setState({ data: o }); });
-            };
-            Container.prototype.componentDidMount = function () {
-                this.resolve(this.props.container);
-            };
-            Container.prototype.render = function () {
-                if (this.state.data) {
-                    return app.services.UI.processElement(this.state.data, 1);
+    Container: function transform(a, c) {
+        var app = this;
+        return [/** @class */ (function (_super) {
+                __extends(Container, _super);
+                function Container(props) {
+                    var _this = _super.call(this) || this;
+                    _this.state = { a: props.a, c: props.c };
+                    _this.onRedirect = _this.onRedirect.bind(_this);
+                    return _this;
                 }
-                else if (this.props.container) {
-                    return "";
-                }
-            };
-            return Container;
-        }(app.services.UI.Component));
+                Container.prototype.onRedirect = function (event) {
+                    var e = clone(this.props.c);
+                    if (Array.isArray(e))
+                        e.forEach(function (c, i) { if (Array.isArray(c))
+                            c[1].key = Date.now() + i; });
+                    this.setState({ c: e });
+                };
+                Container.prototype.componentWillMount = function () {
+                    app.services.events.subscribe({ type: "Navigation.Redirect" }, this.onRedirect);
+                };
+                Container.prototype.componentWillUnmount = function () {
+                    app.services.events.unsubscribe({ type: "Navigation.Redirect" }, this.onRedirect);
+                };
+                Container.prototype.render = function () {
+                    return _super.prototype.render.call(this, this.state.c);
+                };
+                return Container;
+            }(components_1.BaseComponent(app))), { a: a, c: c }];
     }
 };
 exports.Navigation = Navigation;

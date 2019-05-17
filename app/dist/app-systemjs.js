@@ -26,7 +26,7 @@ var sjst = (function () {
 	}
 
 	/*
-	* SJS 3.1.3
+	* SJS 3.1.6
 	* Minimal SystemJS Build
 	*/
 
@@ -651,7 +651,7 @@ var sjst = (function () {
 	        amdDefineExec = emptyFn;
 	        return;
 	      } else {
-	        if (System.registerRegistry) System.registerRegistry[name] = createAMDRegister(deps, execute);
+	        if (System.registerRegistry) System.registerRegistry[name] = createAMDRegister([].concat(deps), execute);
 	        name = deps;
 	        deps = execute;
 	      }
@@ -701,10 +701,340 @@ var sjst = (function () {
 	    LogLevel[LogLevel["Info"] = 4] = "Info";
 	    LogLevel[LogLevel["Trace"] = 5] = "Trace";
 	  })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+	  /*
+	  function test(e:element) {
+	    
+	  }
+	  
+	  test("Hello");
+	  test(["div"]);
+	  test(["div", {}, []]);
+	  test(["div", {}, "Test"]);
+	  test(["div", {}, ["Test"]]);// must fail
+	  test(["div", {}, [["div"]]]);
+	  test(["div", {}, [[function() {}, {}, []]]]);
+	  */
+
 	});
 	unwrapExports(types);
 	var types_1 = types.ModuleSystem;
 	var types_2 = types.LogLevel;
+
+	var BaseComponent_1 = createCommonjsModule(function (module, exports) {
+
+	  var __extends = commonjsGlobal && commonjsGlobal.__extends || function () {
+	    var _extendStatics = function extendStatics(d, b) {
+	      _extendStatics = Object.setPrototypeOf || {
+	        __proto__: []
+	      } instanceof Array && function (d, b) {
+	        d.__proto__ = b;
+	      } || function (d, b) {
+	        for (var p in b) {
+	          if (b.hasOwnProperty(p)) d[p] = b[p];
+	        }
+	      };
+
+	      return _extendStatics(d, b);
+	    };
+
+	    return function (d, b) {
+	      _extendStatics(d, b);
+
+	      function __() {
+	        this.constructor = d;
+	      }
+
+	      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	  }();
+
+	  exports.__esModule = true;
+
+	  var BaseComponent = function inject(app) {
+	    return (
+	      /** @class */
+	      function (_super) {
+	        __extends(BaseComponent, _super);
+
+	        function BaseComponent() {
+	          return _super !== null && _super.apply(this, arguments) || this;
+	        }
+
+	        BaseComponent.prototype.renderInternal = function (e, index) {
+	          var _this = this;
+
+	          if (Array.isArray(e)) {
+	            //if (Promise.resolve(e[0]) === e[0]) debugger;
+	            if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0]) return app.services.processor.processElement(e, index);else {
+	              return e.map(function (c, idx) {
+	                if (Array.isArray(c)) {
+	                  if (!c[1]) c[1] = {};
+	                  c[1]["key"] = c[1]["key"] || idx;
+	                }
+
+	                return _this.renderInternal(c, idx);
+	              });
+	            }
+	          } //if (!e) debugger;
+
+
+	          return !e || typeof e === "string" ? e : app.services.processor.processElement(e, index);
+	        };
+
+	        BaseComponent.prototype.render = function (e) {
+	          return this.renderInternal(e || this.props.children);
+	        };
+
+	        return BaseComponent;
+	      }(app.services.UI.Component)
+	    );
+	  };
+
+	  exports.BaseComponent = BaseComponent;
+	});
+	unwrapExports(BaseComponent_1);
+	var BaseComponent_2 = BaseComponent_1.BaseComponent;
+
+	var Async_1 = createCommonjsModule(function (module, exports) {
+
+	  var __extends = commonjsGlobal && commonjsGlobal.__extends || function () {
+	    var _extendStatics = function extendStatics(d, b) {
+	      _extendStatics = Object.setPrototypeOf || {
+	        __proto__: []
+	      } instanceof Array && function (d, b) {
+	        d.__proto__ = b;
+	      } || function (d, b) {
+	        for (var p in b) {
+	          if (b.hasOwnProperty(p)) d[p] = b[p];
+	        }
+	      };
+
+	      return _extendStatics(d, b);
+	    };
+
+	    return function (d, b) {
+	      _extendStatics(d, b);
+
+	      function __() {
+	        this.constructor = d;
+	      }
+
+	      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	  }();
+
+	  exports.__esModule = true;
+
+	  var Async = function inject(app) {
+	    return (
+	      /** @class */
+	      function (_super) {
+	        __extends(Async, _super);
+
+	        function Async(props) {
+	          var _this = _super.call(this, props) || this;
+
+	          _this.state = {}; //(Array.isArray(this.props.children) ? Promise.all : Promise.resolve)(this.props.children).then(o => this.setState({value: o  }));
+
+	          if (Array.isArray(_this.props.children)) Promise.all(_this.props.children).then(function (o) {
+	            return _this.setState({
+	              value: o
+	            });
+	          });else //if (Promise.resolve(this.props.children) === this.props.children)
+	            Promise.resolve(_this.props.children).then(function (o) {
+	              return _this.setState({
+	                value: o
+	              });
+	            });
+	          return _this;
+	        }
+
+	        Async.prototype.render = function () {
+	          return !!this.state.value ? _super.prototype.render.call(this, this.state.value) : null;
+	        };
+
+	        return Async;
+	      }(app.services.UI.Component)
+	    );
+	  };
+
+	  exports.Async = Async;
+	});
+	unwrapExports(Async_1);
+	var Async_2 = Async_1.Async;
+
+	var Intercept_1 = createCommonjsModule(function (module, exports) {
+
+	  var __extends = commonjsGlobal && commonjsGlobal.__extends || function () {
+	    var _extendStatics = function extendStatics(d, b) {
+	      _extendStatics = Object.setPrototypeOf || {
+	        __proto__: []
+	      } instanceof Array && function (d, b) {
+	        d.__proto__ = b;
+	      } || function (d, b) {
+	        for (var p in b) {
+	          if (b.hasOwnProperty(p)) d[p] = b[p];
+	        }
+	      };
+
+	      return _extendStatics(d, b);
+	    };
+
+	    return function (d, b) {
+	      _extendStatics(d, b);
+
+	      function __() {
+	        this.constructor = d;
+	      }
+
+	      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	  }();
+
+	  exports.__esModule = true;
+
+	  var Intercept = function inject(_a) {
+	    var Component = _a.Component;
+	    return (
+	      /** @class */
+	      function (_super) {
+	        __extends(Intercept, _super);
+
+	        function Intercept() {
+	          var _this = _super.call(this) || this;
+
+	          _this.state = {
+	            focus: false,
+	            selected: false,
+	            editMode: null,
+	            canEdit: true
+	          };
+	          _this.onMessage = _this.onMessage.bind(_this);
+	          _this.click = _this.click.bind(_this);
+	          _this.mouseEnter = _this.mouseEnter.bind(_this);
+	          _this.mouseLeave = _this.mouseLeave.bind(_this);
+	          return _this;
+	        }
+
+	        Intercept.prototype.componentDidMount = function () {
+	          window.addEventListener("message", this.onMessage);
+
+	          window.onclick = function () {
+	            parent.postMessage({
+	              eventType: "select",
+	              correlationId: Date.now().toString()
+	            }, location.href);
+	          };
+	        };
+
+	        Intercept.prototype.componentWillUnmount = function () {
+	          window.removeEventListener("message", this.onMessage);
+	        };
+
+	        Intercept.prototype.reconstruct = function (obj) {
+	          if (!obj[1]) obj[1] = {};
+	          if (!obj[1].style) obj[1].style = {};
+
+	          if (!obj[1].style.border && !obj[1].style.padding && !obj[1].onMouseEnter && !obj[1].onMouseLeave) {
+	            obj[1].style.padding = this.state.focus || this.state.selected ? "1px" : "2px";
+	            if (this.state.editMode) obj[1].style.background = "lightblue";
+	            if (this.state.selected) obj[1].style.border = "1px solid black";else if (this.state.focus) obj[1].style.border = "1px dashed grey";
+	            obj[1].onMouseEnter = this.mouseEnter;
+	            obj[1].onMouseLeave = this.mouseLeave;
+	            obj[1].onClick = this.click;
+	          }
+
+	          return obj;
+	        };
+
+	        Intercept.prototype.render = function () {
+	          //return super.render(Array.isArray(this.props.children) ? this.reconstruct(["div", {style: {display: "inline-block"}}, this.props.children])  : this.reconstruct(this.props.children));
+	          return _super.prototype.render.call(this, this.reconstruct(["div", {
+	            style: {
+	              display: "inline-block"
+	            },
+	            key: 0
+	          }, this.props.children]));
+	        };
+
+	        Intercept.prototype.mouseEnter = function () {
+	          //x.Designer.notify("x");
+	          this.setState({
+	            "focus": true
+	          });
+	        };
+
+	        Intercept.prototype.mouseLeave = function () {
+	          //x.Designer.notify("y");
+	          this.setState({
+	            "focus": false
+	          });
+	        };
+
+	        Intercept.prototype.click = function (ev) {
+	          ev.stopPropagation(); //Designer.notify(this.props.file);
+
+	          var parent = window;
+
+	          while (parent.parent !== parent && window.parent != null) {
+	            parent = parent.parent;
+	          }
+
+	          var correlationId = Date.now().toString();
+	          parent.postMessage({
+	            eventType: "select",
+	            editMode: this.state.editMode,
+	            canEdit: this.state.canEdit,
+	            correlationId: correlationId,
+	            control: {
+	              file: this.props.file,
+	              method: this.props.method
+	            }
+	          }, location.href);
+	          this.setState({
+	            "selected": correlationId
+	          });
+	        };
+
+	        Intercept.prototype.onMessage = function (ev) {
+	          if (location.href.substr(0, ev.origin.length) == ev.origin && ev.type == "message" && ev.data) {
+	            if (this.state.selected == ev.data.correlationId) switch (ev.data.eventType) {
+	              case "deselect":
+	                this.setState({
+	                  selected: false
+	                });
+	                break;
+
+	              case "edit":
+	                this.setState({
+	                  editMode: ev.data.editMode
+	                });
+	                break;
+	            }
+	          }
+	        };
+
+	        return Intercept;
+	      }(Component)
+	    );
+	  };
+
+	  exports.Intercept = Intercept;
+	});
+	unwrapExports(Intercept_1);
+	var Intercept_2 = Intercept_1.Intercept;
+
+	var components = createCommonjsModule(function (module, exports) {
+
+	  exports.__esModule = true;
+	  exports.BaseComponent = BaseComponent_1.BaseComponent;
+	  exports.Async = Async_1.Async;
+	  exports.Intercept = Intercept_1.Intercept;
+	});
+	unwrapExports(components);
+	var components_1 = components.BaseComponent;
+	var components_2 = components.Async;
+	var components_3 = components.Intercept;
 
 	var Data_1 = createCommonjsModule(function (module, exports) {
 
@@ -736,6 +1066,18 @@ var sjst = (function () {
 
 	  exports.__esModule = true;
 
+	  function clone(o) {
+	    if (Array.isArray(o)) return o.map(function (o) {
+	      return clone(o);
+	    });else if (_typeof(o) === "object") {
+	      var z = Object.create(o);
+	      Object.keys(o).forEach(function (k) {
+	        return z[k] = o[k];
+	      });
+	      return z;
+	    } else return o;
+	  }
+
 	  var SM = function inject(app) {
 	    return (
 	      /** @class */
@@ -746,32 +1088,23 @@ var sjst = (function () {
 	          var _this = _super.call(this) || this;
 
 	          _this.state = {
-	            data: props.data
+	            data: clone(props.data)
 	          };
 	          var s = {};
 
-	          _this.visit.call(_this, props.children, s);
+	          _this.visit.call(_this, props.childArray, s);
 
 	          _this.state.subscribers = s;
-	          app.services.processor.parse(["div", null, props.children], 0, '').then(function (o) {
-	            _this.setState({
-	              children: o.props.children
-	            });
-	          });
+	          _this.render = _this.render.bind(_this);
 	          return _this;
 	        }
 
 	        Bind.prototype.setValue = function (path, value) {
-	          var _this = this;
-
 	          this.state.subscribers[path].forEach(function (s) {
 	            if (s.value != value) s.value = value;
 	          });
-	          app.services.processor.parse(["div", null, this.props.children], 0, '').then(function (o) {
-	            _this.setState({
-	              children: o.props.children,
-	              data: new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;')(_this.state.data, path, value)
-	            });
+	          this.setState({
+	            data: new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;')(this.state.data, path, value)
 	          });
 	        };
 
@@ -791,7 +1124,6 @@ var sjst = (function () {
 	          a.value = this.getValue.call(this, path);
 	          if (s[path] === undefined) s[path] = [];
 	          s[path].push(a);
-	          delete a.bind;
 	        };
 
 	        Bind.prototype.visit = function (obj, s) {
@@ -807,12 +1139,12 @@ var sjst = (function () {
 	          }
 	        };
 
-	        Bind.prototype.render = function () {
-	          return this.state.children ? this.state.children : "Loading Data";
+	        Bind.prototype.render = function (e) {
+	          return _super.prototype.render.call(this, !!e ? e : this.props.childArray);
 	        };
 
 	        return Bind;
-	      }(app.services.UI.Component)
+	      }(components.BaseComponent(app))
 	    );
 	  };
 
@@ -820,7 +1152,7 @@ var sjst = (function () {
 	    bind: function transform(a, c) {
 	      return [SM, {
 	        data: a,
-	        children: c
+	        childArray: c
 	      }]; //return ["div", a, c];
 	    },
 	    format: function transform(str) {
@@ -852,6 +1184,17 @@ var sjst = (function () {
 	        correlationId: eventType.correlationId,
 	        callback: callback
 	      });
+	    };
+
+	    Events.prototype.unsubscribe = function (eventType, callback) {
+	      //console.log(callback);
+	      var callbacks;
+
+	      if (callbacks = this.callbacks[eventType.type]) {
+	        for (var i = callbacks.length - 1; i >= 0; i--) {
+	          if (callbacks[i].callback === callback) callbacks.splice(i, 1);
+	        }
+	      }
 	    };
 
 	    Events.prototype.publish = function (event) {
@@ -1396,7 +1739,9 @@ var sjst = (function () {
 
 	  function Inject(app, Proxy) {
 	    var inj = clone(app);
-	    inj.services.UI.Component = Proxy || app.services.UI.Component;
+	    inj.services.UI.Component = Proxy || components.BaseComponent(app)
+	    /*app.services.UI.Component*/
+	    ;
 	    /*let { title, designer, ui, target, ...inject } = app;
 	    return { Component
 	        , Context
@@ -1417,46 +1762,31 @@ var sjst = (function () {
 	      this.app = app;
 	    }
 
-	    Processor.prototype.BaseComponent = function () {
-	      var app = this.app;
-	      return (
-	        /** @class */
-	        function (_super) {
-	          __extends(class_1, _super);
-
-	          function class_1() {
-	            return _super !== null && _super.apply(this, arguments) || this;
-	          }
-
-	          class_1.prototype.render = function (obj) {
-	            return app.services.UI.processElement(obj, 0);
-	          };
-
-	          return class_1;
-	        }(app.services.UI.Component)
-	      );
+	    Processor.prototype.Async = function () {
+	      this.async = this.async || components.Async(this.app);
+	      return this.async;
 	    };
 
 	    Processor.prototype.createClass = function (B, d) {
 	      return (
 	        /** @class */
 	        function (_super) {
-	          __extends(class_2, _super);
+	          __extends(class_1, _super);
 
-	          function class_2(tag, attributes, children) {
+	          function class_1() {
 	            var _this = this;
 
-	            var b = _this = _super.call(this, tag, attributes, children) || this;
+	            var b = _this = _super.call(this, arguments) || this;
 
 	            var i = typeof d === "function" ? d.call(b, b) : d;
 	            if (b !== undefined) for (var p in b.__proto__) {
 	              if (!i[p]) i[p] = b[p];
 	            }
-	            if (i["constructor"]) i.constructor.call(i, i);
+	            if (i["constructor"]) i.constructor.apply(i, arguments);
 	            return i;
 	          }
 
-	          return class_2;
+	          return class_1;
 	        }(B)
 	      );
 	    };
@@ -1489,7 +1819,10 @@ var sjst = (function () {
 	      var processor = this;
 	      return new Promise(function (r, f) {
 	        if (Array.isArray(obj)) {
-	          if (typeof obj[0] === "string") obj[0] = processor.resolve(obj[0]);
+	          if (typeof obj[0] === "string") {
+	            obj[0] = processor.resolve(obj[0]);
+	          }
+
 	          if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);else Promise.all(obj.map(function (v, i) {
 	            return processor.parse(v, level + 1, path + '[' + i + ']', i);
 	          })).then(function (o) {
@@ -1500,18 +1833,20 @@ var sjst = (function () {
 	              f(e);
 	            }
 	          }, f);
-	        } else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject") Promise.all([obj(Inject(processor.app))]).then(function (o) {
-	          return r(processor.parse(o[0], level, path, index));
+	        } else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject") Promise.resolve(obj(Inject(processor.app))).then(function (o) {
+	          return processor.parse(o, level, path, index).then(r, f);
 	        }, f);else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") try {
-	          r(processor.createClass(processor.BaseComponent(), obj));
+	          r(processor.createClass(components.BaseComponent(processor.app), obj));
 	        } catch (e) {
 	          processor.app.services.logger.log(types.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
 	          f(e);
-	        } else if (obj && obj.then) Promise.all([obj]).then(function (o) {
-	          return processor.parse(o[0], level, path, index).then(function (o2) {
-	            return r(o2);
+	        } else if (Promise.resolve(obj) === obj) {
+	          Promise.resolve(obj).then(function (o) {
+	            return processor.parse(o, level, path, index).then(function (o2) {
+	              return r(o2);
+	            }, f);
 	          }, f);
-	        }, f);else if (obj) {
+	        } else if (obj) {
 	          try {
 	            r(processor.app.services.UI.processElement(obj, level, index));
 	          } catch (e) {
@@ -1542,12 +1877,12 @@ var sjst = (function () {
 	        var prop = "default";
 
 	        for (var part = 0; part < path.length; part++) {
-	          if (typeof obj_1 === "function" && this.getFunctionName(obj_1) === "inject") obj_1 = obj_1(Inject(this.app, this.BaseComponent()));
+	          if (typeof obj_1 === "function" && this.getFunctionName(obj_1) === "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
 
 	          if (obj_1[path[part]] !== undefined) {
 	            if (part == path.length - 1) jst = obj_1.__jst;
 	            obj_1 = obj_1[path[part]];
-	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, this.BaseComponent()));
+	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
 	          } else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0]) obj_1 = path[part];else {
 	            if (fullpath === "Exception") return function transform(obj) {
 	              return ["pre", {
@@ -1560,21 +1895,21 @@ var sjst = (function () {
 	              return (
 	                /** @class */
 	                function (_super) {
-	                  __extends(class_3, _super);
+	                  __extends(class_2, _super);
 
-	                  function class_3() {
+	                  function class_2() {
 	                    return _super !== null && _super.apply(this, arguments) || this;
 	                  }
 
-	                  class_3.prototype.render = function () {
-	                    return _super.prototype.render.call(this, ["span", {
+	                  class_2.prototype.render = function () {
+	                    return _super.prototype.render ? _super.prototype.render.call(this, ["span", {
 	                      "style": {
 	                        "color": "red"
 	                      }
-	                    }, (fullpath || 'undefined') + " not found!"]);
+	                    }, (fullpath || 'undefined') + " not found!"]) : (fullpath || 'undefined') + " not found!";
 	                  };
 
-	                  return class_3;
+	                  return class_2;
 	                }(this.app.services.UI.Component)
 	              );
 	            }
@@ -1591,6 +1926,49 @@ var sjst = (function () {
 
 	        return this.cache[fullpath] = obj_1;
 	      }
+	    };
+
+	    Processor.prototype.processElement = function (obj, index) {
+	      var _this = this;
+
+	      if (Array.isArray(obj)) {
+	        if (typeof obj[0] === "string") {
+	          obj[0] = this.resolve(obj[0]);
+	        }
+
+	        if (typeof obj[0] === "function") {
+	          var name = this.getFunctionName(obj[0]);
+
+	          switch (name) {
+	            case "transform":
+	              var key = index;
+	              if (obj[1] && obj[1].key) key = obj[1].key;
+	              return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+
+	            case "inject":
+	              obj[0] = obj[0](Inject(this.app));
+	              return this.processElement(obj);
+
+	            case "Component":
+	              obj[0] = this.createClass(components.BaseComponent(this.app), obj[0]);
+	              return this.processElement(obj);
+	          }
+	        }
+	      }
+
+	      if (Array.isArray(obj) && obj.some(function (c) {
+	        return Promise.resolve(c) === c;
+	      })) return this.app.services.UI.processElement([this.Async(), {
+	        id: Date.now()
+	      }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);else if (typeof obj === "string" || !obj) return obj; //else if (obj.then)  
+	      //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+
+	      if (Promise.resolve(obj) === obj) obj = [this.Async(), {
+	        index: index
+	      }, obj];
+	      if (Array.isArray(obj)) return this.app.services.UI.processElement([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) {
+	        return Array.isArray(c) ? _this.processElement(c, idx) : c;
+	      }) : obj[2]], 0, index);else return obj;
 	    };
 
 	    Processor.prototype.process = function (obj) {
@@ -1690,13 +2068,40 @@ var sjst = (function () {
 	  };
 
 	  exports.__esModule = true;
+
+	  function parse(url) {
+	    var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
+	    var params = {};
+	    var index = 0;
+	    if (qs) qs[1].split('&').forEach(function (p) {
+	      var v = p.split('=');
+	      params[v.length === 2 ? v[0] : index++] = v[v.length - 1];
+	    });
+	    return {
+	      path: qs && qs[1] ? qs[1] : ''
+	    };
+	  }
+
+	  function clone(o) {
+	    if (Array.isArray(o)) return o.map(function (o) {
+	      return clone(o);
+	    });else if (_typeof(o) === "object") {
+	      var z = Object.create(o);
+	      Object.keys(o).forEach(function (k) {
+	        return z[k] = o[k];
+	      });
+	      return z;
+	    } else return o;
+	  }
+
 	  var Navigation = {
+	    current: parse(location.href),
 	    resolve: function transform(container) {
 	      var url = typeof location === "undefined" ? '' : location.href;
 	      if (this.controllers && Object.keys(this.controllers).length === 0) return this.main;
 
 	      for (var c in this.controllers) {
-	        if (this.controllers[c].container ? this.controllers[c].container : '' == (container || '')) {
+	        if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
 	          var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
 	          this.services.logger.log(types.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
 
@@ -1726,6 +2131,8 @@ var sjst = (function () {
 	          }
 
 	          a.prototype.click = function () {
+	            app.services.navigation.current = parse(this.props.href);
+	            if (history && history.pushState) history.pushState(null, '', this.props.href);else location.replace(this.props.href);
 	            app.services.events.publish({
 	              type: "Navigation.Redirect",
 	              correlationId: this.props.container,
@@ -1744,76 +2151,55 @@ var sjst = (function () {
 	        }(app.services.UI.Component)
 	      );
 	    },
-	    Container: function inject(app) {
-	      return (
-	        /** @class */
-	        function (_super) {
-	          __extends(Container, _super);
+	    Container: function transform(a, c) {
+	      var app = this;
+	      return [
+	      /** @class */
+	      function (_super) {
+	        __extends(Container, _super);
 
-	          function Container(props) {
-	            var _this = _super.call(this) || this;
+	        function Container(props) {
+	          var _this = _super.call(this) || this;
 
-	            _this.state = {};
-	            _this.renderInternal = _this.renderInternal.bind(_this);
-	            _this.resolve = _this.resolve.bind(_this);
-	            app.services.events.subscribe({
-	              type: "Navigation.Redirect",
-	              correlationId: props ? props.container : undefined
-	            }, _this.onRedirect.bind(_this));
-	            return _this;
-	          }
-
-	          Container.prototype.onRedirect = function (event) {
-	            if (history && history.pushState) history.pushState(null, '', event.data);else location.replace(event.data);
-	            return this.resolve(event.correlationId);
+	          _this.state = {
+	            a: props.a,
+	            c: props.c
 	          };
+	          _this.onRedirect = _this.onRedirect.bind(_this);
+	          return _this;
+	        }
 
-	          Container.prototype.resolve = function (correlationId) {
-	            var result = app.services.navigation.resolve.call(app, correlationId);
-	            if (result.then) result.then(this.renderInternal);else this.renderInternal(result);
-	            return result != null;
-	          };
+	        Container.prototype.onRedirect = function (event) {
+	          var e = clone(this.props.c);
+	          if (Array.isArray(e)) e.forEach(function (c, i) {
+	            if (Array.isArray(c)) c[1].key = Date.now() + i;
+	          });
+	          this.setState({
+	            c: e
+	          });
+	        };
 
-	          Container.prototype._extend = function (obj, props) {
-	            if (obj == undefined) obj = {};
+	        Container.prototype.componentWillMount = function () {
+	          app.services.events.subscribe({
+	            type: "Navigation.Redirect"
+	          }, this.onRedirect);
+	        };
 
-	            for (var i in props) {
-	              if (obj[i] !== props[i]) obj[i] = _typeof(obj[i]) == "object" && _typeof(props[i]) == "object" ? this._extend(obj[i], props[i]) : obj[i] || props[i];
-	            }
+	        Container.prototype.componentWillUnmount = function () {
+	          app.services.events.unsubscribe({
+	            type: "Navigation.Redirect"
+	          }, this.onRedirect);
+	        };
 
-	            return obj;
-	          };
+	        Container.prototype.render = function () {
+	          return _super.prototype.render.call(this, this.state.c);
+	        };
 
-	          Container.prototype.renderInternal = function (obj) {
-	            var _this = this;
-
-	            if (Array.isArray(obj) && obj[1]) try {
-	              obj[1] = this._extend(obj[1], this.props);
-	            } catch (e) {
-	              app.services.logger.log(types.LogLevel.Warn, "Could not copy navigation properties: " + e.message, [e]);
-	            }
-	            app.services.processor.process(obj).then(function (o) {
-	              return _this.setState({
-	                data: o
-	              });
-	            });
-	          };
-
-	          Container.prototype.componentDidMount = function () {
-	            this.resolve(this.props.container);
-	          };
-
-	          Container.prototype.render = function () {
-	            if (this.state.data) {
-	              return app.services.UI.processElement(this.state.data, 1);
-	            } else if (this.props.container) {
-	              return "";
-	            }
-	          };
-
-	          return Container;
-	        }(app.services.UI.Component)
-	      );
+	        return Container;
+	      }(components.BaseComponent(app)), {
+	        a: a,
+	        c: c
+	      }];
 	    }
 	  };
 	  exports.Navigation = Navigation;
@@ -2191,7 +2577,8 @@ var sjst = (function () {
 	        this.app.services.logger.log.call(this, types.LogLevel.Trace, "WebUI.render", [ui]);
 	        return this.renderInternal(ui, parent, mergeWith);
 	      } else this.app.services.logger.log.call(this, types.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
-	    };
+	    }; // ether an element, or array of elements depending on depth == even or odd
+
 
 	    WebUI.prototype.processElement = function (element, depth, index) {
 	      if (depth % 2 === 0) {
@@ -2199,8 +2586,9 @@ var sjst = (function () {
 	          debugger;
 	          this.app.services.logger.log.call(this, types.LogLevel.Error, "Child element [2] should be either a string or array", [{
 	            element: element
-	          }]);
-	          throw new Error("Child element [2] should be either a string or array");
+	          }]); //throw new Error("Child element [2] should be either a string or array");
+
+	          return element;
 	        } else if (index !== undefined && Array.isArray(element)) {
 	          element[1] = element[1] || {};
 	          if (!element[1].key) element[1].key = index;
@@ -3172,4 +3560,4 @@ var sjst = (function () {
 	return system;
 
 }());
-//# sourceMappingURL=systemjs-jst.js.map
+//# sourceMappingURL=app-systemjs.js.map

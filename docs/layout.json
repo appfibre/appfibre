@@ -1,14 +1,15 @@
-{ ".function": "inject"
-, "arguments": [ "app" ]
-, "return":   [ "div"
-    , {}
-    , [ [ "div"
-        , { "style" : {  "minHeight": "calc(100vh - 40px)" }, "key": 1}
-        , [ [ "Menus" ] 
-          , [ "Navigation.Container", {"container": "content", "style": { "margin": "5px"}}]
-          ]
+["div"
+, null
+, [ [ "div"
+        , {}
+        , [ [ "Navigation.Container"
+            , {}
+            , [ [ "Layout.Menus" ]
+              , [ "div", { "className": "fd-main"}, [[ "Layout.Main" ]] ]
+              ] 
+            ] 
         ]
-      , [ "nav", { "style": { "textAlign": "center"}, "key": 2}, [ [ "i", { "style": {"position": "relative", "top": "5px"} , "key":3}, "fibre - 2019" ] ] ]
-      ]
-    ]
-}
+      ] 
+    , [ "nav", { "style": { "textAlign": "center"}, "key": 2}, [ [ "i", { "style": {"position": "relative", "top": "5px"} , "key":3}, "fibre - 2019" ] ] ]
+  ]
+]

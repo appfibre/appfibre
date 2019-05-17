@@ -17,3 +17,16 @@ var LogLevel;
     LogLevel[LogLevel["Info"] = 4] = "Info";
     LogLevel[LogLevel["Trace"] = 5] = "Trace";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+/*
+function test(e:element) {
+  
+}
+
+test("Hello");
+test(["div"]);
+test(["div", {}, []]);
+test(["div", {}, "Test"]);
+test(["div", {}, ["Test"]]);// must fail
+test(["div", {}, [["div"]]]);
+test(["div", {}, [[function() {}, {}, []]]]);
+*/ 

@@ -18,6 +18,17 @@ export class Events {
         this.callbacks[eventType.type].push({type: eventType, correlationId: eventType.correlationId, callback});
     }
 
+    unsubscribe(eventType:IEventType, callback:(data:IEventData)=>any):void
+    {
+        //console.log(callback);
+        var callbacks;
+        if (callbacks = this.callbacks[eventType.type]) {
+            for (var i = callbacks.length-1; i >= 0; i--)
+                if (callbacks[i].callback === callback) 
+                    callbacks.splice(i, 1);
+        }
+    }
+
     publish(event:IEventData):any
     {
         let subscriptions = this.callbacks[event.type];

@@ -12,12 +12,17 @@ define([], function() {
         resolve: function transform(args) {
             var app = this;
             return new Promise(function(r,f ) { 
-                app.services.moduleSystem.import.call(app.services.moduleSystem,'./pages/latest/' + (args[0] || "index") +'.json#default').then(function (o) {
-                    //debugger;
-                    r(o.default);
-                    //return this.services.moduleSystem.import.call(this.services.moduleSystem,'./pages/latest/' + (args[0] || "Introduction") +'.json#default');
-                }, f);
+                app.services.moduleSystem.import.call(app.services.moduleSystem,'./pages/latest/' + (args[0] || "index") +'.json#default').then(function (o) { r(o.default);}, f);
             });
+
+        },
+
+        leftnav: function transform(args) {
+            var app = this;
+            //return new Promise(function(r,f ) { 
+                //debugger;
+                return ["aside", {"className": "fd-side"}, JSON.stringify(args)];
+            //});
 
         }
     };

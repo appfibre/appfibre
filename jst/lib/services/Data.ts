@@ -1,23 +1,31 @@
-import { IData, IAppLoaded, LogLevel, IEventData} from "../types";
+import { BaseComponent } from "../components";
+import { IData, IAppLoaded, LogLevel, IEventData, promisedElement} from "../types";
+
+function clone(o:any):any {
+    if (Array.isArray(o)) 
+        return o.map(o => clone(o));
+    else if (typeof o === "object") {
+        var z = Object.create(o);
+        Object.keys(o).forEach(k => z[k] = o[k]);
+        return z;
+    } else 
+    return o;
+}
 
 let SM = function inject(app:IAppLoaded) {
-    return class Bind extends app.services.UI.Component {
+    return class Bind extends BaseComponent(app) {
         constructor(props:any) {
             super();
-            this.state = {data: props.data };
+            this.state = {data: clone(props.data) };
             let s:{[path:string]:any} = {};
-            this.visit.call(this, props.children, s);
+            this.visit.call(this, props.childArray, s);
             this.state.subscribers = s;
-            app.services.processor.parse(["div", null, props.children], 0, '').then((o:any) => {
-                this.setState({children: o.props.children});
-            });
+            this.render = this.render.bind(this);
         }
 
         setValue(path:string, value:any) {
             this.state.subscribers[path].forEach((s:{value:string}) => {if(s.value != value) s.value = value});
-            app.services.processor.parse(["div", null, this.props.children], 0, '').then((o:any) => {
-                this.setState({children: o.props.children, data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(this.state.data, path, value)});
-            })
+            this.setState({ data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(this.state.data, path, value)});
         }
 
         getValue(path:string, obj?:any) {
@@ -30,7 +38,6 @@ let SM = function inject(app:IAppLoaded) {
             a.value = this.getValue.call(this, path);
             if (s[path] === undefined) s[path] = [];
             s[path].push(a);
-            delete a.bind;
         }
 
         visit(obj:any, s:{[path:string]:any}) {
@@ -44,8 +51,8 @@ let SM = function inject(app:IAppLoaded) {
             }
         }
 
-        render() {
-            return this.state.children ? this.state.children : "Loading Data";
+        render(e:promisedElement) {
+            return super.render(!!e ? e : this.props.childArray);
         }
     }
 }
@@ -53,7 +60,7 @@ let SM = function inject(app:IAppLoaded) {
 const Data : IData = {
 
     bind: function transform(this:IAppLoaded, a:object, c:any) {
-        return [SM, {data: a, children: c}];
+        return [SM, {data: a, childArray: c}];
         //return ["div", a, c];
     },
 

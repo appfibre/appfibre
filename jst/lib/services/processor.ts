@@ -1,21 +1,22 @@
-import { IAppLoaded, IProcessor, LogLevel } from "../types";
-import { Intercept } from "../components/intercept";
-import { basename } from "path";
+import { IAppLoaded, IProcessor, LogLevel, element, promisedElement} from "../types";
+import { BaseComponent, Async } from '../components';
 
-declare class Promise<T>  {
+export declare class Promise<T>  {
     constructor(resolver: Function);
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
     static all(promises: Promise<any>[]): Promise<any>;
     static race(promises: Promise<any>[]): Promise<{}>;
-}
+    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
+  }
+  
   
 function s_xa(a:any,b?:any){return Object.prototype.hasOwnProperty.call(a,b)}
 function clone(a:any,b?:any){for(var c=1;c<arguments.length;c++){var d=arguments[c];if(d)for(var e in d)s_xa(d,e)&&(a[e]=d[e])}return a}
 
 function Inject (app : IAppLoaded, Proxy?:any) : any {
     let inj = clone(app);
-    inj.services.UI.Component = Proxy || app.services.UI.Component;
+    inj.services.UI.Component = Proxy || BaseComponent(app)/*app.services.UI.Component*/;
 
     /*let { title, designer, ui, target, ...inject } = app;
     return { Component 
@@ -39,23 +40,20 @@ export class Processor implements IProcessor
         this.app = app;
     }
 
-    BaseComponent() {
-        let app = this.app;
-        return class extends app.services.UI.Component {
-            render(obj : any) {
-                return app.services.UI.processElement(obj, 0);
-            }
-        }
+    private async:any;
+    private Async() {
+        this.async = this.async || Async(this.app);
+        return this.async;
     }
 
     createClass(B:any, d:any) {
         return class extends B {
-            constructor(tag:any, attributes:any, children:any) 
+            constructor() 
             {
-                let b = super(tag, attributes, children);
+                let b:any = super(arguments);
                 var i = typeof d === "function" ? d.call(b, b) : d;
                 if (b !== undefined) for (var p in b.__proto__) if (!i[p]) i[p] = b[p];
-                if (i["constructor"]) i.constructor.call(i, i);
+                if (i["constructor"]) i.constructor.apply(i, arguments);
                 return i;
             }
         };        
@@ -91,19 +89,22 @@ export class Processor implements IProcessor
        
         return new Promise(function (r:Function, f:any) {
             if (Array.isArray(obj)) {
-                if (typeof obj[0] === "string")
+                if (typeof obj[0] === "string"){
                     obj[0] = processor.resolve(obj[0]);
+                    
+                }
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") 
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else 
-                    Promise.all(obj.map((v,i) => processor.parse(v, level+1, path + '[' + i + ']', i))).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
+                    Promise.all(obj.map((v,i) => {return processor.parse(v, level+1, path + '[' + i + ']', i)})).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
-                Promise.all([ (obj)(Inject(processor.app))]).then(o => r(processor.parse(o[0], level,path, index)), f);
+                Promise.resolve((obj)(Inject(processor.app))).then(o => processor.parse(o, level,path, index).then(r, f), f);
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") 
-                try{r(processor.createClass( processor.BaseComponent(), obj));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
-            else if (obj && obj.then)  
-                Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+                try{r(processor.createClass( BaseComponent(processor.app), obj));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
+            else if (Promise.resolve(obj) === obj)  {
+                Promise.resolve(obj).then(o => processor.parse(o, level, path, index).then((o2:any) => r(o2), f), f);
+            }
             else if (obj)
                 { try { r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
             else r(obj);
@@ -127,11 +128,11 @@ export class Processor implements IProcessor
             let jst = false;
             let prop = "default";
             for (var part = 0; part < path.length; part++) {
-                if (typeof obj === "function" && this.getFunctionName(obj) === "inject") obj = obj(Inject(this.app, this.BaseComponent()));
+                if (typeof obj === "function" && this.getFunctionName(obj) === "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
                 if (obj[path[part]] !== undefined) {
                     if (part == path.length-1) jst = obj.__jst;
                     obj = obj[path[part]];
-                    if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, this.BaseComponent()));
+                    if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
                 }
                 else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj = path[part];
@@ -140,7 +141,7 @@ export class Processor implements IProcessor
                         return function transform(obj:any):any { return ["pre", {"style":{"color":"red"}}, obj[1].stack ? obj[1].stack : obj[1]]; }
                     else {
                         this.app.services.logger.log.call(this, LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
-                        return class extends this.app.services.UI.Component { render () { return super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) }};
+                        return class extends this.app.services.UI.Component { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
                     }
                 }
             }
@@ -157,6 +158,48 @@ export class Processor implements IProcessor
             //return this.cache[fullpath] = Array.isArray(obj) ? class Wrapper extends this.app.services.UI.Component { shouldComponentUpdate() { return true; } render() {if (!obj[1]) obj[1] = {}; if   (!obj[1].key) obj[1].key = 0; return this.parse(jst && !this.app.disableIntercept && window.parent !== null && window !== window.parent ? [Intercept, {"file": jst, "method": prop}, [obj]] : obj); }} : obj;
             return this.cache[fullpath] = obj;
         } 
+    }
+
+    processElement(obj:element|promisedElement, index?:number) : any {
+        if (Array.isArray(obj)) {
+            if (typeof obj[0] === "string"){
+                obj[0] = this.resolve(obj[0]);
+            }
+
+            if (typeof obj[0] === "function") {
+                var name = this.getFunctionName(obj[0]);
+                switch (name)
+                {
+                    case "transform":
+                        let key = index;
+                        if (obj[1] && obj[1].key) key = obj[1].key;
+                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+                    case "inject":
+                        obj[0] = (obj[0])(Inject(this.app));
+                        return this.processElement(obj);
+                    case "Component":
+                        obj[0] = this.createClass( BaseComponent(this.app), obj[0]);
+                        return this.processElement(obj);
+                }                  
+            }
+        }
+        
+        if (Array.isArray(obj) && obj.some(c => Promise.resolve(c) === c)) 
+            return this.app.services.UI.processElement([this.Async(), {id: Date.now()}, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+        else if (typeof obj === "string" || !obj) 
+            return obj;
+
+        //else if (obj.then)  
+        //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
+
+        if (Promise.resolve(obj)===obj) 
+           obj = [this.Async(), {index: index}, obj];
+
+        if (Array.isArray(obj)) 
+            return this.app.services.UI.processElement([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map((c, idx) => Array.isArray(c) ? this.processElement(c, idx) : c) : obj[2]], 0, index);     
+        else 
+            return obj;
+    
     }
 
     process(obj:any):Promise<any>
@@ -203,14 +246,4 @@ export class Processor implements IProcessor
         });
     }
 
-    /*instanciate(url:string, parent?:any):any {
-        const app = this.app;
-        app.services.logger.log.call(this, LogLevel.Trace, 'Processor.instanciate', [url]);
-
-        return app.services.moduleSystem.load(url, parent) 
-          .then(function (source) {
-            return app.services.transformer.transform(source, url).code;
-          })
-          .then(function(source) {return app.services.moduleSystem.exec(source, url)});
-    }*/
 }

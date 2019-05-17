@@ -20,7 +20,7 @@
   "scripts": {
     "test": "mocha",
     "pretest": "npm run build",
-    "build": "rollup -c & rollup -c polyfill.config.js & rollup -c system.config.js",
+    "build": "rollup -c",
     "prebuild": "del /S/Q dist",
     "prepublishOnly": "npm test",
     "prepare": "npm run build",

@@ -1,25 +1,21 @@
-import { IAppLoaded, IProcessor } from "../types";
-declare class Promise<T> {
+import { IAppLoaded, IProcessor, element, promisedElement } from "../types";
+export declare class Promise<T> {
     constructor(resolver: Function);
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
     static all(promises: Promise<any>[]): Promise<any>;
     static race(promises: Promise<any>[]): Promise<{}>;
+    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 export declare class Processor implements IProcessor {
     app: IAppLoaded;
     cache: any;
     type: "Processor";
     constructor(app: IAppLoaded);
-    BaseComponent(): {
-        new (): {
-            [x: string]: any;
-            render(obj: any): any;
-        };
-        [x: string]: any;
-    };
+    private async;
+    private Async;
     createClass(B: any, d: any): {
-        new (tag: any, attributes: any, children: any): {
+        new (): {
             [x: string]: any;
         };
         [x: string]: any;
@@ -28,6 +24,6 @@ export declare class Processor implements IProcessor {
     getFunctionName(obj: any): string;
     private parse;
     resolve(fullpath: string): any;
+    processElement(obj: element | promisedElement, index?: number): any;
     process(obj: any): Promise<any>;
 }
-export {};

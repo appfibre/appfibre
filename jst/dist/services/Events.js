@@ -10,6 +10,15 @@ var Events = /** @class */ (function () {
             this.callbacks[eventType.type] = [];
         this.callbacks[eventType.type].push({ type: eventType, correlationId: eventType.correlationId, callback: callback });
     };
+    Events.prototype.unsubscribe = function (eventType, callback) {
+        //console.log(callback);
+        var callbacks;
+        if (callbacks = this.callbacks[eventType.type]) {
+            for (var i = callbacks.length - 1; i >= 0; i--)
+                if (callbacks[i].callback === callback)
+                    callbacks.splice(i, 1);
+        }
+    };
     Events.prototype.publish = function (event) {
         var subscriptions = this.callbacks[event.type];
         var response = null;

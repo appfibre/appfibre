@@ -18,25 +18,18 @@ var Async = function inject(app) {
         __extends(Async, _super);
         function Async(props) {
             var _this = _super.call(this, props) || this;
-            _this.state = {
-                value: _this.props.value[3]
-            };
+            _this.state = {};
+            //(Array.isArray(this.props.children) ? Promise.all : Promise.resolve)(this.props.children).then(o => this.setState({value: o  }));
+            if (Array.isArray(_this.props.children))
+                Promise.all(_this.props.children).then(function (o) { return _this.setState({ value: o }); });
+            else //if (Promise.resolve(this.props.children) === this.props.children)
+                Promise.resolve(_this.props.children).then(function (o) { return _this.setState({ value: o }); });
             return _this;
         }
-        Async.prototype.componentDidMount = function () {
-            var _this = this;
-            if (Promise.prototype.isPrototypeOf(this.props.value))
-                this.props.value.then(function (value) { return _this.setState({ "value": value }); }, function (err) { return _this.setState({ "value": _this.props.value[4] ? _this.props.value[4](err) : ["Exception", err] }); });
-            else if (this.props.value[0] && this.props.value[0].then)
-                this.props.value[0].then(function (value) { return _this.setState({ "value": value }); }, function (err) { return _this.setState({ "value": _this.props.value[4] ? _this.props.value[4](err) : ["Exception", err] }); });
-            else
-                Promise.all(this.props.value).then(function (value) { return _this.setState({ "value": value }); })["catch"](function (err) { if (_this.props.value[4])
-                    _this.setState({ "value": _this.props.value[4] }); });
-        };
         Async.prototype.render = function () {
-            return this.state.value && typeof this.state.value !== "string" ? _super.prototype.render.call(this, this.state.value) : "";
+            return !!this.state.value ? _super.prototype.render.call(this, this.state.value) : null;
         };
         return Async;
-    }(app.services.processor.BaseComponent()));
+    }(app.services.UI.Component));
 };
 exports.Async = Async;

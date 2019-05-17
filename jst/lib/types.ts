@@ -1,11 +1,12 @@
-import { types } from ".";
+import { Interface } from "readline";
 
-declare class Promise<T>  {
+export declare class Promise<T>  {
   constructor(resolver: Function);
   then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
   catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
   static all(promises: Promise<any>[]): Promise<any>;
   static race(promises: Promise<any>[]): Promise<{}>;
+  static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 
 //export type PromiseConstructor = new <T>(executor: (resolve: (value?: T | IPromise<T>) => void, reject: (reason?: any) => void) => void) => IPromise<T>;
@@ -18,7 +19,7 @@ export interface IApp {
   disableIntercept?:boolean
   options?:IOptions
   services?:IServices
-  controllers?:{[index:string]:IController|Constructable<IController>}
+  controllers?:{[index:number]:IController|Constructable<IController>}
   context?:IContext
   components?:{[name:string]:any}|Function
 }
@@ -75,6 +76,7 @@ export interface IServicesLoaded extends IServices {
    processor:IProcessor
    events: {
     subscribe(eventType:IEventType, callback:(data:IEventData)=>any):void
+    unsubscribe(eventType:IEventType, callback:(data:IEventData)=>any):void
     publish(data:IEventData):any
   }
 }
@@ -88,6 +90,9 @@ export interface IUI {
 }
 
 export interface INavigation {
+    current: {
+      path: string
+    }
     resolve(container?:string):any
     a:Function
     Container:Function
@@ -107,12 +112,12 @@ export interface IOptions {
 
 export interface IProcessor {
   resolve(fullpath:string) : any
-  BaseComponent() : any
   locate(resource:any, path:string) : any
   //processElement(ar : Array<any>, supportAsync?: boolean, light?:boolean):any
   //parse(obj:any, key?:number|undefined, supportAsync?:boolean):any
 
   process(obj:any):Promise<any>
+  processElement(obj:element|promisedElement, index?:number):any
 }
 
 export interface IWebOptions {
@@ -173,3 +178,34 @@ export enum LogLevel {
   "Info"=4,
   "Trace"=5
 }
+
+/*export type element = undefined 
+                    | string
+                    | Function
+                    | [ string|Function, { [key:string]:any }?, (string|Function|{ [index:number]: element & [string|Function, { [key:string]:any }?, any?]  })? ]*/
+                    /*| Promise<null
+                            | string 
+                            | Function 
+                            | [ string|Function, { [key:string]:any }?, (string|Function|{ [index:number]: element})? ]
+                            >*/
+
+
+
+
+export type elementBase = [ string|Function, { [key:string]:any }?, (string|Function|{}|{ [index:number]: elementBase})? ]
+export type element = elementBase|string|Function|{}|undefined|{ [index:number]: element|Promise<element> };
+export type promisedElement = Promise<element>;
+
+/*
+function test(e:element) {
+  
+}
+
+test("Hello");
+test(["div"]);
+test(["div", {}, []]);
+test(["div", {}, "Test"]);
+test(["div", {}, ["Test"]]);// must fail
+test(["div", {}, [["div"]]]);
+test(["div", {}, [[function() {}, {}, []]]]);
+*/

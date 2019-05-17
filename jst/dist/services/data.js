@@ -13,27 +13,34 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var components_1 = require("../components");
+function clone(o) {
+    if (Array.isArray(o))
+        return o.map(function (o) { return clone(o); });
+    else if (typeof o === "object") {
+        var z = Object.create(o);
+        Object.keys(o).forEach(function (k) { return z[k] = o[k]; });
+        return z;
+    }
+    else
+        return o;
+}
 var SM = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Bind, _super);
         function Bind(props) {
             var _this = _super.call(this) || this;
-            _this.state = { data: props.data };
+            _this.state = { data: clone(props.data) };
             var s = {};
-            _this.visit.call(_this, props.children, s);
+            _this.visit.call(_this, props.childArray, s);
             _this.state.subscribers = s;
-            app.services.processor.parse(["div", null, props.children], 0, '').then(function (o) {
-                _this.setState({ children: o.props.children });
-            });
+            _this.render = _this.render.bind(_this);
             return _this;
         }
         Bind.prototype.setValue = function (path, value) {
-            var _this = this;
             this.state.subscribers[path].forEach(function (s) { if (s.value != value)
                 s.value = value; });
-            app.services.processor.parse(["div", null, this.props.children], 0, '').then(function (o) {
-                _this.setState({ children: o.props.children, data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(_this.state.data, path, value) });
-            });
+            this.setState({ data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(this.state.data, path, value) });
         };
         Bind.prototype.getValue = function (path, obj) {
             return (new Function('data', 'path', 'return data' + (path[0] === '[' ? '' : '.') + path))(this.state.data, path);
@@ -46,7 +53,6 @@ var SM = function inject(app) {
             if (s[path] === undefined)
                 s[path] = [];
             s[path].push(a);
-            delete a.bind;
         };
         Bind.prototype.visit = function (obj, s) {
             var _this = this;
@@ -61,15 +67,15 @@ var SM = function inject(app) {
                 });
             }
         };
-        Bind.prototype.render = function () {
-            return this.state.children ? this.state.children : "Loading Data";
+        Bind.prototype.render = function (e) {
+            return _super.prototype.render.call(this, !!e ? e : this.props.childArray);
         };
         return Bind;
-    }(app.services.UI.Component));
+    }(components_1.BaseComponent(app)));
 };
 var Data = {
     bind: function transform(a, c) {
-        return [SM, { data: a, children: c }];
+        return [SM, { data: a, childArray: c }];
         //return ["div", a, c];
     },
     format: function transform(str) {

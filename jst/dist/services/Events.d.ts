@@ -9,5 +9,6 @@ export declare class Events {
     };
     constructor(app: IAppLoaded);
     subscribe(eventType: IEventType, callback: (data: IEventData) => any): void;
+    unsubscribe(eventType: IEventType, callback: (data: IEventData) => any): void;
     publish(event: IEventData): any;
 }
