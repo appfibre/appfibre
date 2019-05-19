@@ -1,0 +1,30 @@
+{
+  "author": "Dawid Rautenbach",
+  "bugs": {
+    "url": "https://github.com/appfibre/core/issues"
+  },
+  "bundleDependencies": [],
+  "dependencies": {
+    "preact": "^8.4.2"
+  },
+  "deprecated": false,
+  "description": "JST Preact templating add-in",
+  "devDependencies": {},
+  "homepage": "https://github.com/appfibre/core#readme",
+  "keywords": [
+    "JST",
+    "Preact"
+  ],
+  "license": "GNU AFFERO GENERAL PUBLIC LICENSE",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "name": "@appfibre/services-ui-preact",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/appfibre.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "version": "0.1.0"
+}

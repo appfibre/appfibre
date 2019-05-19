@@ -1,10 +1,7 @@
 {
-  "author": {
-    "name": "Dawid Rautenbach",
-    "email": "dawid@rautenbach.za.net"
-  },
+  "author": "Dawid Rautenbach",
   "bugs": {
-    "url": "https://github.com/appfibre/jst/issues"
+    "url": "https://github.com/appfibre/core/issues"
   },
   "bundleDependencies": [],
   "dependencies": {
@@ -16,21 +13,21 @@
   "deprecated": false,
   "description": "JST to React converstion",
   "devDependencies": {},
-  "homepage": "https://github.com/appfibre/jst#readme",
+  "homepage": "https://github.com/appfibre/core#readme",
   "keywords": [
     "JST",
     "React"
   ],
-  "license": "MIT",
+  "license": "GNU AFFERO GENERAL PUBLIC LICENSE",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "name": "@appfibre/jst-react",
+  "name": "@appfibre/services-ui-react",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/appfibre/jst.git"
+    "url": "git+https://github.com/appfibre/appfibre.git"
   },
   "scripts": {
     "build": "tsc"
   },
-  "version": "0.1.3"
+  "version": "0.1.0"
 }

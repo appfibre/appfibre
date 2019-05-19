@@ -1,0 +1,21 @@
+{
+  "name": "appfibre",
+  "description": "aggregate functions",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"tsc -p jst -w\" \"tsc -p services-ui-react -w\" \"tsc -p services-ui-preact -w\" \"tsc -p webpack-plugin-jst -w\" \"npm run start-rollup-plugin-jst\" \"npm run start-app\" ",
+    "build": "tsc -p jst && tsc -p services-ui-react && tsc -p services-ui-preact && tsc -p webpack-plugin-jst && npm run build-rollup-plugin-jst && npm run build-app ",
+    "test": "npm run test-test",
+
+    "build-rollup-plugin-jst": "cd rollup-plugin-jst & npm run build",
+    "start-rollup-plugin-jst": "cd rollup-plugin-jst & npm start",
+    "build-app": "cd app & npm run build",
+    "start-app": "cd app & npm start",
+    "test-test": "cd tests & npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^2.1.0",
+    "rollup": "^1.12.2",
+    "typescript": "^3.4.5"
+  }
+}
