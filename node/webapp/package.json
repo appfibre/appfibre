@@ -1,0 +1,20 @@
+{
+  "name": "@appfibre/webapp",
+  "version": "0.1.0",
+  "description": "AppFibre WebApp",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "AppFibre",
+    "Fibre",
+    "JST"
+  ],
+  "author": "Soleil De Gloria",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "@appfibre/core": "^0.1"
+  }
+}
