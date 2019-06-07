@@ -1,0 +1,23 @@
+{
+  "name": "@appfibre/app",
+  "version": "0.0.1",
+  "description": "Appfibre App framework",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/appfibre.git"
+  },
+  "keywords": [
+    "appfibre",
+    "jst"
+  ],
+  "author": "Soleil De Gloria",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/appfibre/core/issues"
+  },
+  "homepage": "https://github.com/appfibre/core#readme"
+}

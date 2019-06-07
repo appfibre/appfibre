@@ -1,1 +1,0 @@
-var _0=require("@appfibre/jst");return new _0.App({main:["div",null,"Hello"],options:{title:"App Title"}}).run();

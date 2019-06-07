@@ -1,0 +1,24 @@
+{
+  "name": "@appfibre/examples-pwa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist\\index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc & webpack",
+    "watch": "tsc -w & webpack -w"
+  },
+  "dependencies": {
+    "@appfibre/jst": "^0.1.4",
+    "@appfibre/services-ui-react": "^0.1.0",
+    "@appfibre/webpack-plugin-jst": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^11.11.4",
+    "@types/webpack": "^4.4.26",
+    "clean-webpack-plugin": "^2.0.1",
+    "express-conditional-middleware": "^2.1.1",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
+  }
+}
