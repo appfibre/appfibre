@@ -1,0 +1,1 @@
+var _0=require("@appfibre/webapp");return new _0.WebApp({main:["div",null,"Hello"],options:{title:"App Title"}});

@@ -1,0 +1,1 @@
+return function test(a,b){ return "hello" };

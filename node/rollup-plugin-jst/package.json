@@ -1,0 +1,49 @@
+{
+  "name": "@appfibre/rollup-plugin-jst",
+  "version": "0.0.5",
+  "main": "dist/rollup-plugin-jst.cjs.js",
+  "module": "dist/rollup-plugin-jst.es.js",
+  "jsnext:main": "dist/rollup-plugin-jst.es.js",
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-import": "^2.17.2",
+    "lint-staged": "^7.3.0",
+    "rollup": "^1.10.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-buble": "^0.19.6",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "source-map-support": "^0.5.12"
+  },
+  "scripts": {
+    "pretest": "npm run build",
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "prebuild": "del /S/Q dist",
+    "prepublishOnly": "npm test",
+    "prepare": "npm run build",
+    "precommit": "lint-staged",
+    "postcommit": "git reset",
+    "lint": "eslint --fix src test/test.js",
+    "debug": "mocha --inspect-brk=9229"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/appfibre.git"
+  },
+  "dependencies": {
+    "@appfibre/core": "^0.1.0",
+    "core-js": "^3.0.1",
+    "pinkie": "^2.0.4",
+    "rollup-pluginutils": "^2.6.0",
+    "systemjs": "^3.1.3"
+  }
+}

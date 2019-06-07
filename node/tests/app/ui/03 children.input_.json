@@ -1,0 +1,11 @@
+[ "div"
+, {}
+, [ [ "input"
+    , { "type": "button", "value": "Button", "key": 1}
+    ]
+  , [ "button"
+    , { "style": {"background":"red", "border": "1px solid black"}, "key": 2}
+    , "Red Button"
+    ]
+  ]
+]

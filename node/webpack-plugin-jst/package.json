@@ -1,0 +1,33 @@
+{
+  "author": "Soleil De Gloria"
+  ,  "bugs": {
+    "url": "https://github.com/appfibre/core/issues"
+  },
+  "bundleDependencies": [],
+  "dependencies": {
+    "@appfibre/webapp": "^0.1.0",
+    "@appfibre/core": "^0.1.0"
+  },
+  "deprecated": false,
+  "description": "Webpack app/jst plugin",
+  "devDependencies": {
+    "@types/webpack": "^4.4.26"
+  },
+  "homepage": "https://github.com/appfibre/core#readme",
+  "keywords": [
+    "JST"
+  ],
+  "license": "AGPL-3.0",
+  "main": "dist/loader.js",
+  "types": "dist/loader.d.ts",
+  "name": "@appfibre/webpack-plugin-jst",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/appfibre.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "version": "0.0.3"
+}
