@@ -42,6 +42,9 @@ var WebApp = /** @class */ (function (_super) {
         var _this = this;
         var t = __assign({}, app, { info: __assign({ browser: types.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), options: app.options || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
         _this = _super.call(this, t) || this;
+        return _this;
+    }
+    WebApp.prototype.initApp = function () {
         if (typeof document === "object") { // web app
             var w = window;
             var g = global;
@@ -49,7 +52,7 @@ var WebApp = /** @class */ (function (_super) {
             var bt = types.browserType.Unknown;
             if (w && g && d) {
                 if (g.InstallTrigger !== undefined)
-                    _this.info.browser = types.browserType.FireFox;
+                    this.info.browser = types.browserType.FireFox;
                 else if ( /*@cc_on!@*/false || !!d.documentMode)
                     bt = types.browserType.IE;
                 else if (!!w.StyleMedia)
@@ -63,13 +66,16 @@ var WebApp = /** @class */ (function (_super) {
                 if ((bt === types.browserType.Chrome || bt === types.browserType.Opera) && !!w.CSS)
                     bt = types.browserType.Blink;
             }
-            _this.info.browser = bt;
+            this.info.browser = bt;
+            if (!this.options.baseExecutionPath && document.head)
+                this.options.baseExecutionPath = document.head.baseURI;
         }
-        return _this;
-    }
+        _super.prototype.initApp.call(this);
+    };
     WebApp.prototype.run = function () {
         var _this = this;
         this.services.logger.log.call(this, types.LogLevel.Trace, 'App.run');
+        this.initApp();
         var main = null;
         return new Promise(function (resolve, reject) {
             try {
@@ -100,8 +106,9 @@ var WebApp = /** @class */ (function (_super) {
                         }
                         else if (!document.body)
                             document.body = document.createElement('BODY');
-                        target = target || document.body;
-                        if (target.tagName === "BODY") {
+                        else
+                            target = document.body;
+                        if (target && target.tagName === "BODY") {
                             var body_1 = target;
                             var doc = (body_1.ownerDocument ? body_1.ownerDocument : document.body);
                             target = doc.getElementById("main") || function () {
@@ -112,20 +119,19 @@ var WebApp = /** @class */ (function (_super) {
                                 }
                                 return d;
                             }.apply(_this);
-                            if (!target.id)
+                            if (target && !target.id)
                                 target.setAttribute("id", "main");
                         }
-                        else if (_this.options.target == null)
+                        else if (_this.options.target !== null)
                             throw new Error("Cannot locate target (" + (_this.options.target ? 'not specified' : _this.options.target) + ") in html document body.");
                         if (_this.options.title)
                             document.title = _this.options.title;
                         //if (module && module.hot) module.hot.accept();
-                        if (target.hasChildNodes())
+                        if (target && target.hasChildNodes())
                             target.innerHTML = "";
                     }
-                    else
-                        throw new Error("Document node undefined.  Are you running WebApp in the context of a browser?");
-                    resolve(_this.services.UI.render(value, target));
+                    //throw new Error("Document node undefined.  Are you running WebApp in the context of a browser?");
+                    resolve(_this.services.UI.render(value, target ? target : undefined));
                 }
                 catch (e) {
                     reject(e);

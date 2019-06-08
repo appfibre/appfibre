@@ -2,7 +2,9 @@ import { types } from "@appfibre/core";
 
 export import IApp = types.IApp;
 export import IAppLoaded = types.IAppLoaded
-export import IComponent = types.IComponent
+//export import IComponent = types.IComponent
+export import Constructable = types.Constructable;
+export import Component = types.Component
 export import IController = types.IController
 export import IData = types.IData
 export import IEventData = types.IEventData
@@ -21,13 +23,13 @@ export import ITransformOutput = types.ITransformOutput
 export import ITransformSetting = types.ITransformSettings
 export import ITransformer = types.ITransformer
 export import IUI = types.IUI
-export import Key = types.Key
+//export import Key = types.Key
 export import LogLevel = types.LogLevel
 export import ModuleSystem = types.ModuleSystem
-export import Ref = types.Ref
-export import RenderableProps = types.RenderableProps
+//export import Ref = types.Ref
+//export import RenderableProps = types.RenderableProps
 export import promisedElement = types.promisedElement
-export import VNode = types.VNode
+//export import VNode = types.VNode
 export import element = types.element
 export import elementBase = types.elementBase
 
@@ -54,7 +56,7 @@ export interface IInfo extends types.IInfo {
 export interface IWebApp extends types.IApp<IOptions, IInfo> { }
 export interface IWebAppLoaded extends types.IAppLoaded<IOptions, IInfo> { }
 
-
+/*
 export interface DOMAttributes {
     children?: types.ComponentChildren;
     dangerouslySetInnerHTML?: {
@@ -63,7 +65,7 @@ export interface DOMAttributes {
 }
 
 export type HTMLAttributes = types.ClassAttributes<any>;
-
+*/
 /*
 function h(
     node: string,
@@ -870,3 +872,18 @@ type Defaultize<Props, Defaults> =
 			& Pick<Props, Exclude<keyof Props, keyof Defaults>>
 		: never;
 */
+
+
+
+export namespace HTML {
+    export type element = div|table;
+
+    export type div = ["div", Partial<HTMLDivElement>?, (string|{ [index:number]: HTML.element})?];
+    export type table = ["table", Partial<HTMLTableElement>?, Array<HTML.tr>?];
+    export type tr = ["tr", Partial<HTMLTableRowElement>?, Array<HTML.td>?]
+    export type td = ["td", Partial<HTMLTableCellElement>?, (string|{ [index:number]: HTML.element})?]
+}
+
+
+
+//var z:HTML.table = ["table", { align: "center", onclick: function() {} }, [["tr", {}, [[ "td", {}, [["div"]] ]]]] ];

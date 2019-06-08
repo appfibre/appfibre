@@ -15,9 +15,22 @@ var appfibre_polyfill = (function () {
     return _typeof(obj);
   }
 
-  // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-  var global = (typeof window === "undefined" ? "undefined" : _typeof(window)) == 'object' && window && window.Math == Math ? window : (typeof self === "undefined" ? "undefined" : _typeof(self)) == 'object' && self && self.Math == Math ? self // eslint-disable-next-line no-new-func
-  : Function('return this')();
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var O = 'object';
+
+  var check = function check(it) {
+    return it && it.Math == Math && it;
+  }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+
+
+  var global_1 = // eslint-disable-next-line no-undef
+  check((typeof globalThis === "undefined" ? "undefined" : _typeof(globalThis)) == O && globalThis) || check((typeof window === "undefined" ? "undefined" : _typeof(window)) == O && window) || check((typeof self === "undefined" ? "undefined" : _typeof(self)) == O && self) || check(_typeof(commonjsGlobal) == O && commonjsGlobal) || // eslint-disable-next-line no-new-func
+  Function('return this')();
 
   var fails = function fails(exec) {
     try {
@@ -26,22 +39,6 @@ var appfibre_polyfill = (function () {
       return true;
     }
   };
-
-  var replacement = /#|\.prototype\./;
-
-  var isForced = function isForced(feature, detection) {
-    var value = data[normalize(feature)];
-    return value == POLYFILL ? true : value == NATIVE ? false : typeof detection == 'function' ? fails(detection) : !!detection;
-  };
-
-  var normalize = isForced.normalize = function (string) {
-    return String(string).replace(replacement, '.').toLowerCase();
-  };
-
-  var data = isForced.data = {};
-  var NATIVE = isForced.NATIVE = 'N';
-  var POLYFILL = isForced.POLYFILL = 'P';
-  var isForced_1 = isForced;
 
   var descriptors = !fails(function () {
     return Object.defineProperty({}, 'a', {
@@ -52,13 +49,13 @@ var appfibre_polyfill = (function () {
   });
 
   var nativePropertyIsEnumerable = {}.propertyIsEnumerable;
-  var nativeGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor; // Nashorn ~ JDK8 bug
+  var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor; // Nashorn ~ JDK8 bug
 
-  var NASHORN_BUG = nativeGetOwnPropertyDescriptor && !nativePropertyIsEnumerable.call({
+  var NASHORN_BUG = getOwnPropertyDescriptor && !nativePropertyIsEnumerable.call({
     1: 2
   }, 1);
   var f = NASHORN_BUG ? function propertyIsEnumerable(V) {
-    var descriptor = nativeGetOwnPropertyDescriptor(this, V);
+    var descriptor = getOwnPropertyDescriptor(this, V);
     return !!descriptor && descriptor.enumerable;
   } : nativePropertyIsEnumerable;
   var objectPropertyIsEnumerable = {
@@ -122,7 +119,7 @@ var appfibre_polyfill = (function () {
     return hasOwnProperty.call(it, key);
   };
 
-  var document = global.document; // typeof document.createElement is 'object' in old IE
+  var document = global_1.document; // typeof document.createElement is 'object' in old IE
 
   var exist = isObject(document) && isObject(document.createElement);
 
@@ -138,12 +135,12 @@ var appfibre_polyfill = (function () {
     }).a != 7;
   });
 
-  var nativeGetOwnPropertyDescriptor$1 = Object.getOwnPropertyDescriptor;
-  var f$1 = descriptors ? nativeGetOwnPropertyDescriptor$1 : function getOwnPropertyDescriptor(O, P) {
+  var nativeGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  var f$1 = descriptors ? nativeGetOwnPropertyDescriptor : function getOwnPropertyDescriptor(O, P) {
     O = toIndexedObject(O);
     P = toPrimitive(P, true);
     if (ie8DomDefine) try {
-      return nativeGetOwnPropertyDescriptor$1(O, P);
+      return nativeGetOwnPropertyDescriptor(O, P);
     } catch (error) {
       /* empty */
     }
@@ -186,15 +183,11 @@ var appfibre_polyfill = (function () {
     return object;
   };
 
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
   var setGlobal = function setGlobal(key, value) {
     try {
-      hide(global, key, value);
+      hide(global_1, key, value);
     } catch (error) {
-      global[key] = value;
+      global_1[key] = value;
     }
 
     return value;
@@ -204,11 +197,11 @@ var appfibre_polyfill = (function () {
 
   var shared = createCommonjsModule(function (module) {
     var SHARED = '__core-js_shared__';
-    var store = global[SHARED] || setGlobal(SHARED, {});
+    var store = global_1[SHARED] || setGlobal(SHARED, {});
     (module.exports = function (key, value) {
       return store[key] || (store[key] = value !== undefined ? value : {});
     })('versions', []).push({
-      version: '3.0.1',
+      version: '3.1.3',
       mode: 'global',
       copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
     });
@@ -216,7 +209,7 @@ var appfibre_polyfill = (function () {
 
   var functionToString = shared('native-function-to-string', Function.toString);
 
-  var WeakMap = global.WeakMap;
+  var WeakMap = global_1.WeakMap;
   var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(functionToString.call(WeakMap));
 
   var id = 0;
@@ -226,15 +219,15 @@ var appfibre_polyfill = (function () {
     return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + postfix).toString(36));
   };
 
-  var shared$1 = shared('keys');
+  var keys = shared('keys');
 
   var sharedKey = function sharedKey(key) {
-    return shared$1[key] || (shared$1[key] = uid(key));
+    return keys[key] || (keys[key] = uid(key));
   };
 
   var hiddenKeys = {};
 
-  var WeakMap$1 = global.WeakMap;
+  var WeakMap$1 = global_1.WeakMap;
   var set, get, has$1;
 
   var enforce = function enforce(it) {
@@ -314,7 +307,7 @@ var appfibre_polyfill = (function () {
         enforceInternalState(value).source = TEMPLATE.join(typeof key == 'string' ? key : '');
       }
 
-      if (O === global) {
+      if (O === global_1) {
         if (simple) O[key] = value;else setGlobal(key, value);
         return;
       } else if (!unsafe) {
@@ -420,7 +413,7 @@ var appfibre_polyfill = (function () {
     f: f$4
   };
 
-  var Reflect = global.Reflect; // all object keys, includes non-enumerable and symbols
+  var Reflect = global_1.Reflect; // all object keys, includes non-enumerable and symbols
 
   var ownKeys = Reflect && Reflect.ownKeys || function ownKeys(it) {
     var keys = objectGetOwnPropertyNames.f(anObject(it));
@@ -439,7 +432,23 @@ var appfibre_polyfill = (function () {
     }
   };
 
-  var getOwnPropertyDescriptor = objectGetOwnPropertyDescriptor.f;
+  var replacement = /#|\.prototype\./;
+
+  var isForced = function isForced(feature, detection) {
+    var value = data[normalize(feature)];
+    return value == POLYFILL ? true : value == NATIVE ? false : typeof detection == 'function' ? fails(detection) : !!detection;
+  };
+
+  var normalize = isForced.normalize = function (string) {
+    return String(string).replace(replacement, '.').toLowerCase();
+  };
+
+  var data = isForced.data = {};
+  var NATIVE = isForced.NATIVE = 'N';
+  var POLYFILL = isForced.POLYFILL = 'P';
+  var isForced_1 = isForced;
+
+  var getOwnPropertyDescriptor$1 = objectGetOwnPropertyDescriptor.f;
   /*
     options.target      - name of the target object
     options.global      - target is the global object
@@ -462,18 +471,18 @@ var appfibre_polyfill = (function () {
     var FORCED, target, key, targetProperty, sourceProperty, descriptor;
 
     if (GLOBAL) {
-      target = global;
+      target = global_1;
     } else if (STATIC) {
-      target = global[TARGET] || setGlobal(TARGET, {});
+      target = global_1[TARGET] || setGlobal(TARGET, {});
     } else {
-      target = (global[TARGET] || {}).prototype;
+      target = (global_1[TARGET] || {}).prototype;
     }
 
     if (target) for (key in source) {
       sourceProperty = source[key];
 
       if (options.noTargetGet) {
-        descriptor = getOwnPropertyDescriptor(target, key);
+        descriptor = getOwnPropertyDescriptor$1(target, key);
         targetProperty = descriptor && descriptor.value;
       } else targetProperty = target[key];
 
@@ -499,8 +508,8 @@ var appfibre_polyfill = (function () {
   });
 
   var internalMetadata = createCommonjsModule(function (module) {
-    var METADATA = uid('meta');
     var defineProperty = objectDefineProperty.f;
+    var METADATA = uid('meta');
     var id = 0;
 
     var isExtensible = Object.isExtensible || function () {
@@ -566,22 +575,23 @@ var appfibre_polyfill = (function () {
   var internalMetadata_3 = internalMetadata.getWeakData;
   var internalMetadata_4 = internalMetadata.onFreeze;
 
-  var iterators = {};
-
-  var nativeSymbol = !fails(function () {
+  var nativeSymbol = !!Object.getOwnPropertySymbols && !fails(function () {
+    // Chrome 38 Symbol has incorrect toString conversion
     // eslint-disable-next-line no-undef
     return !String(Symbol());
   });
 
+  var _Symbol = global_1.Symbol;
   var store$1 = shared('wks');
-  var _Symbol = global.Symbol;
 
   var wellKnownSymbol = function wellKnownSymbol(name) {
     return store$1[name] || (store$1[name] = nativeSymbol && _Symbol[name] || (nativeSymbol ? _Symbol : uid)('Symbol.' + name));
   };
 
+  var iterators = {};
+
   var ITERATOR = wellKnownSymbol('iterator');
-  var ArrayPrototype = Array.prototype;
+  var ArrayPrototype = Array.prototype; // check on default Array iterator
 
   var isArrayIteratorMethod = function isArrayIteratorMethod(it) {
     return it !== undefined && (iterators.Array === it || ArrayPrototype[ITERATOR] === it);
@@ -727,6 +737,11 @@ var appfibre_polyfill = (function () {
     iteratorWithReturn[ITERATOR$2] = function () {
       return this;
     }; // eslint-disable-next-line no-throw-literal
+
+
+    Array.from(iteratorWithReturn, function () {
+      throw 2;
+    });
   } catch (error) {
     /* empty */
   }
@@ -810,7 +825,7 @@ var appfibre_polyfill = (function () {
   };
 
   var collection = function collection(CONSTRUCTOR_NAME, wrapper, common, IS_MAP, IS_WEAK) {
-    var NativeConstructor = global[CONSTRUCTOR_NAME];
+    var NativeConstructor = global_1[CONSTRUCTOR_NAME];
     var NativePrototype = NativeConstructor && NativeConstructor.prototype;
     var Constructor = NativeConstructor;
     var ADDER = IS_MAP ? 'set' : 'add';
@@ -916,7 +931,7 @@ var appfibre_polyfill = (function () {
     return O;
   };
 
-  var document$1 = global.document;
+  var document$1 = global_1.document;
   var html = document$1 && document$1.documentElement;
 
   var IE_PROTO = sharedKey('IE_PROTO');
@@ -950,7 +965,8 @@ var appfibre_polyfill = (function () {
     }
 
     return _createDict();
-  };
+  }; // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
+
 
   var objectCreate = Object.create || function create(O, Properties) {
     var result;
@@ -992,7 +1008,8 @@ var appfibre_polyfill = (function () {
   });
 
   var IE_PROTO$1 = sharedKey('IE_PROTO');
-  var ObjectPrototype = Object.prototype;
+  var ObjectPrototype = Object.prototype; // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
+
   var objectGetPrototypeOf = correctPrototypeGetter ? Object.getPrototypeOf : function (O) {
     O = toObject(O);
     if (has(O, IE_PROTO$1)) return O[IE_PROTO$1];
@@ -1043,14 +1060,14 @@ var appfibre_polyfill = (function () {
     IteratorConstructor.prototype = objectCreate(IteratorPrototype$1, {
       next: createPropertyDescriptor(1, next)
     });
-    setToStringTag(IteratorConstructor, TO_STRING_TAG, false, true);
+    setToStringTag(IteratorConstructor, TO_STRING_TAG, false);
     iterators[TO_STRING_TAG] = returnThis$1;
     return IteratorConstructor;
   };
 
-  var ITERATOR$4 = wellKnownSymbol('iterator');
   var IteratorPrototype$2 = iteratorsCore.IteratorPrototype;
   var BUGGY_SAFARI_ITERATORS$1 = iteratorsCore.BUGGY_SAFARI_ITERATORS;
+  var ITERATOR$4 = wellKnownSymbol('iterator');
   var KEYS = 'keys';
   var VALUES = 'values';
   var ENTRIES = 'entries';
@@ -1109,7 +1126,7 @@ var appfibre_polyfill = (function () {
         } // Set @@toStringTag to native iterators
 
 
-        setToStringTag(CurrentIteratorPrototype, TO_STRING_TAG, true, true);
+        setToStringTag(CurrentIteratorPrototype, TO_STRING_TAG, true);
       }
     } // fix Array#{values, @@iterator}.name in V8 / FF
 
@@ -1149,14 +1166,14 @@ var appfibre_polyfill = (function () {
     return methods;
   };
 
-  var path = global;
+  var path = global_1;
 
   var aFunction$1 = function aFunction(variable) {
     return typeof variable == 'function' ? variable : undefined;
   };
 
   var getBuiltIn = function getBuiltIn(namespace, method) {
-    return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global[namespace]) : path[namespace] && path[namespace][method] || global[namespace] && global[namespace][method];
+    return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global_1[namespace]) : path[namespace] && path[namespace][method] || global_1[namespace] && global_1[namespace][method];
   };
 
   var SPECIES = wellKnownSymbol('species');
@@ -1377,7 +1394,8 @@ var appfibre_polyfill = (function () {
     };
   }, collectionStrong, true);
 
-  var nativeAssign = Object.assign; // should work with symbols and should have deterministic property order (V8 bug)
+  var nativeAssign = Object.assign; // 19.1.2.1 Object.assign(target, source, ...)
+  // should work with symbols and should have deterministic property order (V8 bug)
 
   var objectAssign = !nativeAssign || fails(function () {
     var A = {};
@@ -1406,7 +1424,8 @@ var appfibre_polyfill = (function () {
       var key;
 
       while (length > j) {
-        if (propertyIsEnumerable.call(S, key = keys[j++])) T[key] = S[key];
+        key = keys[j++];
+        if (!descriptors || propertyIsEnumerable.call(S, key)) T[key] = S[key];
       }
     }
 
@@ -1685,8 +1704,7 @@ var appfibre_polyfill = (function () {
 
   _export({
     target: 'Map',
-    stat: true,
-    forced: isPure
+    stat: true
   }, {
     groupBy: function groupBy(iterable, keyDerivative) {
       var newMap = new this();
@@ -1736,8 +1754,7 @@ var appfibre_polyfill = (function () {
 
   _export({
     target: 'Map',
-    stat: true,
-    forced: isPure
+    stat: true
   }, {
     keyBy: function keyBy(iterable, keyDerivative) {
       var newMap = new this();
@@ -2458,7 +2475,7 @@ var appfibre_polyfill = (function () {
   var ArrayValues = es_array_iterator.values;
 
   for (var COLLECTION_NAME in domIterables) {
-    var Collection = global[COLLECTION_NAME];
+    var Collection = global_1[COLLECTION_NAME];
     var CollectionPrototype = Collection && Collection.prototype;
 
     if (CollectionPrototype) {

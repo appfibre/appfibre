@@ -1,7 +1,8 @@
 import { types } from "@appfibre/core";
 export import IApp = types.IApp;
 export import IAppLoaded = types.IAppLoaded;
-export import IComponent = types.IComponent;
+export import Constructable = types.Constructable;
+export import Component = types.Component;
 export import IController = types.IController;
 export import IData = types.IData;
 export import IEventData = types.IEventData;
@@ -17,13 +18,9 @@ export import ITransformOutput = types.ITransformOutput;
 export import ITransformSetting = types.ITransformSettings;
 export import ITransformer = types.ITransformer;
 export import IUI = types.IUI;
-export import Key = types.Key;
 export import LogLevel = types.LogLevel;
 export import ModuleSystem = types.ModuleSystem;
-export import Ref = types.Ref;
-export import RenderableProps = types.RenderableProps;
 export import promisedElement = types.promisedElement;
-export import VNode = types.VNode;
 export import element = types.element;
 export import elementBase = types.elementBase;
 export declare enum browserType {
@@ -47,10 +44,14 @@ export interface IWebApp extends types.IApp<IOptions, IInfo> {
 }
 export interface IWebAppLoaded extends types.IAppLoaded<IOptions, IInfo> {
 }
-export interface DOMAttributes {
-    children?: types.ComponentChildren;
-    dangerouslySetInnerHTML?: {
-        __html: string;
-    };
+export declare namespace HTML {
+    type element = div | table;
+    type div = ["div", Partial<HTMLDivElement>?, (string | {
+        [index: number]: HTML.element;
+    })?];
+    type table = ["table", Partial<HTMLTableElement>?, Array<HTML.tr>?];
+    type tr = ["tr", Partial<HTMLTableRowElement>?, Array<HTML.td>?];
+    type td = ["td", Partial<HTMLTableCellElement>?, (string | {
+        [index: number]: HTML.element;
+    })?];
 }
-export declare type HTMLAttributes = types.ClassAttributes<any>;

@@ -13,11 +13,16 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+/*import { Promise } from "../types"; // Compatibility with ES3
+declare class Promise<T>  {
+    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
+}*/
 var BaseComponent = function inject(app) {
     return /** @class */ (function (_super) {
-        __extends(BaseComponent, _super);
-        function BaseComponent(props) {
-            var _this = _super.call(this, app) || this;
+        __extends(BaseComponent, _super); /*implements types.Component<P,S>*/
+        //state:S
+        function BaseComponent(props, context) {
+            var _this = _super.call(this, props, context) || this;
             _this.props = props;
             return _this;
         }
@@ -28,6 +33,7 @@ var BaseComponent = function inject(app) {
                 //if (Promise.resolve(e[0]) === e[0]) debugger;
                 /*if (e[1] == null) e[1] = {};
                 if (typeof e[1] === "object") e[1].context = this.context;*/
+                // @ts-ignore: 'Promise' only refers to a type, but is being used as a value here                
                 if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0])
                     return app.services.processor.processElement(e, index);
                 else {
@@ -49,3 +55,4 @@ var BaseComponent = function inject(app) {
     }(app.services.UI.Component));
 };
 exports.BaseComponent = BaseComponent;
+{ }

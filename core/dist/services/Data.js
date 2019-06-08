@@ -28,12 +28,11 @@ function clone(o) {
 var SM = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Bind, _super);
-        function Bind(props) {
-            var _this = _super.call(this, app) || this;
-            _this.state = { data: clone(props.data) };
+        function Bind(props, context) {
+            var _this = _super.call(this, app, context) || this;
             var s = {};
+            _this.state = { data: clone(props.data), subscribers: s };
             _this.visit.call(_this, props.childArray, s);
-            _this.state.subscribers = s;
             _this.render = _this.render.bind(_this);
             return _this;
         }

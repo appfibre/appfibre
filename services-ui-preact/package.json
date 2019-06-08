@@ -16,8 +16,8 @@
     "Preact"
   ],
   "license": "AGPL-3.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist",
+  "types": "dist",
   "name": "@appfibre/services-ui-preact",
   "repository": {
     "type": "git",

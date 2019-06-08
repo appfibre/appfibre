@@ -3,7 +3,8 @@ exports.__esModule = true;
 var Events = /** @class */ (function () {
     function Events(app) {
         this.callbacks = {};
-        window.addEventListener("message", this.onWindowMessage.bind(this));
+        if (typeof window === "object")
+            window.addEventListener("message", this.onWindowMessage.bind(this));
     }
     Events.prototype.onWindowMessage = function (ev) {
         if (typeof ev.data === "object" && typeof ev.data.type === "string")

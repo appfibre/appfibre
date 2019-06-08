@@ -3,7 +3,7 @@ import { Designer_Intercept_Select } from "./types";
 
 let Intercept = function inject(app:types.IAppLoaded) {
 
-    return class Intercept extends app.services.UI.Component {
+    return class Intercept extends app.services.UI.Component<{file?:string, method?:string, children?:any}, {focus:boolean, selected:boolean, editMode:any, canEdit: boolean}> {
 
         state:{focus:boolean, selected:boolean, editMode:any, canEdit: boolean};
         constructor(props:any) 
@@ -68,8 +68,10 @@ let Intercept = function inject(app:types.IAppLoaded) {
             
             var correlationId = Date.now().toString();
             //parent.postMessage({eventType: "select", editMode: this.state.editMode, canEdit: this.state.canEdit, correlationId, control: {file:this.props.file, method:this.props.method}}, location.href);
-            app.services.events.publish<Designer_Intercept_Select>({type: "Designer.Intercept.Select", correlationId, data: {editMode: this.state.editMode, canEdit: this.state.canEdit, control: {url:this.props.file, method:this.props.method}}}, parent);
-            this.setState({"selected": correlationId} );
+            if (this.props.file) { 
+                app.services.events.publish<Designer_Intercept_Select>({type: "Designer.Intercept.Select", correlationId, data: {editMode: this.state.editMode, canEdit: this.state.canEdit, control: {url:this.props.file, method:this.props.method}}}, parent);
+                this.setState({selected: !!correlationId} );
+            }
 
         }
 

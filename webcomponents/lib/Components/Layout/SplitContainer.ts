@@ -33,7 +33,7 @@ declare interface panel extends initial {
 }
 
 let SplitContainer /*: fibre.UI.Component*/ = function inject(app:types.IWebAppLoaded) {
-    return class SplitContainer extends app.services.UI.Component {
+    return class SplitContainer extends app.services.UI.Component<SplitContainer_Attributes, state> {
         state:state
         
         constructor(props:SplitContainer_Attributes) {

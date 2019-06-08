@@ -1,17 +1,9 @@
-/examples/ts/node_modules
-/tests/node_modules
-/webpack-plugin-jst/node_modules
 /webpack-plugin-jst/old
-/jst-react/node_modules
-/jst-preact/node_modules
 /docs/cdn
 /examples/app/cdn
-/examples/pwa/node_modules
-/jst/node_modules
 /local-cdn/systemjs
 /local-cdn/es-module-loader
 /local-cdn/jst
-/local-cdn/node_modules
 /local-cdn/preact
 /local-cdn/rollup-plugin-jst
 /play
@@ -20,4 +12,4 @@
 /local-cdn/react-dom/umd
 /local-cdn/react/cjs
 /local-cdn/react/umd
-/app/node_modules
+node_modules

@@ -2,6 +2,17 @@ export interface Constructable<T, U=any> {
     new (arg:U) : T;
 }
 
+/*
+using <any> cast instead
+export declare class Promise<T>  {
+  constructor(resolver: Function);
+  then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
+  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
+  static all(promises: Promise<any>[]): Promise<any>;
+  static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
+};
+*/
+
 export enum LogLevel {
     "None"=0,
     "Exception"=1,
@@ -89,12 +100,14 @@ export interface IEvents {
   publish<T>(data:IEventData<T>&{data:T}, target?:{postMessage: (message:any, targetOrigin:string)=>void}):any[]
 }
 
+//export type ComponentChild = VNode<any> | object | string | number | boolean | null;
+
 export interface IUI {
-    render(node: ComponentChild, parent: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element;
+    render(node: any, parent?: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element;
     //render(ui:any, parent?:any, mergeWith?:any):any
     //processElement(tag:any, attributes?:object|undefined, children?:any|undefined) : any
     processElement(element:any, depth:number, index?:number) : any
-    Component: Constructable<IComponent<any, any>>
+    Component: typeof Component
     //render:any
 }
 
@@ -168,28 +181,37 @@ export type IParser = (obj:any, output:ITransformOutput, offset:number, resolve?
 
 
 export type elementBase = [ string|Function, { [key:string]:any }?, (string|Function|{ [index:number]: elementBase}|{ [index:string]: elementBase})? ]
-export type element = elementBase|string|Function|undefined|{ [index:number]: element|Promise<element> };
+export type element = elementBase|string|Function|{ [index:number]: element|Promise<element> };
 export type promisedElement = Promise<element>;
 
 //export type element<P=any> = string|UI.ComponentFactory<P>|[ UI.ComponentFactory<P> | string, P?, (string|{ [index:number]: element|{ [index:string]: elementBase} })? ]
 //export type promisedElement = Promise<element>;
 
-export type IComponent<P, S> = {
-  props:P & { children?: element|promisedElement;} 
-  state?:S
-  new?(props:P/*, children?: string|Array<any>*/):IComponent<P, S>
-  render(e?:element|promisedElement): any
 
-  setState<K extends keyof S>(state: Pick<S, K>, callback?: () => void): void;
-  setState<K extends keyof S>(fn: (prevState: S, props: P) => Pick<S, K>, callback?: () => void): void;
-  forceUpdate(callback?: (() => void) | undefined): void;
+export declare abstract class Component<P, S> {
+  constructor(props?: P, context?: any);
+
+	static displayName?: string;
+	static defaultProps?: any;
+
+	state: Readonly<S>;
+	props: Readonly<P>;
+	context: any;
+	base?: HTMLElement;
+
+	setState<K extends keyof S>(state: Pick<S, K>, callback?: () => void): void;
+	setState<K extends keyof S>(fn: (prevState: S, props: P) => Pick<S, K>, callback?: () => void): void;
+
+	forceUpdate(callback?: () => void): void;
+
+	render(props?: Readonly<P|element|promisedElement>, state?: Readonly<S>, context?: any): any;
 
 }
 
 
 
 
-
+/*
 export type Key = string | number;
 export type Ref<T> = (instance: T) => void;
 export type ComponentChild = VNode<any> | object | string | number | boolean | null;
@@ -205,13 +227,6 @@ export interface ClassAttributes<T> extends Attributes {
 }
 
 export type ComponentFactory<P> = ComponentConstructor<P> | FunctionalComponent<P>;
-/**
- * Define the contract for a virtual node in preact.
- *
- * A virtual node has a name, a map of attributes, an array
- * of child {VNode}s and a key. The key is used by preact for
- * internal purposes.
- */
 export interface VNode<P = any> {
 	nodeName: ComponentFactory<P> | string;
 	attributes: P;
@@ -266,7 +281,7 @@ export declare abstract class Component<P, S> {
 	forceUpdate(callback?: () => void): void;
 
 	abstract render(props?: RenderableProps<P>, state?: Readonly<S>, context?: any): ComponentChild;
-}
+}*/
 
 /*function h(
 	node: string,

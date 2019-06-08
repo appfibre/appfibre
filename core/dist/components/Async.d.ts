@@ -1,12 +1,24 @@
 import * as types from "../types";
 declare let Async: (app: types.IAppLoaded<{}, {}>) => {
-    new (props: any): {
+    new (props: any, context: any): {
+        state: {
+            value?: any;
+        };
         render(): any;
-        props: any;
-        state?: any;
-        setState<K extends string | number | symbol>(state: Pick<any, K>, callback?: (() => void) | undefined): void;
-        setState<K extends string | number | symbol>(fn: (prevState: any, props: any) => Pick<any, K>, callback?: (() => void) | undefined): void;
+        props: Readonly<{}>;
+        context: any;
+        base?: HTMLElement | undefined;
+        setState<K extends "value">(state: Pick<{
+            value?: any;
+        }, K>, callback?: (() => void) | undefined): void;
+        setState<K extends "value">(fn: (prevState: {
+            value?: any;
+        }, props: {}) => Pick<{
+            value?: any;
+        }, K>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
+    displayName?: string | undefined;
+    defaultProps?: any;
 };
 export { Async };

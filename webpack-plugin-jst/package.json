@@ -1,6 +1,6 @@
 {
-  "author": "Soleil De Gloria"
-  ,  "bugs": {
+  "author": "Soleil De Gloria",
+  "bugs": {
     "url": "https://github.com/appfibre/core/issues"
   },
   "bundleDependencies": [],
@@ -11,7 +11,7 @@
   "deprecated": false,
   "description": "Webpack app/jst plugin",
   "devDependencies": {
-    "@types/webpack": "^4.4.26"
+    "@types/webpack": "^4.4.32"
   },
   "homepage": "https://github.com/appfibre/core#readme",
   "keywords": [

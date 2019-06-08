@@ -3,10 +3,42 @@
 SET OP=%1
 IF "%OP%"=="" SET OP=/i
 
-call :link webapp\node_modules\@appfibre\core\dist core\dist
+call :link webapp\node_modules\@appfibre\core core
 
-call :link webcomponents\node_modules\@appfibre\core\dist core\dist
-call :link webcomponents\node_modules\@appfibre\webapp\dist webapp\dist
+call :link webcomponents\node_modules\@appfibre\core core
+call :link webcomponents\node_modules\@appfibre\webapp webapp
+
+call :link rollup-plugin-jst\node_modules\@appfibre\core core
+call :link webpack-plugin-jst\node_modules\@appfibre\core core
+call :link webpack-plugin-jst\node_modules\@appfibre\webapp webapp
+
+call :link tests\node_modules\@appfibre\core core
+call :link tests\node_modules\@appfibre\webapp webapp
+call :link tests\node_modules\@appfibre\services-ui-preact services-ui-preact
+call :link tests\node_modules\@appfibre\services-ui-react services-ui-react
+call :link tests\node_modules\@appfibre\webpack-plugin-jst webpack-plugin-jst
+call :link tests\node_modules\@appfibre\rollup-plugin-jst rollup-plugin-jst
+
+call :link examples\app\cdn local-cdn
+call :link examples\app\node_modules\@appfibre\core core
+call :link examples\app\node_modules\@appfibre\webapp webapp
+call :link examples\pwa\node_modules\@appfibre\core core
+call :link examples\pwa\node_modules\@appfibre\webapp webapp
+call :link examples\pwa\node_modules\@appfibre\services-ui-react services-ui-react
+call :link examples\pwa\node_modules\@appfibre\webpack-plugin-jst webpack-plugin-jst
+
+rem call :link local-cdn\app app\dist
+rem call :link app\node_modules\@appfibre\jst\dist jst\dist
+
+call :link local-cdn\appfibre webcomponents\dist
+call :link local-cdn\rollup-plugin-jst rollup-plugin-jst\dist
+call :link local-cdn\systemjs local-cdn\node_modules\systemjs\dist
+call :link local-cdn\react\cjs local-cdn\node_modules\react\cjs
+call :link local-cdn\react\umd local-cdn\node_modules\react\umd
+call :link local-cdn\react-dom\cjs local-cdn\node_modules\react-dom\cjs
+call :link local-cdn\react-dom\umd local-cdn\node_modules\react-dom\umd
+call :link local-cdn\preact local-cdn\node_modules\preact\dist
+call :link local-cdn\es-module-loader local-cdn\node_modules\es-module-loader\core
 
 GOTO:eof
 

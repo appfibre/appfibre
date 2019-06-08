@@ -2,7 +2,7 @@ import { types } from "@appfibre/webapp";
 import { events, Designer_Intercept_Select, Designer_Load } from "./types";
 
 let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoaded) {
-    return class DesktopRibbon extends app.services.UI.Component {
+    return class DesktopRibbon extends app.services.UI.Component<any, {selectedContext: Designer_Intercept_Select|null, source?: string|null, url: string}> {
         constructor(props:any) {
             super(props);
             this.state = {selectedContext: null, source: null, url: './pages/latest/index.json'};

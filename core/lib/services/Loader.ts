@@ -50,6 +50,7 @@ export class Loader implements types.IModuleSystem {
 
     init(basePath:string) {
         Object.defineProperty(this.proxy.import, "jst", this.app.services.transformer.transform);
+        this.proxy.init(basePath);
     }
 
 }

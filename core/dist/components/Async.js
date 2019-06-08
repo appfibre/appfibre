@@ -16,8 +16,8 @@ exports.__esModule = true;
 var Async = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Async, _super);
-        function Async(props) {
-            var _this = _super.call(this, props) || this;
+        function Async(props, context) {
+            var _this = _super.call(this, props, context) || this;
             _this.state = {};
             //(Array.isArray(this.props.children) ? Promise.all : Promise.resolve)(this.props.children).then(o => this.setState({value: o  }));
             if (Array.isArray(props.children))

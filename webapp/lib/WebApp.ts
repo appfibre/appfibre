@@ -25,7 +25,10 @@ export class WebApp extends App<types.IOptions, types.IInfo>
         };
 
         super(t);
+    }
 
+    initApp() 
+    {
         if (typeof document === "object") { // web app
             var w:any = window;
             var g:any = global;
@@ -41,11 +44,16 @@ export class WebApp extends App<types.IOptions, types.IInfo>
                 if ((bt === types.browserType.Chrome || bt === types.browserType.Opera) && !!w.CSS) bt = types.browserType.Blink;
             }
             this.info.browser = bt;
+
+            if (!this.options.baseExecutionPath && document.head)
+                this.options.baseExecutionPath = document.head.baseURI;
         } 
+        super.initApp();
     }
 
-    run() {
+    run() : PromiseLike<Element>{
         this.services.logger.log.call(this, types.LogLevel.Trace, 'App.run');
+        this.initApp();
         let main:any = null;
         return new Promise((resolve:any, reject:any) => {
             try {
@@ -76,8 +84,9 @@ export class WebApp extends App<types.IOptions, types.IInfo>
                                 target = !fr.contentDocument.body ? fr.contentDocument.createElement('BODY') : fr.contentDocument.body;
                         } else if (!document.body) 
                             document.body = document.createElement('BODY');
-                        target = target || document.body;
-                        if (target.tagName === "BODY") {
+                        else target = document.body;
+
+                        if (target && target.tagName === "BODY") {
                             let body = <HTMLBodyElement>target;
                             let doc = (<HTMLDocument>(body.ownerDocument ? body.ownerDocument : document.body));
                             target = doc.getElementById("main") || function(this:types.IWebApp) { 
@@ -87,17 +96,18 @@ export class WebApp extends App<types.IOptions, types.IInfo>
                                     body.style.height = body.style.height || "100%";
                                     d.style.height = "100%";
                                 }
-                            return d; 
+                                return d; 
                             }.apply(this);
-                            if (!target.id) target.setAttribute("id", "main");
-                        } else 
-                        if (this.options.target == null) throw new Error(`Cannot locate target (${this.options.target?'not specified':this.options.target}) in html document body.`);
+                            if (target && !target.id) target.setAttribute("id", "main");
+                        } else if (this.options.target !== null) throw new Error(`Cannot locate target (${this.options.target?'not specified':this.options.target}) in html document body.`);
                         if (this.options.title) document.title = this.options.title;
                         //if (module && module.hot) module.hot.accept();
-                        if (target.hasChildNodes()) target.innerHTML = "";
+                        if (target && target.hasChildNodes()) target.innerHTML = "";
+                        
                     } 
-                    else throw new Error("Document node undefined.  Are you running WebApp in the context of a browser?");
-                    resolve(this.services.UI.render(value, target));
+                    //throw new Error("Document node undefined.  Are you running WebApp in the context of a browser?");
+                    resolve(this.services.UI.render(value, target ? target : undefined ));
+                    
             } catch (e) {
                 reject(e);
                 }

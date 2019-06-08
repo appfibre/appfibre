@@ -16,10 +16,10 @@ export class Transformer implements types.ITransformer {
         this.settings.parsers[".exec"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `${this._process(obj[".exec"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
         this.settings.parsers[".new"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `new ${this._process(obj[".new"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
         this.settings.parsers[".id"] = this.settings.parsers[".code"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => obj[".code"] || obj[".id"];
-        this.settings.parsers[".webapp"] =  (obj:any, parseSettings:types.ITransformOutput, offset:number) => {
+        this.settings.parsers[".app"] =  (obj:any, parseSettings:types.ITransformOutput, offset:number) => {
             var obj2:{[key:string]:any} = {};
             var keys = Object.keys(obj);
-            for (var key in keys) obj2[keys[key] == ".webapp" ? "main" : keys[key]] = obj[keys[key]];
+            for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
             return `${this._process({ ".new": {".require": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, true, true, parseSettings, offset)}`;
         };
         this.settings.parsers["."] = (obj:any, parseSettings:types.ITransformOutput, offset?:number) => obj["."];

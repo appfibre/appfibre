@@ -9,7 +9,7 @@ declare interface attr {
 
 
 let TabContainer /*: fibre.UI.Component*/ = function inject(app:types.IAppLoaded) {
-    return class TabContainer extends app.services.UI.Component {
+    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<types.element>}, never> {
         
         constructor(props:attr) {
             super(props);

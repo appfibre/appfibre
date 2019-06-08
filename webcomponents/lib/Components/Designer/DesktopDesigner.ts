@@ -6,7 +6,7 @@ import { Layout } from "../Index";
 
 let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoaded) {
 
-    return class Designer extends app.services.UI.Component
+    return class Designer extends app.services.UI.Component<any, any>
     {
         iframe?:HTMLFrameElement
         constructor(props:{src?:string}) {
@@ -62,7 +62,7 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
         }
 
         onRedirect(event:types.IEventData<any>) {
-            //debugger;
+            //debugger;cd
             //if (history && history.pushState) history.pushState(null, '', event.data); else location.replace(event.data);
         }
 

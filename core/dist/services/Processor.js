@@ -50,15 +50,15 @@ var Processor = /** @class */ (function () {
             return /** @class */ (function (_super) {
                 __extends(Proxy, _super);
                 //app:App;
-                function Proxy(props) {
-                    return _super.call(this, app) || this;
+                function Proxy(props, context) {
+                    return _super.call(this, props, context) || this;
                     //this.app = new App(props);
                 }
                 Proxy.prototype.render = function () {
                     return _super.prototype.render.call(this, this.props.main);
                 };
                 return Proxy;
-            }(app.services.UI.Component));
+            }(components_1.BaseComponent(app)));
         };
     }
     Processor.prototype.Async = function () {
@@ -194,7 +194,7 @@ var Processor = /** @class */ (function () {
                             }
                             class_2.prototype.render = function () { return _super.prototype.render ? _super.prototype.render.call(this, ["span", { "style": { "color": "red" } }, (fullpath || 'undefined') + " not found!"]) : (fullpath || 'undefined') + " not found!"; };
                             return class_2;
-                        }(this.app.services.UI.Component));
+                        }(components_1.BaseComponent(this.app)));
                     }
                 }
             }

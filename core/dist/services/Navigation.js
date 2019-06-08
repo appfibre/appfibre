@@ -86,7 +86,7 @@ var Navigation = {
     },
     a: function inject(app) {
         return /** @class */ (function (_super) {
-            __extends(a, _super);
+            __extends(a, _super); //app.services.UI.Component 
             function a() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
@@ -108,14 +108,15 @@ var Navigation = {
                 return app.services.UI.processElement(["a", __assign({}, this.props, { onClick: this.click.bind(this) }), this.props.children], 0, undefined);
             };
             return a;
-        }(app.services.UI.Component));
+        }(components_1.BaseComponent(app) //app.services.UI.Component 
+        ));
     },
     Container: function transform(a, c) {
         var app = this;
         return [/** @class */ (function (_super) {
                 __extends(NavigationContainer, _super);
-                function NavigationContainer(props) {
-                    var _this = _super.call(this, props) || this;
+                function NavigationContainer(props, context) {
+                    var _this = _super.call(this, props, context) || this;
                     _this.state = { a: props.a, c: props.c };
                     _this.onRedirect = _this.onRedirect.bind(_this);
                     return _this;

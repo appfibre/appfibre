@@ -9,11 +9,12 @@ declare class Promise<T>  {
 }
 
 let Async = function inject(app:types.IAppLoaded) {
-    return class Async extends app.services.UI.Component
+    return class Async extends app.services.UI.Component<{}, {value?: any}>
     {
-        constructor(props:any)
+        state: {value?: any};
+        constructor(props:any, context:any)
         {
-            super(props);
+            super(props, context);
             this.state = {};
 
             //(Array.isArray(this.props.children) ? Promise.all : Promise.resolve)(this.props.children).then(o => this.setState({value: o  }));

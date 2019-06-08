@@ -37,6 +37,7 @@ var Loader = /** @class */ (function () {
     };
     Loader.prototype.init = function (basePath) {
         Object.defineProperty(this.proxy["import"], "jst", this.app.services.transformer.transform);
+        this.proxy.init(basePath);
     };
     return Loader;
 }());

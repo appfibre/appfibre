@@ -38,7 +38,15 @@ var _this = this;
 exports.__esModule = true;
 var basepath;
 function nodeRequire(url) {
-    return new Function('url', 'tmpdir', 'tmpdir = tmpdir ? tmpdir : global.process.env.INIT_CWD; var __dirname__ = global.process.cwd(); if (__dirname__ != tmpdir) global.process.chdir(tmpdir); var _exp = (global.require || global.process.mainModule.constructor._load)(url); if (global.process.cwd() != __dirname__) global.process.chdir(__dirname__); return _exp;')(url, basepath || '');
+    var tmpdir = basepath || global.process.env.INIT_CWD;
+    var __dirname__ = global.process.cwd();
+    if (tmpdir && __dirname__ != tmpdir)
+        global.process.chdir(tmpdir);
+    var _exp = (global.require || (global.process.mainModule ? global.process.mainModule.constructor._load : url))(url);
+    if (global.process.cwd() != __dirname__)
+        global.process.chdir(__dirname__);
+    return _exp;
+    //return new Function('url', 'tmpdir', 'tmpdir = tmpdir ? tmpdir : global.process.env.INIT_CWD; var __dirname__ = global.process.cwd(); if (__dirname__ != tmpdir) global.process.chdir(tmpdir); var _exp = (global.require || global.process.mainModule.constructor._load)(url); if (global.process.cwd() != __dirname__) global.process.chdir(__dirname__); return _exp;')(url, basepath||'');
 }
 function run(source, url) {
     var m = { exports: {} };

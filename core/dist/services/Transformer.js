@@ -34,11 +34,11 @@ var Transformer = /** @class */ (function () {
         this.settings.parsers[".exec"] = function (obj, parseSettings, offset) { return _this._process(obj[".exec"], true, false, parseSettings, offset) + "(" + (obj["arguments"] ? _this._process(obj["arguments"], true, true, parseSettings, offset) : "") + ")"; };
         this.settings.parsers[".new"] = function (obj, parseSettings, offset) { return "new " + _this._process(obj[".new"], true, false, parseSettings, offset) + "(" + (obj["arguments"] ? _this._process(obj["arguments"], true, true, parseSettings, offset) : "") + ")"; };
         this.settings.parsers[".id"] = this.settings.parsers[".code"] = function (obj, parseSettings, offset) { return obj[".code"] || obj[".id"]; };
-        this.settings.parsers[".webapp"] = function (obj, parseSettings, offset) {
+        this.settings.parsers[".app"] = function (obj, parseSettings, offset) {
             var obj2 = {};
             var keys = Object.keys(obj);
             for (var key in keys)
-                obj2[keys[key] == ".webapp" ? "main" : keys[key]] = obj[keys[key]];
+                obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
             return "" + _this._process({ ".new": { ".require": "@appfibre/webapp#WebApp" }, "arguments": [obj2] }, true, true, parseSettings, offset);
         };
         this.settings.parsers["."] = function (obj, parseSettings, offset) { return obj["."]; };

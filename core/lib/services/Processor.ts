@@ -41,10 +41,10 @@ export class Processor implements types.IProcessor
         this.type = "Processor";
         this.app = app;
         this.cache[".App"] = function inject(app:types.IAppLoaded) { 
-            return class Proxy extends app.services.UI.Component {
+            return class Proxy extends BaseComponent<{main?:types.element|types.promisedElement}, any>(app) {
                 //app:App;
-                constructor(props:any) {
-                    super(app);
+                constructor(props:any, context:any) {
+                    super(props, context);
                     //this.app = new App(props);
                 }
 
@@ -160,7 +160,7 @@ export class Processor implements types.IProcessor
                         return function transform(obj:any):any { return ["pre", {"style":{"color":"red"}}, obj[1].stack ? obj[1].stack : obj[1]]; }
                     else {
                         this.app.services.logger.log.call(this, types.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
-                        return class extends this.app.services.UI.Component { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
+                        return class extends BaseComponent(this.app) { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
                     }
                 }
             }

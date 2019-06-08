@@ -55,7 +55,7 @@ const Navigation:types.INavigation = {
     },
 
     a: function inject(app:types.IAppLoaded) {
-        return class a extends app.services.UI.Component 
+        return class a extends BaseComponent<{href:string, container?:string},any>(app) //app.services.UI.Component 
         {
             click(e:any) {
                 app.services.navigation.current = parse(this.props.href);
@@ -76,11 +76,11 @@ const Navigation:types.INavigation = {
 
     Container: function transform<P={c:any},S={}>(this:types.IAppLoaded, a:any, c:any) {
             let app = this;
-            return [class NavigationContainer extends BaseComponent<P&{c:any},S>(app) {
+            return [class NavigationContainer extends BaseComponent<P&{c:any},{a?:any, c:any}>(app) {
                 state:{a?:any, c:any}
 
-                constructor(props:{a?:any, c:any}) {
-                    super(props);
+                constructor(props:P&{a?:any, c:any}, context:any) {
+                    super(props, context);
                     this.state = { a: props.a, c: props.c };
                     this.onRedirect = this.onRedirect.bind(this)
                 }

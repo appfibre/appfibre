@@ -12,7 +12,7 @@ let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:types.
         };
     app.services.processor.init = (obj:{default:any, [index:string]:any}) => typeof obj.__esModule === "string" ? [Intercept, {file: obj.__esModule}, [obj.default]] : obj.default;
 
-    return class Designer extends app.services.UI.Component
+    return class Designer extends app.services.UI.Component<{}, {content:any}>
     {
         context: any;
         base?: HTMLElement | undefined;

@@ -11,7 +11,13 @@ import babel from 'rollup-plugin-babel';
 export default 
   [
     { input: 'lib/system.js',
-      output: [ { file: 'dist/app-systemjs.js', format: 'iife', sourcemap: true, name: 'appfibre', globals: { '@appfibre/core': 'core', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} } ],
+      output: [ { file: 'dist/webapp-systemjs.js'
+                , format: 'iife'
+                , sourcemap: true
+                , name: 'webapp'
+                , globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} 
+                } 
+              ],
       plugins: [  resolve(),
                   cjs(),
                   babel({
@@ -22,7 +28,7 @@ export default
               ]
     }, 
     { input: 'lib/polyfill.js',
-      output: [ { file: 'dist/app-systemjs-polyfill.js', format: 'iife', sourcemap: false, name: 'appfibre_polyfill'/*, globals: { '@appfibre/core': 'core'}, */} ],
+      output: [ { file: 'dist/webapp-systemjs-polyfill.js', format: 'iife', sourcemap: false, name: 'appfibre_polyfill'/*, globals: { '@appfibre/core': 'core'}, */} ],
       plugins: [ resolve()
                ,  cjs()
                ,  babel( {
@@ -37,7 +43,7 @@ export default
                , */typescript(/*{ plugin options }*/), buble({namedFunctionExpressions: false})
                ],
       output: {
-        file: 'dist/app-components-designer.js',
+        file: 'dist/webapp-components-designer.js',
         format: 'umd',
         name: "Designer",
         globals: { '@appfibre/webapp': 'webapp' }
@@ -48,7 +54,7 @@ export default
                 , */typescript(/*{ plugin options }*/), uglify(), buble({namedFunctionExpressions: false})
                 ],
       output: {
-        file: 'dist/app-components-designer.min.js',
+        file: 'dist/webapp-components-designer.min.js',
         format: 'umd',
         name: "Designer",
         globals: { '@appfibre/webapp': 'webapp' }

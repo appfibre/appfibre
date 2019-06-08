@@ -8,7 +8,7 @@ export class Events {
 
     constructor(app:types.IAppLoaded<any, any>) {
         this.callbacks = {};
-        window.addEventListener("message", this.onWindowMessage.bind(this));
+        if (typeof window === "object") window.addEventListener("message", this.onWindowMessage.bind(this));
     }
 
     onWindowMessage(ev: MessageEvent):any {
