@@ -154,7 +154,7 @@ describe('rollup-plugin-jst', () => {
 	});
 
 	it('generates correct code with namedExports=false', () => {
-		//fs.writeFileSync(path.join(__dirname,'samples/form/namedExports.js'), jst({ namedExports: false }).transform(read(path.join(__dirname,'samples/form/input.json')), 'input.json').code);
+		fs.writeFileSync(path.join(__dirname,'samples/form/namedExports.js'), jst({ namedExports: false }).transform(read(path.join(__dirname,'samples/form/input.json')), 'input.json').code);
 		assert.deepEqual(
 			jst({ namedExports: false }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
 			read(path.join(__dirname, 'samples/form/namedExports.js'))

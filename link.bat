@@ -20,8 +20,8 @@ call :link tests\node_modules\@appfibre\webpack-plugin-jst webpack-plugin-jst
 call :link tests\node_modules\@appfibre\rollup-plugin-jst rollup-plugin-jst
 
 call :link examples\app\cdn local-cdn
-call :link examples\app\node_modules\@appfibre\core core
-call :link examples\app\node_modules\@appfibre\webapp webapp
+rem call :link examples\app\node_modules\@appfibre\core core
+rem call :link examples\app\node_modules\@appfibre\webapp webapp
 call :link examples\pwa\node_modules\@appfibre\core core
 call :link examples\pwa\node_modules\@appfibre\webapp webapp
 call :link examples\pwa\node_modules\@appfibre\services-ui-react services-ui-react
@@ -29,6 +29,9 @@ call :link examples\pwa\node_modules\@appfibre\webpack-plugin-jst webpack-plugin
 
 rem call :link local-cdn\app app\dist
 rem call :link app\node_modules\@appfibre\jst\dist jst\dist
+
+if not exist local-cdn\react md local-cdn\react
+if not exist local-cdn\react-dom md local-cdn\react-dom
 
 call :link local-cdn\appfibre webcomponents\dist
 call :link local-cdn\rollup-plugin-jst rollup-plugin-jst\dist

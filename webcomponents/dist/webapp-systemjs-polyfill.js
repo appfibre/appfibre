@@ -737,11 +737,6 @@ var appfibre_polyfill = (function () {
     iteratorWithReturn[ITERATOR$2] = function () {
       return this;
     }; // eslint-disable-next-line no-throw-literal
-
-
-    Array.from(iteratorWithReturn, function () {
-      throw 2;
-    });
   } catch (error) {
     /* empty */
   }
@@ -1060,7 +1055,7 @@ var appfibre_polyfill = (function () {
     IteratorConstructor.prototype = objectCreate(IteratorPrototype$1, {
       next: createPropertyDescriptor(1, next)
     });
-    setToStringTag(IteratorConstructor, TO_STRING_TAG, false);
+    setToStringTag(IteratorConstructor, TO_STRING_TAG, false, true);
     iterators[TO_STRING_TAG] = returnThis$1;
     return IteratorConstructor;
   };
@@ -1126,7 +1121,7 @@ var appfibre_polyfill = (function () {
         } // Set @@toStringTag to native iterators
 
 
-        setToStringTag(CurrentIteratorPrototype, TO_STRING_TAG, true);
+        setToStringTag(CurrentIteratorPrototype, TO_STRING_TAG, true, true);
       }
     } // fix Array#{values, @@iterator}.name in V8 / FF
 

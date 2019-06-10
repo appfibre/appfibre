@@ -1,4 +1,4 @@
-var appfibre = (function () {
+var webapp = (function () {
 	'use strict';
 
 	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -737,6 +737,7 @@ var appfibre = (function () {
 
 	            /*if (e[1] == null) e[1] = {};
 	            if (typeof e[1] === "object") e[1].context = this.context;*/
+	            // @ts-ignore: 'Promise' only refers to a type, but is being used as a value here                
 	            if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0]) return app.services.processor.processElement(e, index);else {
 	              return e.map(function (c, idx) {
 	                if (Array.isArray(c)) {
@@ -896,7 +897,7 @@ var appfibre = (function () {
 	        __extends(Bind, _super);
 
 	        function Bind(props, context) {
-	          var _this = _super.call(this, app, context) || this;
+	          var _this = _super.call(this, props, context) || this;
 
 	          var s = {};
 	          _this.state = {
@@ -3364,7 +3365,7 @@ var appfibre = (function () {
 	        }
 
 	        this.info.browser = bt;
-	        if (!this.options.baseExecutionPath) this.options.baseExecutionPath = document.head.baseURI;
+	        if (!this.options.baseExecutionPath && document.head) this.options.baseExecutionPath = document.head.baseURI;
 	      }
 
 	      _super.prototype.initApp.call(this);
@@ -3431,7 +3432,7 @@ var appfibre = (function () {
 	                  return d;
 	                }.apply(_this);
 
-	                if (!target.id) target.setAttribute("id", "main");
+	                if (target && !target.id) target.setAttribute("id", "main");
 	              } else if (_this.options.target !== null) throw new Error("Cannot locate target (" + (_this.options.target ? 'not specified' : _this.options.target) + ") in html document body.");
 
 	              if (_this.options.title) document.title = _this.options.title; //if (module && module.hot) module.hot.accept();

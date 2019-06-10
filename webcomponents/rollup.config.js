@@ -2,7 +2,7 @@ import typescript from 'rollup-plugin-typescript2';
 //import postcss from 'rollup-plugin-postcss-modules';
 //import autoprefixer from 'autoprefixer'
 import buble from 'rollup-plugin-buble';
-import { uglify } from "rollup-plugin-uglify";
+//import { uglify } from "rollup-plugin-uglify";
 import resolve from 'rollup-plugin-node-resolve';
 import cjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
@@ -16,9 +16,9 @@ export default
                 , sourcemap: true
                 , name: 'webapp'
                 , globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} 
-                } 
+                }
               ],
-      plugins: [  resolve(),
+      plugins: [  resolve({mainFields: ['main']}),
                   cjs(),
                   babel({
                   babelrc: false,
@@ -39,19 +39,22 @@ export default
               ],
     },
     { input: 'lib/Components/Designer/index.ts',
-      plugins: [ /*postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
-               , */typescript(/*{ plugin options }*/), buble({namedFunctionExpressions: false})
+      plugins: [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
+                 typescript()
+               , buble({namedFunctionExpressions: false})
                ],
       output: {
         file: 'dist/webapp-components-designer.js',
         format: 'umd',
         name: "Designer",
         globals: { '@appfibre/webapp': 'webapp' }
-      }
-    },
+      }, external: ['@appfibre/webapp']
+    }/*,
     { input: 'lib/Components/Designer/index.ts',
-      plugins:  [ /*postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
-                , */typescript(/*{ plugin options }*/), uglify(), buble({namedFunctionExpressions: false})
+      plugins:  [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
+                , typescript()
+                , uglify()
+                , buble({namedFunctionExpressions: false})
                 ],
       output: {
         file: 'dist/webapp-components-designer.min.js',
@@ -59,6 +62,6 @@ export default
         name: "Designer",
         globals: { '@appfibre/webapp': 'webapp' }
       }
-    }
+    }*/
 
 ]

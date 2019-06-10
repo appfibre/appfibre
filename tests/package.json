@@ -25,8 +25,8 @@
     "webpack-cli": "^3.3.3"
   },
   "dependencies": {
-    "@appfibre/core": "^0.1",
-    "@appfibre/webapp": "^0.1",
+    "@appfibre/core": "^0.0.1",
+    "@appfibre/webapp": "^0.0.1",
     "@appfibre/rollup-plugin-jst": "^0.0.1",
     "@appfibre/services-ui-preact": "^0.1.0",
     "@appfibre/services-ui-react": "^0.1.0",

@@ -2,9 +2,9 @@
   "name": "@appfibre/core",
   "version": "0.0.1",
   "description": "AppFibre Jst/App framework",
-  "main": "dist",
+  "main": "dist/index.js",
   "module": "lib",
-  "types": "dist",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

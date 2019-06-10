@@ -15,7 +15,7 @@ function clone(o:any):any {
 let SM = function inject(app:types.IAppLoaded) {
     return class Bind extends BaseComponent<any, {subscribers:{[path:string]:any}, data:any}>(app) {
         constructor(props:any, context:any) {
-            super(app, context);
+            super(props, context);
             let s:{[path:string]:any} = {};
             this.state = {data: clone(props.data), subscribers: s };
             this.visit.call(this, props.childArray, s);

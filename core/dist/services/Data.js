@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29,7 +29,7 @@ var SM = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Bind, _super);
         function Bind(props, context) {
-            var _this = _super.call(this, app, context) || this;
+            var _this = _super.call(this, props, context) || this;
             var s = {};
             _this.state = { data: clone(props.data), subscribers: s };
             _this.visit.call(_this, props.childArray, s);
