@@ -3,7 +3,7 @@ require('systemjs/dist/extras/transform');
 require('systemjs/dist/extras/named-exports.js');
 require('systemjs/dist/extras/named-register.js');
 require('systemjs/dist/extras/amd.js');
-const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp')  };
+const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
 if (!this.Promise) this.Promise = require('pinkie');
 
 const systemJSPrototype = System.constructor.prototype;
@@ -27,7 +27,6 @@ systemJSPrototype.instantiate = function (url, parent) {
 		return [[], function () { return {"execute": undefined }}];
 	}
 
-
 	const loader = this;
 	if (url[0] === '@') {
 		if (externals[url])
@@ -35,9 +34,20 @@ systemJSPrototype.instantiate = function (url, parent) {
 				_export('default', externals[url]);
 				const k = Object.keys(externals[url]);
 				for (let i in k) _export(k[i], externals[url][k[i]]);
-				return { execute (z) {}};
+				return { execute () {}};
 			}];
 		else throw new Error(`Requested component (${url}) not embedded into bundle`);
+	}
+
+	if (this.registerRegistry && this.registerRegistry[url]) {
+		let r = this.registerRegistry[url];
+		debugger;
+		if (Array.isArray(r) && typeof r[0] === "string")
+			url = r[0];
+
+			return resolve(url).then(function d() {
+				debugger;
+			});
 	}
 
 	return fetch(url)
@@ -79,6 +89,13 @@ systemJSPrototype.instantiate = function (url, parent) {
 
 const resolve = systemJSPrototype.resolve;
 systemJSPrototype.resolve = function (id, parentUrl) {
+	// This is required because the plugins for codemirror refers to ../../lib/codemirror which doesn't exist when executing from within SystemJS
+	// The code corresponds with a code entry when loading the component System.Register('../../lib/codemirror', [@cdnjs/codemirror/codemirror.js]);
+	if (this.registerRegistry[id]){
+		var r = this.registerRegistry[id];
+		if (Array.isArray(r) && typeof r[0] === "string")
+			return r[0];
+	}
 	if (id[0] === '@') 
 		return id;
 	return resolve.call(this, id, parentUrl);

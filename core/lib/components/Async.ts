@@ -1,4 +1,4 @@
-import * as types from "../types";
+import appfibre from "@appfibre/types"
 
 declare class Promise<T>  {
     constructor(resolver: Function);
@@ -8,7 +8,7 @@ declare class Promise<T>  {
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 
-let Async = function inject(app:types.IAppLoaded) {
+let Async = function inject(app:appfibre.app.IAppLoaded) {
     return class Async extends app.services.UI.Component<{}, {value?: any}>
     {
         state: {value?: any};

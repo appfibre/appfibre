@@ -62,7 +62,7 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             this.setState({ url: url });
         };
         Designer.prototype.onRedirect = function (event) {
-            //debugger;
+            //debugger;cd
             //if (history && history.pushState) history.pushState(null, '', event.data); else location.replace(event.data);
         };
         Designer.prototype.render = function () {
@@ -86,7 +86,7 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
                             [Layout.SplitContainer,
                                 { direction: "row", defaults: [{ size: 350, min: 100, max: 500 }, {}, { size: 350, min: 100, max: 500 }] },
                                 [[Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "tab 1 content"]]],
-                                    ["iframe", { style: { width: "100%", height: "100%" }, src: location.href, ref: function (e) { _this["iframe"] = e; } }],
+                                    ["iframe", { style: { width: "100%", height: "100%", background: "white" }, src: location.href, ref: function (e) { _this["iframe"] = e; } }],
                                     [Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "tab 1 content"]]]
                                 ]
                             ],

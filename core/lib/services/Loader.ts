@@ -1,4 +1,4 @@
-import * as types from "../types";
+import appfibre from "@appfibre/types"
 
 export declare class Promise<T>  {
     constructor(resolver: Function);
@@ -9,11 +9,11 @@ export declare class Promise<T>  {
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 
-export class Loader implements types.IModuleSystem {
-    proxy: types.IModuleSystem;
+export class Loader implements appfibre.app.IModuleSystem {
+    proxy: appfibre.app.IModuleSystem;
     
-    private app:types.IAppLoaded
-    constructor(app:types.IAppLoaded<any, any>)
+    private app:appfibre.app.IAppLoaded
+    constructor(app:appfibre.app.IAppLoaded<any, any>)
     {
         this.app = app;
         if (typeof window === "object") {
@@ -21,6 +21,8 @@ export class Loader implements types.IModuleSystem {
             if (systemjs) {
                 systemjs.value.constructor.prototype.jst = (input:string, name?:string) => this.app.services.transformer.transform(input, name);
                 this.proxy = { import: systemjs.value.import.bind(systemjs.value), instantiate: systemjs.value.instantiate.bind(systemjs.value), init: (basePath: string) => void {}};
+                systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
+                systemjs.value.constructor.prototype.import = this.import.bind(this);
             }
             else 
                 this.proxy = require('../browser/loader').default;
@@ -45,6 +47,12 @@ export class Loader implements types.IModuleSystem {
     }
 
     instantiate(url:string, parent?:any):any {
+        if (url[0] == '@' && this.app.settings.cdn) {
+            let cdn = url.slice(0, url.indexOf('/'));
+            if (this.app.settings.cdn[cdn])
+                url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
+        }
+
         return this.proxy.instantiate(url, parent);
     }
 

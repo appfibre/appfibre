@@ -1,3 +1,3 @@
-import * as types from "../types";
-declare const Data: types.IData;
+import appfibre from "@appfibre/types";
+declare const Data: appfibre.app.IData;
 export { Data };

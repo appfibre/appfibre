@@ -10,6 +10,7 @@
     "debug": "mocha --inspect-brk=9229"
   },
   "devDependencies": {
+    "@appfibre/types": "0.0.1",
     "@types/enzyme": "^3.9.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/webpack-env": "^1.13.9",

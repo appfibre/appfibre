@@ -1,30 +1,37 @@
-import { types } from "@appfibre/webapp";
-import { Designer_Intercept_Select } from "./types";
+import { Designer_Select } from "./types";
+import appfibre from "@appfibre/types";
+import { events } from "./types";
 
-let Intercept = function inject(app:types.IAppLoaded) {
+let Intercept = function inject(app:appfibre.app.IAppLoaded) {
 
-    return class Intercept extends app.services.UI.Component<{file?:string, method?:string, children?:any}, {focus:boolean, selected:boolean, editMode:any, canEdit: boolean}> {
+    return class Intercept extends app.services.UI.Component<{file?:string, children?:any}, {focus:boolean, selected:boolean, selectedCorrelationId?:string, editMode:any, canEdit: boolean}> {
 
-        state:{focus:boolean, selected:boolean, editMode:any, canEdit: boolean};
+        state:{focus:boolean, selected: boolean, selectedCorrelationId?:string, editMode:any, canEdit: boolean};
         constructor(props:any) 
         {
             super(props);
             this.state = {focus: false, selected: false, editMode: null, canEdit: true}; 
-            this.onMessage = this.onMessage.bind(this);
+            //this.onMessage = this.onMessage.bind(this);
             this.click = this.click.bind(this);
             this.mouseEnter = this.mouseEnter.bind(this);
             this.mouseLeave = this.mouseLeave.bind(this);
+            this.designer_select = this.designer_select.bind(this);
         }
 
         componentDidMount()
         {
-            window.addEventListener("message", this.onMessage);
-            window.onclick = function(){ parent.postMessage({eventType: "select", correlationId: Date.now().toString()}, location.href);}
+            //window.addEventListener("message", this.onMessage);
+            app.services.events.subscribe(events["Designer.Select"](), this.designer_select);
         }
 
         componentWillUnmount()
         {
-            window.removeEventListener("message", this.onMessage);
+            //window.removeEventListener("message", this.onMessage);
+            app.services.events.unsubscribe(events["Designer.Select"](), this.designer_select);
+        }
+
+        designer_select(ev:appfibre.app.IEventData<Designer_Select>) {
+            this.setState({selected: this.state.selectedCorrelationId == ev.correlationId});
         }
 
         reconstruct(obj:any) {
@@ -65,32 +72,16 @@ let Intercept = function inject(app:types.IAppLoaded) {
             while (parent.parent !== parent && window.parent != null)
                 parent = parent.parent;
             
-            
             var correlationId = Date.now().toString();
             //parent.postMessage({eventType: "select", editMode: this.state.editMode, canEdit: this.state.canEdit, correlationId, control: {file:this.props.file, method:this.props.method}}, location.href);
             if (this.props.file) { 
-                app.services.events.publish<Designer_Intercept_Select>({type: "Designer.Intercept.Select", correlationId, data: {editMode: this.state.editMode, canEdit: this.state.canEdit, control: {url:this.props.file, method:this.props.method}}}, parent);
-                this.setState({selected: !!correlationId} );
+                let file = this.props.file;
+                this.setState( {selectedCorrelationId: correlationId}
+                             , () => app.services.events.publish<Designer_Select>({type: "Designer.Intercept.Select", correlationId, data: {editMode: this.state.editMode, canEdit: this.state.canEdit, control: {url:file}}}, parent));
             }
 
         }
-
-        onMessage(ev:any) {
-            if (location.href.substr(0, ev.origin.length) ==  ev.origin && ev.type == "message" && ev.data )
-            {
-                if (this.state.selected == ev.data.correlationId)
-                switch (ev.data.eventType)
-                {
-                    case "deselect":
-                        this.setState({selected: false});
-                    break;
-                    case "edit":
-                        this.setState({editMode: ev.data.editMode});
-                    break;
-                }
-            }
-        }
-}
+    }
 }
 
 export {Intercept};

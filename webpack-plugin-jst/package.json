@@ -6,7 +6,8 @@
   "bundleDependencies": [],
   "dependencies": {
     "@appfibre/webapp": "^0.0.1",
-    "@appfibre/core": "^0.0.1"
+    "@appfibre/core": "^0.0.1",
+    "@appfibre/types": "^0.0.1"
   },
   "deprecated": false,
   "description": "Webpack app/jst plugin",

@@ -1,8 +1,8 @@
-import { types } from "@appfibre/core";
+import appfibre from '@appfibre/types'
 
-export class DeferredLogger implements types.ILogger {
+export class DeferredLogger implements appfibre.app.ILogger {
     type:"Logger";
-    logs:{sender:any, logLevel: types.LogLevel, title?: any, detail?: any, optionalParameters?: any[] | undefined}[];
+    logs:{sender:any, logLevel: appfibre.LogLevel, title?: any, detail?: any, optionalParameters?: any[] | undefined}[];
 
     constructor() {
         this.type = "Logger";
@@ -13,7 +13,7 @@ export class DeferredLogger implements types.ILogger {
         this.logs = [];
     }
 
-    log (logLevel: types.LogLevel, title?: any, detail?:any, optionalParameters?: any[] | undefined) {
+    log (logLevel: appfibre.LogLevel, title?: any, detail?:any, optionalParameters?: any[] | undefined) {
         this.logs.push({sender: this, logLevel, title, detail, optionalParameters});
         //[function(message?:any, optionalParameters?:any[]){}, console.error, console.error, console.warn, console.info, console.trace][logLevel](`${this}: ${title}\r\n${detail}`, optionalParameters) 
     }

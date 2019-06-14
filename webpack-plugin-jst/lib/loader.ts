@@ -1,17 +1,18 @@
-import { Transformer, Loader as jstLoader, types } from '@appfibre/core';
+import { Transformer, Loader as jstLoader } from '@appfibre/core';
 import { ILoaderPluginArgs } from './types';
 import { loader } from 'webpack';
 import fs from 'fs';
 import path from 'path';
+import appfibre from "@appfibre/types";
 
 function Loader(this:loader.LoaderContext, input:string, options?:ILoaderPluginArgs) {
     if (this._module)
         for (var loader in this._module.loaders)
             if (this._module.request.startsWith(this._module.loaders[loader].loader))   
-                options = this._module.loaders[loader].options || { module: types.ModuleSystem.ES};
+                options = this._module.loaders[loader].options || { module: appfibre.ModuleSystem.ES};
 
-    if (!options) options = { module: types.ModuleSystem.ES}; 
-    if (!options.module) options.module = types.ModuleSystem.ES; 
+    if (!options) options = { module: appfibre.ModuleSystem.ES}; 
+    if (!options.module) options.module = appfibre.ModuleSystem.ES; 
 
     if (this._module) options.name = this._module.resource.substring(this.rootContext.length+1);
     if (!options.name) options.name = '';

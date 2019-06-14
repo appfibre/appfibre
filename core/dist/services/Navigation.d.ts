@@ -1,3 +1,3 @@
-import * as types from "../types";
-declare const Navigation: types.INavigation;
+import appfibre from "@appfibre/types";
+declare const Navigation: appfibre.app.INavigation;
 export { Navigation };

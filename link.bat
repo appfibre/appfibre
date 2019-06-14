@@ -3,15 +3,21 @@
 SET OP=%1
 IF "%OP%"=="" SET OP=/i
 
+call :link core\node_modules\@appfibre\types types
+
+call :link webapp\node_modules\@appfibre\types types
 call :link webapp\node_modules\@appfibre\core core
 
 call :link webcomponents\node_modules\@appfibre\core core
 call :link webcomponents\node_modules\@appfibre\webapp webapp
+call :link webcomponents\node_modules\@appfibre\types types
 
 call :link rollup-plugin-jst\node_modules\@appfibre\core core
 call :link webpack-plugin-jst\node_modules\@appfibre\core core
+call :link webpack-plugin-jst\node_modules\@appfibre\types types
 call :link webpack-plugin-jst\node_modules\@appfibre\webapp webapp
 
+call :link tests\node_modules\@appfibre\types types
 call :link tests\node_modules\@appfibre\core core
 call :link tests\node_modules\@appfibre\webapp webapp
 call :link tests\node_modules\@appfibre\services-ui-preact services-ui-preact
@@ -22,6 +28,7 @@ call :link tests\node_modules\@appfibre\rollup-plugin-jst rollup-plugin-jst
 call :link examples\app\cdn local-cdn
 rem call :link examples\app\node_modules\@appfibre\core core
 rem call :link examples\app\node_modules\@appfibre\webapp webapp
+call :link examples\pwa\node_modules\@appfibre\types types
 call :link examples\pwa\node_modules\@appfibre\core core
 call :link examples\pwa\node_modules\@appfibre\webapp webapp
 call :link examples\pwa\node_modules\@appfibre\services-ui-react services-ui-react

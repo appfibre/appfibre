@@ -22,7 +22,7 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { fibre } from "@appfibre/webapp";
+import appfibre from "@appfibre/types";
 ;
 ;
 ;
@@ -60,7 +60,7 @@ var SplitContainer /*: fibre.UI.Component*/ = function inject(app) {
                 if ((!prev.max || prev.max >= p_1 + delta_1) && (!prev.min || prev.min <= p_1 + delta_1) && (!next.min || next.min <= n_1 - delta_1) && (!next.max || next.max >= n_1 - delta_1)) {
                     this.setState({ panels: this.state.panels.map(function (c, i) {
                             if (i === index_1 || i === index_1 + 1) {
-                                if (!c.size || app.info.browser === fibre.webapp.browserType.Safari) {
+                                if (!c.size || app.info.browser === appfibre.webapp.browserType.Safari) {
                                     c.ratio = (i === index_1 ? pr_1 : nr_1) + ((i === index_1 ? 1 : -1) * (delta_1 / (_this.state.vertical ? screen.availHeight : screen.availWidth)));
                                 }
                                 else
@@ -103,7 +103,7 @@ var SplitContainer /*: fibre.UI.Component*/ = function inject(app) {
                     children.push(["div", { style: sep_style, onMouseDown: function (e) { return _this.splitter_mousedown.call(_this, e, i - 1); } }]);
                 var style = { border: "0px solid grey", margin: 0, padding: 0 };
                 style[_this.state.vertical ? "width" : "height"] = "100%";
-                style[_this.state.vertical ? "height" : "width"] = (!c.size || bt === fibre.webapp.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
+                style[_this.state.vertical ? "height" : "width"] = (!c.size || bt === appfibre.webapp.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
                 if (!c.size)
                     style.flexGrow = 1;
                 if (_this.state.resize)

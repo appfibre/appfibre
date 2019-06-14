@@ -901,12 +901,21 @@ var webapp = (function () {
 
 	          var s = {};
 	          _this.state = {
+	            loaded: typeof props.data !== "string",
 	            data: clone(props.data),
 	            subscribers: s
 	          };
+	          if (typeof props.data === "string") app.services.moduleSystem["import"](props.data).then(function (x) {
+	            return _this.setState({
+	              data: clone(x)
+	            }, function () {
+	              _this.visit.call(_this, props.childArray, s);
 
-	          _this.visit.call(_this, props.childArray, s);
-
+	              _this.setState({
+	                loaded: true
+	              });
+	            });
+	          });else _this.visit.call(_this, props.childArray, s);
 	          _this.render = _this.render.bind(_this);
 	          return _this;
 	        }
@@ -952,7 +961,7 @@ var webapp = (function () {
 	        };
 
 	        Bind.prototype.render = function (e) {
-	          return _super.prototype.render.call(this, !!e ? e : this.props.childArray);
+	          return this.state.loaded ? _super.prototype.render.call(this, !!e ? e : this.props.childArray) : null;
 	        };
 
 	        return Bind;
@@ -1500,6 +1509,8 @@ var webapp = (function () {
 	              return void {};
 	            }
 	          };
+	          systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
+	          systemjs.value.constructor.prototype["import"] = this["import"].bind(this);
 	        } else this.proxy = loader["default"];
 	      }
 
@@ -1530,6 +1541,11 @@ var webapp = (function () {
 	    };
 
 	    Loader.prototype.instantiate = function (url, parent) {
+	      if (url[0] == '@' && this.app.settings.cdn) {
+	        var cdn = url.slice(0, url.indexOf('/'));
+	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
+	      }
+
 	      return this.proxy.instantiate(url, parent);
 	    };
 
@@ -1546,138 +1562,59 @@ var webapp = (function () {
 	unwrapExports(Loader_1);
 	var Loader_2 = Loader_1.Loader;
 
-	var types = createCommonjsModule(function (module, exports) {
+	var appfibre_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
-	  /*
-	  using <any> cast instead
-	  export declare class Promise<T>  {
-	    constructor(resolver: Function);
-	    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
-	    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult>;
-	    static all(promises: Promise<any>[]): Promise<any>;
-	    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
-	  };
-	  */
+	  var appfibre;
 
-	  var LogLevel;
+	  (function (appfibre) {
+	    var app;
 
-	  (function (LogLevel) {
-	    LogLevel[LogLevel["None"] = 0] = "None";
-	    LogLevel[LogLevel["Exception"] = 1] = "Exception";
-	    LogLevel[LogLevel["Error"] = 2] = "Error";
-	    LogLevel[LogLevel["Warn"] = 3] = "Warn";
-	    LogLevel[LogLevel["Info"] = 4] = "Info";
-	    LogLevel[LogLevel["Trace"] = 5] = "Trace";
-	  })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+	    (function (app) {})(app = appfibre.app || (appfibre.app = {}));
 
-	  var ModuleSystem;
+	    var webapp;
 
-	  (function (ModuleSystem) {
-	    ModuleSystem["None"] = "none";
-	    ModuleSystem["CommonJS"] = "commonjs";
-	    ModuleSystem["AMD"] = "amd";
-	    ModuleSystem["UMD"] = "umd";
-	    ModuleSystem["ES"] = "es";
-	  })(ModuleSystem = exports.ModuleSystem || (exports.ModuleSystem = {}));
-	  /*
-	  export type Key = string | number;
-	  export type Ref<T> = (instance: T) => void;
-	  export type ComponentChild = VNode<any> | object | string | number | boolean | null;
-	  export type ComponentChildren = ComponentChild[] | ComponentChild;
-	  
-	  export interface Attributes {
-	      key?: Key;
-	      jsx?: boolean;
-	  }
-	  
-	  export interface ClassAttributes<T> extends Attributes {
-	      ref?: Ref<T>;
-	  }
-	  
-	  export type ComponentFactory<P> = ComponentConstructor<P> | FunctionalComponent<P>;
-	  export interface VNode<P = any> {
-	      nodeName: ComponentFactory<P> | string;
-	      attributes: P;
-	      children: Array<VNode<any> | string>;
-	      key?: Key | null;
-	  }
-	  
-	  export type RenderableProps<P, RefType = any> = Readonly<
-	      P & Attributes & { children?: ComponentChildren; ref?: Ref<RefType> }
-	  >;
-	  
-	  export interface FunctionalComponent<P = {}> {
-	      (props: RenderableProps<P>, context?: any): VNode<any> | null;
-	      displayName?: string;
-	      defaultProps?: Partial<P>;
-	  }
-	  
-	  export interface ComponentConstructor<P = {}, S = {}> {
-	      new (props: P, context?: any): Component<P, S>;
-	      displayName?: string;
-	      defaultProps?: Partial<P>;
-	  }
-	  
-	  // Type alias for a component considered generally, whether stateless or stateful.
-	  export type AnyComponent<P = {}, S = {}> = FunctionalComponent<P> | ComponentConstructor<P, S>;
-	  
-	  export interface Component<P = {}, S = {}> {
-	      componentWillMount?(): void;
-	      componentDidMount?(): void;
-	      componentWillUnmount?(): void;
-	      getChildContext?(): object;
-	      componentWillReceiveProps?(nextProps: Readonly<P>, nextContext: any): void;
-	      shouldComponentUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): boolean;
-	      componentWillUpdate?(nextProps: Readonly<P>, nextState: Readonly<S>, nextContext: any): void;
-	      componentDidUpdate?(previousProps: Readonly<P>, previousState: Readonly<S>, previousContext: any): void;
-	  }
-	  
-	  export declare abstract class Component<P, S> {
-	      constructor(props?: P, context?: any);
-	  
-	      static displayName?: string;
-	      static defaultProps?: any;
-	  
-	      state: Readonly<S>;
-	      props: RenderableProps<P>;
-	      context: any;
-	      base?: HTMLElement;
-	  
-	      setState<K extends keyof S>(state: Pick<S, K>, callback?: () => void): void;
-	      setState<K extends keyof S>(fn: (prevState: S, props: P) => Pick<S, K>, callback?: () => void): void;
-	  
-	      forceUpdate(callback?: () => void): void;
-	  
-	      abstract render(props?: RenderableProps<P>, state?: Readonly<S>, context?: any): ComponentChild;
-	  }*/
+	    (function (webapp) {
+	      var browserType;
 
-	  /*function h(
-	      node: string,
-	      params: JSX.HTMLAttributes & JSX.SVGAttributes & Record<string, any> | null,
-	      ...children: ComponentChildren[]
-	  ): VNode<any>;
-	  function h<P>(
-	      node: ComponentFactory<P>,
-	      params: Attributes & P | null,
-	      ...children: ComponentChildren[]
-	  ): VNode<any>;
-	  
-	  function render(node: ComponentChild, parent: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element;
-	  function rerender(): void;
-	  function cloneElement(element: JSX.Element, props: any, ...children: ComponentChildren[]): JSX.Element;
-	  
-	  var options: {
-	      syncComponentUpdates?: boolean;
-	      debounceRendering?: (render: () => void) => void;
-	      vnode?: (vnode: VNode<any>) => void;
-	      event?: (event: Event) => Event;
-	  };*/
+	      (function (browserType) {
+	        browserType[browserType["Opera"] = 0] = "Opera";
+	        browserType[browserType["FireFox"] = 1] = "FireFox";
+	        browserType[browserType["Safari"] = 2] = "Safari";
+	        browserType[browserType["IE"] = 3] = "IE";
+	        browserType[browserType["Edge"] = 4] = "Edge";
+	        browserType[browserType["Chrome"] = 5] = "Chrome";
+	        browserType[browserType["Blink"] = 6] = "Blink";
+	        browserType[browserType["Unknown"] = 7] = "Unknown";
+	      })(browserType = webapp.browserType || (webapp.browserType = {}));
+	    })(webapp = appfibre.webapp || (appfibre.webapp = {}));
 
+	    var LogLevel;
+
+	    (function (LogLevel) {
+	      LogLevel[LogLevel["None"] = 0] = "None";
+	      LogLevel[LogLevel["Exception"] = 1] = "Exception";
+	      LogLevel[LogLevel["Error"] = 2] = "Error";
+	      LogLevel[LogLevel["Warn"] = 3] = "Warn";
+	      LogLevel[LogLevel["Info"] = 4] = "Info";
+	      LogLevel[LogLevel["Trace"] = 5] = "Trace";
+	    })(LogLevel = appfibre.LogLevel || (appfibre.LogLevel = {}));
+
+	    var ModuleSystem;
+
+	    (function (ModuleSystem) {
+	      ModuleSystem["None"] = "none";
+	      ModuleSystem["CommonJS"] = "commonjs";
+	      ModuleSystem["AMD"] = "amd";
+	      ModuleSystem["UMD"] = "umd";
+	      ModuleSystem["ES"] = "es";
+	    })(ModuleSystem = appfibre.ModuleSystem || (appfibre.ModuleSystem = {}));
+	  })(appfibre = exports.appfibre || (exports.appfibre = {}));
+
+	  exports["default"] = appfibre;
 	});
-	unwrapExports(types);
-	var types_1 = types.LogLevel;
-	var types_2 = types.ModuleSystem;
+	unwrapExports(appfibre_1);
+	var appfibre_2 = appfibre_1.appfibre;
 
 	var Processor_1 = createCommonjsModule(function (module, exports) {
 
@@ -1707,19 +1644,15 @@ var webapp = (function () {
 	    };
 	  }();
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types$1 = __importStar(types);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  function s_xa(a, b) {
 	    return Object.prototype.hasOwnProperty.call(a, b);
@@ -1834,7 +1767,7 @@ var webapp = (function () {
 	    };
 
 	    Processor.prototype.parse = function (obj, level, path, index) {
-	      this.app.services.logger.log.call(this, types$1.LogLevel.Trace, 'Processor.parse', obj);
+	      this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.parse', obj);
 	      var processor = this;
 	      return new Promise(function (r, f) {
 	        if (!obj) return r(obj);
@@ -1849,7 +1782,7 @@ var webapp = (function () {
 	            try {
 	              r(processor.app.services.UI.processElement(o, level, index));
 	            } catch (e) {
-	              processor.app.services.logger.log(types$1.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
+	              processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
 	              f(e);
 	            }
 	          }, f);
@@ -1858,7 +1791,7 @@ var webapp = (function () {
 	        }, f);else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") try {
 	          r(processor.createClass(components.BaseComponent(processor.app), obj));
 	        } catch (e) {
-	          processor.app.services.logger.log(types$1.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
+	          processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
 	          f(e);
 	        } else if (Promise.resolve(obj) === obj) {
 	          Promise.resolve(obj).then(function (o) {
@@ -1870,7 +1803,7 @@ var webapp = (function () {
 	          try {
 	            r(processor.app.services.UI.processElement(obj, level, index));
 	          } catch (e) {
-	            processor.app.services.logger.log(types$1.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
+	            processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
 	            f(e);
 	          }
 	        } else r(obj);
@@ -1880,7 +1813,7 @@ var webapp = (function () {
 	    Processor.prototype.resolve = function (fullpath) {
 	      var _this = this;
 
-	      this.app.services.logger.log.call(this, types$1.LogLevel.Trace, 'Processor.resolve', [fullpath]);
+	      this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.resolve', [fullpath]);
 	      if (this.cache[fullpath]) return this.cache[fullpath];
 
 	      if (fullpath.substring(0, 1) == "~") {
@@ -1908,7 +1841,7 @@ var webapp = (function () {
 	                }
 	              }, obj[1].stack ? obj[1].stack : obj[1]];
 	            };else {
-	              this.app.services.logger.log.call(this, types$1.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
+	              this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
 	              return (
 	                /** @class */
 	                function (_super) {
@@ -1997,7 +1930,7 @@ var webapp = (function () {
 	    Processor.prototype.process = function (obj) {
 	      var _this = this;
 
-	      this.app.services.logger.log.call(this, types$1.LogLevel.Trace, 'Processor.process', obj);
+	      this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.process', obj);
 
 	      function visit(obj) {
 	        if (Array.isArray(obj)) {
@@ -2020,7 +1953,7 @@ var webapp = (function () {
 
 	        try {
 	          if (isTemplate) {
-	            _this.app.services.moduleSystem.init(_this.app.options.baseExecutionPath);
+	            _this.app.services.moduleSystem.init(_this.app.settings.baseExecutionPath);
 
 	            _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
 	              try {
@@ -2090,19 +2023,15 @@ var webapp = (function () {
 	    return __assign.apply(this, arguments);
 	  };
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true; //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 
-	  var types$1 = __importStar(types);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  function parse(url) {
 	    var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
@@ -2138,7 +2067,7 @@ var webapp = (function () {
 	      for (var c in this.controllers) {
 	        if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
 	          var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
-	          this.services.logger.log(types$1.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
+	          this.services.logger.log(types_1["default"].LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
 
 	          if (match) {
 	            var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
@@ -2150,7 +2079,7 @@ var webapp = (function () {
 	            });
 	            return this.controllers[c].resolve.call(this, params);
 	          }
-	        } else this.services.logger.log(types$1.LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
+	        } else this.services.logger.log(types_1["default"].LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
 	      }
 
 	      return ["Error", {}, "Could not locate controller matching " + url];
@@ -2269,19 +2198,15 @@ var webapp = (function () {
 	    return __assign.apply(this, arguments);
 	  };
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types$1 = __importStar(types);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  var Transformer =
 	  /** @class */
@@ -2294,10 +2219,10 @@ var webapp = (function () {
 	      this.settings = settings ? __assign({}, settings, {
 	        indent: settings.indent || '\t',
 	        compact: settings.compact || false,
-	        module: settings.module || types$1.ModuleSystem.None,
+	        module: settings.module || types_1["default"].ModuleSystem.None,
 	        namedExports: settings.namedExports === undefined ? true : settings.namedExports
 	      }) : {
-	        module: types$1.ModuleSystem.ES
+	        module: types_1["default"].ModuleSystem.ES
 	      };
 	      this.settings.parsers = this.settings.parsers || {};
 
@@ -2367,7 +2292,7 @@ var webapp = (function () {
 	        }, false, false, parseSettings, offset);
 	      }
 
-	      if (this.settings.module.toLowerCase() === types$1.ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
+	      if (this.settings.module.toLowerCase() === types_1["default"].ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
 	      if (parseSettings.imports.indexOf(m) === -1) parseSettings.imports.push(m);
 	      return "_" + parseSettings.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
 	    };
@@ -2614,19 +2539,15 @@ var webapp = (function () {
 
 	var app = createCommonjsModule(function (module, exports) {
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types$1 = __importStar(types);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  var App =
 	  /** @class */
@@ -2640,20 +2561,21 @@ var webapp = (function () {
 	          if (d) Object.defineProperty(_this, k, d);
 	        });
 	        this.main = app.main;
-	        this.options = app.options;
+	        this.settings = app.settings;
 	        this.info = app.info;
-	        this.options.logLevel = this.options.logLevel || types$1.LogLevel.Error;
+	        this.settings.logLevel = this.settings.logLevel || types_1["default"].LogLevel.Error;
+	        this.settings.cdn = this.settings.cdn || {};
 	        var logger_1 = app.services && app.services.logger ? _typeof(app.services.logger) === "object" ? app.services.logger : new app.services.logger(this) : null;
 	        var s = app.services; //|| {};
 
 	        if (!s.UI) throw new Error("UI required");
 	        s.logger = {
 	          log: function log(logLevel, title, optionalParameters) {
-	            if (logLevel <= (_this && _this.options && _this.options.logLevel ? types$1.LogLevel[_this.options.logLevel] || 2 : 2)) logger_1 ? logger_1.log.bind(_this, logLevel, title, optionalParameters) : [function (title, optionalParameters) {}, console.error, console.error, console.warn, console.info, console.info][logLevel](title + '\r\n', optionalParameters || [_this]);
+	            if (logLevel <= (_this && _this.settings && _this.settings.logLevel ? types_1["default"].LogLevel[_this.settings.logLevel] || 2 : 2)) logger_1 ? logger_1.log.bind(_this, logLevel, title, optionalParameters) : [function (title, optionalParameters) {}, console.error, console.error, console.warn, console.info, console.info][logLevel](title + '\r\n', optionalParameters || [_this]);
 	          }
 	        };
 	        s.transformer = s.transformer ? _typeof(s.transformer) === "object" ? s.transformer : new s.transformer(this) : new services.Transformer({
-	          module: types$1.ModuleSystem.AMD
+	          module: types_1["default"].ModuleSystem.AMD
 	        });
 	        s.moduleSystem = s.moduleSystem ? _typeof(s.moduleSystem) === "object" ? s.moduleSystem : new s.moduleSystem(this) : new services.Loader(this);
 	        s.navigation = s.navigation ? _typeof(s.navigation) === "object" ? s.navigation : new s.navigation(this) : services.Navigation;
@@ -2687,7 +2609,7 @@ var webapp = (function () {
 
 	    App.prototype.initApp = function () {
 	      //if (!this.options.web) this.options.web = { };
-	      this.services.moduleSystem.init(this.options.baseExecutionPath);
+	      this.services.moduleSystem.init(this.settings.baseExecutionPath);
 	    };
 
 	    return App;
@@ -2716,19 +2638,15 @@ var webapp = (function () {
 	    return __assign.apply(this, arguments);
 	  };
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types$1 = __importStar(types);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  var Transformer =
 	  /** @class */
@@ -2741,10 +2659,10 @@ var webapp = (function () {
 	      this.settings = settings ? __assign({}, settings, {
 	        indent: settings.indent || '\t',
 	        compact: settings.compact || false,
-	        module: settings.module || types$1.ModuleSystem.None,
+	        module: settings.module || types_1["default"].ModuleSystem.None,
 	        namedExports: settings.namedExports === undefined ? true : settings.namedExports
 	      }) : {
-	        module: types$1.ModuleSystem.ES
+	        module: types_1["default"].ModuleSystem.ES
 	      };
 	      this.settings.parsers = this.settings.parsers || {};
 
@@ -2814,7 +2732,7 @@ var webapp = (function () {
 	        }, false, false, parseSettings, offset);
 	      }
 
-	      if (this.settings.module.toLowerCase() === types$1.ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
+	      if (this.settings.module.toLowerCase() === types_1["default"].ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
 	      if (parseSettings.imports.indexOf(m) === -1) parseSettings.imports.push(m);
 	      return "_" + parseSettings.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
 	    };
@@ -3068,6 +2986,8 @@ var webapp = (function () {
 	              return void {};
 	            }
 	          };
+	          systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
+	          systemjs.value.constructor.prototype["import"] = this["import"].bind(this);
 	        } else this.proxy = loader["default"];
 	      }
 
@@ -3098,6 +3018,11 @@ var webapp = (function () {
 	    };
 
 	    Loader.prototype.instantiate = function (url, parent) {
+	      if (url[0] == '@' && this.app.settings.cdn) {
+	        var cdn = url.slice(0, url.indexOf('/'));
+	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
+	      }
+
 	      return this.proxy.instantiate(url, parent);
 	    };
 
@@ -3116,73 +3041,27 @@ var webapp = (function () {
 
 	var dist = createCommonjsModule(function (module, exports) {
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
-	  };
-
 	  exports.__esModule = true;
 	  exports.App = app.App;
 	  exports.Transformer = transformer.Transformer;
 	  exports.Loader = loader$2.Loader;
-
-	  var types$1 = __importStar(types);
-
-	  exports.types = types$1;
 	});
 	unwrapExports(dist);
 	var dist_1 = dist.App;
 	var dist_2 = dist.Transformer;
 	var dist_3 = dist.Loader;
-	var dist_4 = dist.types;
-
-	var types$1 = createCommonjsModule(function (module, exports) {
-
-	  exports.__esModule = true;
-	  exports.Component = dist.types.Component; //export import Key = types.Key
-
-	  exports.LogLevel = dist.types.LogLevel;
-	  exports.ModuleSystem = dist.types.ModuleSystem;
-	  var browserType;
-
-	  (function (browserType) {
-	    browserType[browserType["Opera"] = 0] = "Opera";
-	    browserType[browserType["FireFox"] = 1] = "FireFox";
-	    browserType[browserType["Safari"] = 2] = "Safari";
-	    browserType[browserType["IE"] = 3] = "IE";
-	    browserType[browserType["Edge"] = 4] = "Edge";
-	    browserType[browserType["Chrome"] = 5] = "Chrome";
-	    browserType[browserType["Blink"] = 6] = "Blink";
-	    browserType[browserType["Unknown"] = 7] = "Unknown";
-	  })(browserType = exports.browserType || (exports.browserType = {})); //var z:HTML.table = ["table", { align: "center", onclick: function() {} }, [["tr", {}, [[ "td", {}, [["div"]] ]]]] ];
-
-	});
-	unwrapExports(types$1);
-	var types_1$1 = types$1.Component;
-	var types_2$1 = types$1.LogLevel;
-	var types_3 = types$1.ModuleSystem;
-	var types_4 = types$1.browserType;
 
 	var WebUI_1 = createCommonjsModule(function (module, exports) {
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types = __importStar(types$1);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  var WebUI =
 	  /** @class */
@@ -3190,7 +3069,7 @@ var webapp = (function () {
 	    function WebUI(app) {
 	      this.type = "UI";
 	      this.app = app;
-	      this.app.options = this.app.options || {};
+	      this.app.settings = this.app.settings || {};
 
 	      if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") {
 	        var obj = Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React");
@@ -3207,14 +3086,14 @@ var webapp = (function () {
 
 	    WebUI.prototype.render = function (ui, parent, mergeWith) {
 	      if (this.renderInternal) {
-	        this.app.services.logger.log.call(this, types.LogLevel.Trace, "WebUI.render", [ui]);
+	        this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, "WebUI.render", [ui]);
 	        return this.renderInternal(ui, parent, mergeWith);
-	      } else this.app.services.logger.log.call(this, types.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
+	      } else this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
 	    };
 
 	    WebUI.prototype.overrideStyles = function (style) {
 	      switch (this.app.info.browser) {
-	        case types.browserType.Safari:
+	        case types_1["default"].webapp.browserType.Safari:
 	          if (style.display === "flex") style.display = "-webkit-flex";
 	          if (style.flexDirection) style.WebkitFlexDirection = style.flexDirection;
 	          if (style.flexGrow) style.WebkitFlexGrow = style.flexGrow;
@@ -3229,7 +3108,7 @@ var webapp = (function () {
 	    WebUI.prototype.processElement = function (element, depth, index) {
 	      if (depth % 2 === 0) {
 	        if (typeof element != "string" && !Array.isArray(element)) {
-	          this.app.services.logger.log.call(this, types.LogLevel.Error, "Child element [2] should be either a string or array", [{
+	          this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, "Child element [2] should be either a string or array", [{
 	            element: element
 	          }]); //throw new Error("Child element [2] should be either a string or array");
 
@@ -3302,19 +3181,15 @@ var webapp = (function () {
 	    return __assign.apply(this, arguments);
 	  };
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
+	  var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function (mod) {
+	    return mod && mod.__esModule ? mod : {
+	      "default": mod
+	    };
 	  };
 
 	  exports.__esModule = true;
 
-	  var types = __importStar(types$1);
+	  var types_1 = __importDefault(appfibre_1);
 
 	  var WebApp =
 	  /** @class */
@@ -3333,12 +3208,12 @@ var webapp = (function () {
 
 	      var t = __assign({}, app, {
 	        info: __assign({
-	          browser: types.browserType.Unknown
+	          browser: types_1["default"].webapp.browserType.Unknown
 	        }, app.info),
 	        services: __assign({
 	          UI: app.services && app.services.UI || WebUI_1.WebUI
 	        }, app.services),
-	        options: app.options || {},
+	        settings: app.settings || {},
 	        controllers: __assign({}, app.controllers),
 	        components: __assign({}, app.components)
 	      });
@@ -3353,19 +3228,19 @@ var webapp = (function () {
 	        var w = window;
 	        var g = commonjsGlobal;
 	        var d = document;
-	        var bt = types.browserType.Unknown;
+	        var bt = types_1["default"].webapp.browserType.Unknown;
 
 	        if (w && g && d) {
-	          if (g.InstallTrigger !== undefined) this.info.browser = types.browserType.FireFox;else if (
+	          if (g.InstallTrigger !== undefined) this.info.browser = types_1["default"].webapp.browserType.FireFox;else if (
 	          /*@cc_on!@*/
-	          !!d.documentMode) bt = types.browserType.IE;else if (!!w.StyleMedia) bt = types.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
+	          !!d.documentMode) bt = types_1["default"].webapp.browserType.IE;else if (!!w.StyleMedia) bt = types_1["default"].webapp.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
 	            return p.toString() === "[object SafariRemoteNotification]";
-	          }(!w['safari'] || typeof g.safari !== 'undefined' && g.safari.pushNotification)) bt = types.browserType.Safari;else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = types.browserType.Chrome;else if (Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons") || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = types.browserType.Opera;
-	          if ((bt === types.browserType.Chrome || bt === types.browserType.Opera) && !!w.CSS) bt = types.browserType.Blink;
+	          }(!w['safari'] || typeof g.safari !== 'undefined' && g.safari.pushNotification)) bt = types_1["default"].webapp.browserType.Safari;else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = types_1["default"].webapp.browserType.Chrome;else if (Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons") || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = types_1["default"].webapp.browserType.Opera;
+	          if ((bt === types_1["default"].webapp.browserType.Chrome || bt === types_1["default"].webapp.browserType.Opera) && !!w.CSS) bt = types_1["default"].webapp.browserType.Blink;
 	        }
 
 	        this.info.browser = bt;
-	        if (!this.options.baseExecutionPath && document.head) this.options.baseExecutionPath = document.head.baseURI;
+	        if (!this.settings.baseExecutionPath && document.head) this.settings.baseExecutionPath = document.head.baseURI;
 	      }
 
 	      _super.prototype.initApp.call(this);
@@ -3374,7 +3249,7 @@ var webapp = (function () {
 	    WebApp.prototype.run = function () {
 	      var _this = this;
 
-	      this.services.logger.log.call(this, types.LogLevel.Trace, 'App.run');
+	      this.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'App.run');
 	      this.initApp();
 	      var main = null;
 	      return new Promise(function (resolve, reject) {
@@ -3383,13 +3258,13 @@ var webapp = (function () {
 
 	          main = _this.services.navigation.resolve.apply(_this);
 	        } catch (e) {
-	          _this.services.logger.log.call(_this, types.LogLevel.Error, e);
+	          _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e);
 
 	          reject(e);
 	        }
 
 	        _this.render(main).then(resolve, function (err) {
-	          _this.services.logger.log.call(_this, types.LogLevel.Error, err.message, err.stack);
+	          _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack);
 
 	          reject(err);
 
@@ -3402,7 +3277,7 @@ var webapp = (function () {
 	      var _this = this;
 
 	      return new Promise(function (resolve, reject) {
-	        _this.services.logger.log.call(_this, types.LogLevel.Trace, 'App.render', [{
+	        _this.services.logger.log.call(_this, types_1["default"].LogLevel.Trace, 'App.render', [{
 	          ui: ui
 	        }]);
 
@@ -3412,8 +3287,8 @@ var webapp = (function () {
 
 	            if ((typeof document === "undefined" ? "undefined" : _typeof(document)) === "object") {
 	              // web app
-	              if (typeof _this.options.target === "string") target = document.getElementById(_this.options.target);else if (_this.options.target && _this.options.target.tagName === "IFRAME") {
-	                var fr = _this.options.target;
+	              if (typeof _this.settings.target === "string") target = document.getElementById(_this.settings.target);else if (_this.settings.target && _this.settings.target.tagName === "IFRAME") {
+	                var fr = _this.settings.target;
 	                if (fr.contentDocument) target = !fr.contentDocument.body ? fr.contentDocument.createElement('BODY') : fr.contentDocument.body;
 	              } else if (!document.body) document.body = document.createElement('BODY');else target = document.body;
 
@@ -3424,7 +3299,7 @@ var webapp = (function () {
 	                target = doc.getElementById("main") || function () {
 	                  var d = body_1.appendChild((body_1.ownerDocument ? body_1.ownerDocument : document.body).createElement("div"));
 
-	                  if (this.options && this.options.fullHeight) {
+	                  if (this.settings && this.settings.fullHeight) {
 	                    body_1.style.height = body_1.style.height || "100%";
 	                    d.style.height = "100%";
 	                  }
@@ -3433,9 +3308,9 @@ var webapp = (function () {
 	                }.apply(_this);
 
 	                if (target && !target.id) target.setAttribute("id", "main");
-	              } else if (_this.options.target !== null) throw new Error("Cannot locate target (" + (_this.options.target ? 'not specified' : _this.options.target) + ") in html document body.");
+	              } else if (_this.settings.target !== null) throw new Error("Cannot locate target (" + (_this.settings.target ? 'not specified' : _this.settings.target) + ") in html document body.");
 
-	              if (_this.options.title) document.title = _this.options.title; //if (module && module.hot) module.hot.accept();
+	              if (_this.settings.title) document.title = _this.settings.title; //if (module && module.hot) module.hot.accept();
 
 	              if (target && target.hasChildNodes()) target.innerHTML = "";
 	            } //throw new Error("Document node undefined.  Are you running WebApp in the context of a browser?");
@@ -3461,32 +3336,17 @@ var webapp = (function () {
 
 	var dist$1 = createCommonjsModule(function (module, exports) {
 
-	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
-	    if (mod && mod.__esModule) return mod;
-	    var result = {};
-	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-	    }
-	    result["default"] = mod;
-	    return result;
-	  };
-
 	  exports.__esModule = true;
 	  exports.App = dist.App;
 	  exports.Loader = dist.Loader;
 	  exports.Transformer = dist.Transformer;
 	  exports.WebApp = WebApp_1.WebApp;
-
-	  var types = __importStar(types$1);
-
-	  exports.types = types;
 	});
 	unwrapExports(dist$1);
 	var dist_1$1 = dist$1.App;
 	var dist_2$1 = dist$1.Loader;
 	var dist_3$1 = dist$1.Transformer;
-	var dist_4$1 = dist$1.WebApp;
-	var dist_5 = dist$1.types;
+	var dist_4 = dist$1.WebApp;
 
 	var PENDING = 'pending';
 	var SETTLED = 'settled';
@@ -3779,7 +3639,8 @@ var webapp = (function () {
 
 	var externals = {
 	  "@appfibre/core": dist,
-	  "@appfibre/webapp": dist$1
+	  "@appfibre/webapp": dist$1,
+	  "@appfibre/types": appfibre_1
 	};
 	if (!commonjsGlobal.Promise) commonjsGlobal.Promise = pinkie;
 	var systemJSPrototype = System.constructor.prototype;
@@ -3820,9 +3681,18 @@ var webapp = (function () {
 	      }
 
 	      return {
-	        execute: function execute(z) {}
+	        execute: function execute() {}
 	      };
 	    }];else throw new Error("Requested component (".concat(url, ") not embedded into bundle"));
+	  }
+
+	  if (this.registerRegistry && this.registerRegistry[url]) {
+	    var r = this.registerRegistry[url];
+	    debugger;
+	    if (Array.isArray(r) && typeof r[0] === "string") url = r[0];
+	    return resolve$1(url).then(function d() {
+	      debugger;
+	    });
 	  }
 
 	  return fetch$1(url).then(function (response) {
@@ -3871,6 +3741,13 @@ var webapp = (function () {
 	var resolve$1 = systemJSPrototype.resolve;
 
 	systemJSPrototype.resolve = function (id, parentUrl) {
+	  // This is required because the plugins for codemirror refers to ../../lib/codemirror which doesn't exist when executing from within SystemJS
+	  // The code corresponds with a code entry when loading the component System.Register('../../lib/codemirror', [@cdnjs/codemirror/codemirror.js]);
+	  if (this.registerRegistry[id]) {
+	    var r = this.registerRegistry[id];
+	    if (Array.isArray(r) && typeof r[0] === "string") return r[0];
+	  }
+
 	  if (id[0] === '@') return id;
 	  return resolve$1.call(this, id, parentUrl);
 	};

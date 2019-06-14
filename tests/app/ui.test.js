@@ -13,6 +13,7 @@ const func_1 = require("./ui/func");
 const DeferredLogger_1 = require("./services/DeferredLogger");
 const services_ui_preact_1 = __importDefault(require("@appfibre/services-ui-preact"));
 const enzyme_adapter_preact_1 = require("enzyme-adapter-preact");
+const types_1 = __importDefault(require("@appfibre/types"));
 var escape = function (p) {
     while (p.indexOf('\\') > -1)
         p = p.replace('\\', '/');
@@ -35,14 +36,14 @@ let fbt = new fbt_1.FBT((test) => require(escape('.' + test.substring(__dirname.
 fbt.run('ui - react', 'app', '.input.json', '.expected.html', '.react.html', (input, filename) => {
     return new Promise((resolve, reject) => {
         enzyme_1.default.configure({ adapter: new enzyme_adapter_react_16_1.default() });
-        var app_react = new webapp_1.WebApp({ main: input, options: { logLevel: webapp_1.types.LogLevel.Trace, baseExecutionPath: filename.substr(0, filename.lastIndexOf('\\')) }, services: { UI: reactUI, logger: deferredLogger, transformer: new core_1.Transformer({ module: webapp_1.types.ModuleSystem.CommonJS }) }, components: { "Tests": { "Test": func_1.Test } } });
+        var app_react = new webapp_1.WebApp({ main: input, settings: { logLevel: types_1.default.LogLevel.Trace, baseExecutionPath: filename.substr(0, filename.lastIndexOf('\\')) }, services: { UI: reactUI, logger: deferredLogger, transformer: new core_1.Transformer({ module: types_1.default.ModuleSystem.CommonJS }) }, components: { "Tests": { "Test": func_1.Test } } });
         app_react.run().then(element => resolve(element.toString()), r => resolve(r.message));
     });
 }).then(() => {
     fbt.run('ui - preact', 'app', '.input.json', '.expected.html', '.preact.html', (input, filename) => {
         return new Promise((resolve, reject) => {
             enzyme_1.default.configure({ adapter: new enzyme_adapter_preact_1.Adapter() });
-            var app_preact = new webapp_1.WebApp({ main: input, options: { logLevel: webapp_1.types.LogLevel.Trace, baseExecutionPath: filename.substr(0, filename.lastIndexOf('\\')) }, services: { UI: preactUI, transformer: new core_1.Transformer({ module: webapp_1.types.ModuleSystem.CommonJS }), logger: deferredLogger }, components: { "Tests": { "Test": func_1.Test } } });
+            var app_preact = new webapp_1.WebApp({ main: input, settings: { logLevel: types_1.default.LogLevel.Trace, baseExecutionPath: filename.substr(0, filename.lastIndexOf('\\')) }, services: { UI: preactUI, transformer: new core_1.Transformer({ module: types_1.default.ModuleSystem.CommonJS }), logger: deferredLogger }, components: { "Tests": { "Test": func_1.Test } } });
             app_preact.run().then(element => resolve(element.toString()), r => resolve(r.message));
         });
     });

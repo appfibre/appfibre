@@ -1,11 +1,11 @@
-import * as types from "../types";
-export declare class WebUI implements types.IUI {
+import appfibre from "@appfibre/types";
+export declare class WebUI implements appfibre.app.IUI {
     Component: any;
     private app;
     renderInternal: any;
     processElementInternal: any;
     type: "UI";
-    constructor(app: types.IAppLoaded<types.IOptions, types.IInfo>);
+    constructor(app: appfibre.webapp.IWebAppLoaded);
     render(ui: any, parent?: any, mergeWith?: any): any;
     private overrideStyles;
     processElement(element: any, depth: number, index?: number): any;

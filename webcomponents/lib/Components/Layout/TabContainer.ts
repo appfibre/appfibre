@@ -1,4 +1,4 @@
-import { types } from "@appfibre/webapp";
+import appfibre from "@appfibre/types";
 import { SplitContainer, SplitContainer_Attributes} from "./SplitContainer";
 
 declare interface attr {
@@ -8,8 +8,8 @@ declare interface attr {
 };
 
 
-let TabContainer /*: fibre.UI.Component*/ = function inject(app:types.IAppLoaded) {
-    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<types.element>}, never> {
+let TabContainer /*: fibre.UI.Component*/ = function inject(app:appfibre.app.IAppLoaded) {
+    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<appfibre.app.element>}, never> {
         
         constructor(props:attr) {
             super(props);

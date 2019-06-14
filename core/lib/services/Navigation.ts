@@ -1,6 +1,6 @@
 //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 import { BaseComponent } from "../components";
-import * as types from "../types";
+import appfibre from "@appfibre/types";
 
 function parse(url:string)  {
     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
@@ -26,18 +26,18 @@ function clone(o:any):any {
     return o;
 }
 
-const Navigation:types.INavigation = {
+const Navigation:appfibre.app.INavigation = {
 
     current: parse(typeof location === "object" ? location.href : ''),
     
-    resolve: function transform(this:types.IAppLoaded, container:string) {
+    resolve: function transform(this:appfibre.app.IAppLoaded, container:string) {
         let url = typeof location === "undefined" ? '' : location.href;
         if (this.controllers && Object.keys(this.controllers).length === 0) 
             return this.main;
         for (let c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
-                this.services.logger.log(types.LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
+                this.services.logger.log(appfibre.LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
                 if (match) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params:{[key:string]:string} = {};
@@ -49,12 +49,12 @@ const Navigation:types.INavigation = {
                     return this.controllers[c].resolve.call(this, params);
                 }
             } else 
-                this.services.logger.log(types.LogLevel.Trace, `Container ${container || '(blank)'} does not match controller ${c}'s container ${this.controllers[c].container  || '(blank)'}`);
+                this.services.logger.log(appfibre.LogLevel.Trace, `Container ${container || '(blank)'} does not match controller ${c}'s container ${this.controllers[c].container  || '(blank)'}`);
 
         return ["Error", {}, "Could not locate controller matching " + url];
     },
 
-    a: function inject(app:types.IAppLoaded) {
+    a: function inject(app:appfibre.app.IAppLoaded) {
         return class a extends BaseComponent<{href:string, container?:string},any>(app) //app.services.UI.Component 
         {
             click(e:any) {
@@ -74,7 +74,7 @@ const Navigation:types.INavigation = {
         }
     },
 
-    Container: function transform<P={c:any},S={}>(this:types.IAppLoaded, a:any, c:any) {
+    Container: function transform<P={c:any},S={}>(this:appfibre.app.IAppLoaded, a:any, c:any) {
             let app = this;
             return [class NavigationContainer extends BaseComponent<P&{c:any},{a?:any, c:any}>(app) {
                 state:{a?:any, c:any}
@@ -85,7 +85,7 @@ const Navigation:types.INavigation = {
                     this.onRedirect = this.onRedirect.bind(this)
                 }
 
-                onRedirect(event:types.IEventData<any>) {
+                onRedirect(event:appfibre.app.IEventData<any>) {
                     var e = clone(this.props.c);
                     if (Array.isArray(e)) e.forEach( (c, i) => { if (Array.isArray(c)) c[1].key = Date.now() + i ;} );
                     this.setState( {c: e });

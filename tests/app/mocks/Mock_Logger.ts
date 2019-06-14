@@ -1,13 +1,13 @@
-import { types } from "@appfibre/core";
+import appfibre from "@appfibre/types";
 
-export class Mock_Logger implements types.ILogger
+export class Mock_Logger implements appfibre.app.ILogger
  {
-     static cb:(logLevel:types.LogLevel, message?:any, optionalParameters?:any[])=>undefined 
+     static cb:(logLevel:appfibre.LogLevel, message?:any, optionalParameters?:any[])=>undefined 
      type:"Logger";
-     constructor(callback:(logLevel:types.LogLevel, message?:any, optionalParameters?:any[])=>undefined) {
+     constructor(callback:(logLevel:appfibre.LogLevel, message?:any, optionalParameters?:any[])=>undefined) {
         this.type = "Logger";
         Mock_Logger.cb = callback;
      }
 
-    log (logLevel:types.LogLevel, message?:any, optionalParameters?:any[]) { Mock_Logger.cb(logLevel, message, optionalParameters); }
+    log (logLevel:appfibre.LogLevel, message?:any, optionalParameters?:any[]) { Mock_Logger.cb(logLevel, message, optionalParameters); }
 }

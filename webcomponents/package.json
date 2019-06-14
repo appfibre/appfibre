@@ -32,6 +32,7 @@
   "dependencies": {
     "@appfibre/core": "^0.0.1",
     "@appfibre/webapp": "^0.0.1",
+    "@appfibre/types": "^0.0.1",
     "core-js": "^3.1.3",
     "pinkie": "^2.0.4",
     "systemjs": "^3.1.6"

@@ -1,17 +1,16 @@
-import * as types from "../types";
-
-export class WebUI implements types.IUI
+import appfibre from "@appfibre/types"
+export class WebUI implements appfibre.app.IUI
 {
     Component: any;
-    private app:types.IAppLoaded<types.IOptions, types.IInfo>;
+    private app:appfibre.webapp.IWebAppLoaded;
     renderInternal:any;
     processElementInternal:any;
     type:"UI"
-    constructor(app:types.IAppLoaded<types.IOptions, types.IInfo>)
+    constructor(app:appfibre.webapp.IWebAppLoaded)
     {
         this.type="UI";
         this.app = app;
-        this.app.options = this.app.options || {};
+        this.app.settings = this.app.settings || {};
         if (typeof window === "object") {
             var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React"));
             if (obj) {
@@ -25,16 +24,16 @@ export class WebUI implements types.IUI
     render(ui:any, parent?:any, mergeWith?:any)
     {
         if (this.renderInternal){
-            this.app.services.logger.log.call(this, types.LogLevel.Trace, "WebUI.render", [ui]);
+            this.app.services.logger.log.call(this, appfibre.LogLevel.Trace, "WebUI.render", [ui]);
             return this.renderInternal(ui, parent, mergeWith);
         }
         else
-            this.app.services.logger.log.call(this, types.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
+            this.app.services.logger.log.call(this, appfibre.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
     }
 
     private overrideStyles(style:any) {
         switch (this.app.info.browser) {
-            case types.browserType.Safari: 
+            case appfibre.webapp.browserType.Safari: 
                 if (style.display === "flex") style.display = "-webkit-flex";
                 if (style.flexDirection) style.WebkitFlexDirection = style.flexDirection;
                 if (style.flexGrow) style.WebkitFlexGrow = style.flexGrow;
@@ -50,7 +49,7 @@ export class WebUI implements types.IUI
         if (depth % 2 === 0) 
         {
             if (typeof element != "string" && !Array.isArray(element)) {
-                this.app.services.logger.log.call(this, types.LogLevel.Error, "Child element [2] should be either a string or array", [{element: element}]);
+                this.app.services.logger.log.call(this, appfibre.LogLevel.Error, "Child element [2] should be either a string or array", [{element: element}]);
                 //throw new Error("Child element [2] should be either a string or array");
                 return element;
             }

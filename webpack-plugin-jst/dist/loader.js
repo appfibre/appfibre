@@ -6,15 +6,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@appfibre/core");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const types_1 = __importDefault(require("@appfibre/types"));
 function Loader(input, options) {
     if (this._module)
         for (var loader in this._module.loaders)
             if (this._module.request.startsWith(this._module.loaders[loader].loader))
-                options = this._module.loaders[loader].options || { module: core_1.types.ModuleSystem.ES };
+                options = this._module.loaders[loader].options || { module: types_1.default.ModuleSystem.ES };
     if (!options)
-        options = { module: core_1.types.ModuleSystem.ES };
+        options = { module: types_1.default.ModuleSystem.ES };
     if (!options.module)
-        options.module = core_1.types.ModuleSystem.ES;
+        options.module = types_1.default.ModuleSystem.ES;
     if (this._module)
         options.name = this._module.resource.substring(this.rootContext.length + 1);
     if (!options.name)

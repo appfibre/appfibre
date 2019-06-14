@@ -1,18 +1,18 @@
-import * as types from "./types";
-export declare abstract class App<O, I> implements types.IAppLoaded<O, I> {
+import appfibre from "@appfibre/types";
+export declare abstract class App<O, I> implements appfibre.app.IAppLoaded<O, I> {
     main: object | object[];
     defaultState?: Object | undefined;
     stateChanged?: Function | undefined;
-    options: types.IOptions & O;
+    settings: appfibre.app.ISettings & O;
     components?: {
         [name: string]: any;
     } | Function | undefined;
-    services: types.IServicesLoaded<types.IApp<O, I>>;
+    services: appfibre.app.IServicesLoaded<appfibre.app.IApp<O, I>>;
     controllers: {
-        [index: string]: types.IController;
+        [index: string]: appfibre.app.IController;
     };
-    info: types.IInfo & I;
-    constructor(app: Required<types.IApp<O, I>>);
+    info: appfibre.app.IInfo & I;
+    constructor(app: Required<appfibre.app.IApp<O, I>>);
     protected initApp(): void;
     abstract run(): PromiseLike<any>;
 }

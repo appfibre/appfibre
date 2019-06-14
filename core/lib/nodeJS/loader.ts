@@ -1,4 +1,4 @@
-import * as types from "../types";
+import appfibre from "@appfibre/types";
 
 let basepath:string|undefined;
 function nodeRequire(url?:string) {
@@ -25,7 +25,7 @@ function run(source:string, url?:string) {
     return m.exports; 
 }
 
-const Loader:types.IModuleSystem = {
+const Loader:appfibre.app.IModuleSystem = {
     
     instantiate: async (url:string, parent?:any) => {
         const res = await fetch(url, { credentials: 'same-origin' });

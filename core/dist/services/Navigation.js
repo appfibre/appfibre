@@ -23,17 +23,13 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
 //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 var components_1 = require("../components");
-var types = __importStar(require("../types"));
+var types_1 = __importDefault(require("@appfibre/types"));
 function parse(url) {
     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
     var params = {};
@@ -67,7 +63,7 @@ var Navigation = {
         for (var c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
-                this.services.logger.log(types.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
+                this.services.logger.log(types_1["default"].LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
                 if (match) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params = {};
@@ -81,7 +77,7 @@ var Navigation = {
                 }
             }
             else
-                this.services.logger.log(types.LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
+                this.services.logger.log(types_1["default"].LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
         return ["Error", {}, "Could not locate controller matching " + url];
     },
     a: function inject(app) {

@@ -9,6 +9,8 @@ var Loader = /** @class */ (function () {
             if (systemjs) {
                 systemjs.value.constructor.prototype.jst = function (input, name) { return _this.app.services.transformer.transform(input, name); };
                 this.proxy = { "import": systemjs.value["import"].bind(systemjs.value), instantiate: systemjs.value.instantiate.bind(systemjs.value), init: function (basePath) { return void {}; } };
+                systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
+                systemjs.value.constructor.prototype["import"] = this["import"].bind(this);
             }
             else
                 this.proxy = require('../browser/loader')["default"];
@@ -33,6 +35,11 @@ var Loader = /** @class */ (function () {
         }, rj); });
     };
     Loader.prototype.instantiate = function (url, parent) {
+        if (url[0] == '@' && this.app.settings.cdn) {
+            var cdn = url.slice(0, url.indexOf('/'));
+            if (this.app.settings.cdn[cdn])
+                url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
+        }
         return this.proxy.instantiate(url, parent);
     };
     Loader.prototype.init = function (basePath) {

@@ -1,4 +1,4 @@
-import { types } from "@appfibre/webapp";
+import appfibre from "@appfibre/types";
 
 interface flex_attributes {
     style?: {
@@ -18,15 +18,15 @@ interface flexitem_attributes {
     [index:string]:any
 }
 
-type Flex = [types.element|types.promisedElement, flex_attributes, Array<FlexItem>]
-type FlexItem = [ types.element|types.promisedElement, flexitem_attributes, Array<types.promisedElement|types.element>|string|undefined  ]
+type Flex = [appfibre.app.element|appfibre.app.promisedElement, flex_attributes, Array<FlexItem>]
+type FlexItem = [ appfibre.app.element|appfibre.app.promisedElement, flexitem_attributes, Array<appfibre.app.promisedElement|appfibre.app.element>|string|undefined  ]
 
-var Flex = function transform(tag: types.element|types.promisedElement, a:flex_attributes, c:Array<FlexItem>):Flex {
+var Flex = function transform(tag: appfibre.app.element|appfibre.app.promisedElement, a:flex_attributes, c:Array<FlexItem>):Flex {
     a.className = "flex";
     return [tag, a, c];
 }
 
-var FlexItem = function transform(tag: types.element|types.promisedElement, a:flexitem_attributes, c?:Array<types.promisedElement|types.element>|string):FlexItem {
+var FlexItem = function transform(tag: appfibre.app.element|appfibre.app.promisedElement, a:flexitem_attributes, c?:Array<appfibre.app.promisedElement|appfibre.app.element>|string):FlexItem {
     return [tag, a, c];
 }
 

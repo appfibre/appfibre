@@ -1,4 +1,4 @@
-import { types } from "@appfibre/webapp";
+import appfibre from "@appfibre/types";
 
 export interface SplitContainer_Attributes {
     direction?: "row"|"column"|"row-reverse"|"column-reverse"
@@ -32,7 +32,7 @@ declare interface panel extends initial {
     content: any
 }
 
-let SplitContainer /*: fibre.UI.Component*/ = function inject(app:types.IWebAppLoaded) {
+let SplitContainer /*: fibre.UI.Component*/ = function inject(app:appfibre.webapp.IWebAppLoaded) {
     return class SplitContainer extends app.services.UI.Component<SplitContainer_Attributes, state> {
         state:state
         
@@ -66,7 +66,7 @@ let SplitContainer /*: fibre.UI.Component*/ = function inject(app:types.IWebAppL
                 if ((!prev.max || prev.max >= p + delta) && (!prev.min || prev.min <= p + delta) && (!next.min || next.min <= n - delta) && (!next.max || next.max >= n - delta)) {
                     this.setState({panels: this.state.panels.map((c, i) => { 
                         if (i === index || i === index + 1) {
-                            if (!c.size || app.info.browser === types.browserType.Safari) {
+                            if (!c.size || app.info.browser === appfibre.webapp.browserType.Safari) {
                                 c.ratio = (i === index ? pr : nr) + ((i === index ? 1 : -1) * (delta / (this.state.vertical ? screen.availHeight : screen.availWidth )));
                             }
                             else 
@@ -112,7 +112,7 @@ let SplitContainer /*: fibre.UI.Component*/ = function inject(app:types.IWebAppL
 
                 var style:{[index:string]: any} = {border: "0px solid grey", margin: 0, padding: 0};
                 style[this.state.vertical ? "width" : "height"] = "100%";
-                style[this.state.vertical ? "height" : "width"] = (!c.size || bt === types.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
+                style[this.state.vertical ? "height" : "width"] = (!c.size || bt === appfibre.webapp.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
                 if (!c.size) style.flexGrow = 1;
                 if (this.state.resize) style["pointerEvents"] = "none";
                 

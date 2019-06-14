@@ -1,10 +1,10 @@
-import * as types from "../types";
+import appfibre from "@appfibre/types"
 /*import { Promise } from "../types"; // Compatibility with ES3
 declare class Promise<T>  {
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }*/
   
-let BaseComponent = function inject<P, S>(app:types.IAppLoaded) {
+let BaseComponent = function inject<P, S>(app:appfibre.app.IAppLoaded) {
     return class BaseComponent extends app.services.UI.Component<P, S> /*implements types.Component<P,S>*/ {
         props:P&{children?:any}
         //state:S
@@ -14,7 +14,7 @@ let BaseComponent = function inject<P, S>(app:types.IAppLoaded) {
             this.props = props;
         }
 
-        renderInternal(e:types.element|types.promisedElement|undefined, index?:number) : any {
+        renderInternal(e:appfibre.app.element|appfibre.app.promisedElement|undefined, index?:number) : any {
             //if (e) e = types.services.intercept(e);
             if (Array.isArray(e)) {
                 //if (Promise.resolve(e[0]) === e[0]) debugger;
@@ -33,7 +33,7 @@ let BaseComponent = function inject<P, S>(app:types.IAppLoaded) {
             return !e || typeof e === "string" ? e : app.services.processor.processElement(e, index) ;
         }
 
-        render(e?:types.element|types.promisedElement) : any {
+        render(e?:appfibre.app.element|appfibre.app.promisedElement) : any {
             return this.renderInternal(e || this.props.children);
         }
     }

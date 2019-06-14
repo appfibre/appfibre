@@ -1,10 +1,10 @@
-import { types } from "@appfibre/webapp";
+import appfibre from "@appfibre/types";
 import { events, Designer_Load } from "./types";
 import { DesktopRibbon } from "./DesktopRibbon";
 import { Layout } from "../Index";
 
 
-let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoaded) {
+let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:appfibre.app.IAppLoaded) {
 
     return class Designer extends app.services.UI.Component<any, any>
     {
@@ -14,8 +14,9 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
             this.state = {src: props.src};
             this.navigateTo = this.navigateTo.bind(this);
             this.onRedirect = this.onRedirect.bind(this);
-            this.designer_Load = this.designer_Load.bind(this);
+            //this.designer_Load = this.designer_Load.bind(this);
             // this.onMessage = this.onMessage.bind(this);
+            this.designer_relay = this.designer_relay.bind(this);
         }
 
         componentWillMount() {
@@ -23,7 +24,8 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
             if (window === window.parent) {
                 app.services.events.subscribe({type:"Navigation.Redirect"}, this.onRedirect);
             } 
-            app.services.events.subscribe(events["Designer.Load"](), this.designer_Load);
+            app.services.events.subscribe(events["Designer.Load"](), this.designer_relay);
+            app.services.events.subscribe(events["Designer.Select"](), this.designer_relay);
         }
         
         componentWillUnmount() {
@@ -32,11 +34,17 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
             if (window === window.parent) {
                 app.services.events.unsubscribe({type:"Navigation.Redirect"}, this.onRedirect);
             } 
-            app.services.events.unsubscribe(events["Designer.Load"](), this.designer_Load);
+            app.services.events.unsubscribe(events["Designer.Load"](), this.designer_relay);
+            app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
         }
 
-        designer_Load(ev:types.IEventData<Designer_Load>) {
-            if (this.iframe && this.iframe.contentWindow) 
+        /*designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+            if (this.iframe && this.iframe.contentWindow && ev.data) 
+                app.services.events.publish(ev, this["iframe"].contentWindow);
+        }*/
+
+        designer_relay<T>(ev:appfibre.app.IEventData<T>) {
+            if (this.iframe && this.iframe.contentWindow /*&& ev.data*/) 
                 app.services.events.publish(ev, this["iframe"].contentWindow);
         }
 
@@ -61,7 +69,7 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
             this.setState({url});
         }
 
-        onRedirect(event:types.IEventData<any>) {
+        onRedirect(event:appfibre.app.IEventData<any>) {
             //debugger;cd
             //if (history && history.pushState) history.pushState(null, '', event.data); else location.replace(event.data);
         }
@@ -81,19 +89,19 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.IAppLoa
                         )
                 ]*/
                 
-                [   "div", {style: {height: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#DEDEDE, #EFEFEF)"}}, 
+                [   "div", {style: {height: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#CECECE, #EFEFEF)"}}, 
 
                     [ [ Layout.SplitContainer
                       , {direction: "column", defaults: [ {size: 120, min: 120, max: 120}, {}, {size: 50, min: 50, max: 50}]} 
                       , [ [ DesktopRibbon, {}, "top" ]
                         , [ Layout.SplitContainer
                           , { direction: "row", defaults: [ {size: 350, min: 100, max: 500}, {}, {size: 350, min: 100, max: 500}]}
-                          , [ [ Layout.TabContainer, {placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"]}, [ [ "div", {}, "tab 1 content"] ] ]
-                            , [ "iframe", { style: { width: "100%", height: "100%", background: "white"}, src: location.href, ref: (e:HTMLFrameElement) => {this["iframe"] = e;}  }]
-                            , [ Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [ [ "div", {}, "tab 1 content"] ] ]
+                          , [ [ Layout.TabContainer, {placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"]}, [ [ "div", {}, "-"] ] ]
+                            , [ "iframe", { style: { width: "100%", height: "100%", background: "white"}, src: location.href, ref: (e:HTMLFrameElement) => {this["iframe"] = e; }}]
+                            , [ Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [ [ "div", {}, "-"] ] ]
                             ]
                           ]
-                        , [ "div", {}, "bottom" ]
+                        , [ "div", {}, "Footer" ]
                        ]]
                     ]
                     /*Flex( "div"

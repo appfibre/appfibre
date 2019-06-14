@@ -1,36 +1,36 @@
-import * as types from "../types";
+import appfibre from "@appfibre/types";
 
-export class Transformer implements types.ITransformer {
+export class Transformer implements appfibre.app.ITransformer {
     type:"Transformer";
-    settings:types.ITransformSettings;
-    constructor(settings?:types.ITransformSettings)
+    settings:appfibre.app.ITransformSettings;
+    constructor(settings?:appfibre.app.ITransformSettings)
     {
         this.type = "Transformer";
-        this.settings = settings ? {...settings, indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports} : { module: types.ModuleSystem.ES};
+        this.settings = settings ? {...settings, indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || appfibre.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports} : { module: appfibre.ModuleSystem.ES};
         this.settings.parsers = this.settings.parsers || {};
-        this.settings.parsers[".require"] = this.settings.parsers[".import"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => this.loadModule(this._process(obj[".import"] || obj[".require"], false, false, parseSettings, offset), parseSettings, offset);
-        this.settings.parsers[".function"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `function ${obj[".function"]?obj[".function"]:""}(${obj["arguments"] ? this._process(obj["arguments"], false, true, parseSettings, offset) : ""}){ return ${this._process(obj["return"], true, false, parseSettings, offset)} }`;};
-        this.settings.parsers[".map"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `${this._process(obj[".map"], false, false, parseSettings, offset)}.map(function(${obj["arguments"]}) {return ${settings && settings.indent ? new Array(offset).join(' ') :""}${this._process(obj["return"], true, false, parseSettings, offset)} })` };
-        this.settings.parsers[".filter"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `${this._process(obj[".filter"], false, false, parseSettings, offset)}.filter(function(${obj["arguments"]}) {return ${this._process(obj["condition"], true, false, parseSettings, offset)} })` };
-        this.settings.parsers[".call"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `${this._process(obj[".call"], false, false, parseSettings, offset)}.call(${obj["arguments"] ? this._process(obj["arguments"], false, true, parseSettings, offset) : ""})` }
-        this.settings.parsers[".exec"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `${this._process(obj[".exec"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
-        this.settings.parsers[".new"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => { return `new ${this._process(obj[".new"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
-        this.settings.parsers[".id"] = this.settings.parsers[".code"] = (obj:any, parseSettings:types.ITransformOutput, offset:number) => obj[".code"] || obj[".id"];
-        this.settings.parsers[".app"] =  (obj:any, parseSettings:types.ITransformOutput, offset:number) => {
+        this.settings.parsers[".require"] = this.settings.parsers[".import"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => this.loadModule(this._process(obj[".import"] || obj[".require"], false, false, parseSettings, offset), parseSettings, offset);
+        this.settings.parsers[".function"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `function ${obj[".function"]?obj[".function"]:""}(${obj["arguments"] ? this._process(obj["arguments"], false, true, parseSettings, offset) : ""}){ return ${this._process(obj["return"], true, false, parseSettings, offset)} }`;};
+        this.settings.parsers[".map"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `${this._process(obj[".map"], false, false, parseSettings, offset)}.map(function(${obj["arguments"]}) {return ${settings && settings.indent ? new Array(offset).join(' ') :""}${this._process(obj["return"], true, false, parseSettings, offset)} })` };
+        this.settings.parsers[".filter"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `${this._process(obj[".filter"], false, false, parseSettings, offset)}.filter(function(${obj["arguments"]}) {return ${this._process(obj["condition"], true, false, parseSettings, offset)} })` };
+        this.settings.parsers[".call"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `${this._process(obj[".call"], false, false, parseSettings, offset)}.call(${obj["arguments"] ? this._process(obj["arguments"], false, true, parseSettings, offset) : ""})` }
+        this.settings.parsers[".exec"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `${this._process(obj[".exec"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
+        this.settings.parsers[".new"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => { return `new ${this._process(obj[".new"], true, false, parseSettings, offset)}(${obj["arguments"] ? this._process(obj["arguments"], true, true, parseSettings, offset) : ""})` }
+        this.settings.parsers[".id"] = this.settings.parsers[".code"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => obj[".code"] || obj[".id"];
+        this.settings.parsers[".app"] =  (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => {
             var obj2:{[key:string]:any} = {};
             var keys = Object.keys(obj);
             for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
             return `${this._process({ ".new": {".require": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, true, true, parseSettings, offset)}`;
         };
-        this.settings.parsers["."] = (obj:any, parseSettings:types.ITransformOutput, offset?:number) => obj["."];
+        this.settings.parsers["."] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset?:number) => obj["."];
     }
 
-    private loadModule (val:string, parseSettings:types.ITransformOutput, offset:number) {
+    private loadModule (val:string, parseSettings:appfibre.app.ITransformOutput, offset:number) {
         var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
         if (val[0] === "~") {
             return `${this._process({".function":null, arguments: "loader", return: {".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) +"')" + (val.length > m.length ? val.substring(m.length).replace('#','.'):'') + ";"}}, false, false, parseSettings, offset)}`;
         }
-        if (this.settings.module.toLowerCase() === types.ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length+2) > -1 ? val.substr(0, val.indexOf('#', m.length+2)-1) : val;
+        if (this.settings.module.toLowerCase() === appfibre.ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length+2) > -1 ? val.substr(0, val.indexOf('#', m.length+2)-1) : val;
         if (parseSettings.imports.indexOf(m) === -1) parseSettings.imports.push(m);
 
         return `_${parseSettings.imports.indexOf(m)}${val.length>m.length?val.substring(m.length).replace('#','.'):''}`;
@@ -38,13 +38,13 @@ export class Transformer implements types.ITransformer {
 
     reservedWords = ['function', 'for', 'var', 'this', 'self', 'null'];
 
-    private format(lines: string[], parseSettings:types.ITransformOutput, indent:number) {
+    private format(lines: string[], parseSettings:appfibre.app.ITransformOutput, indent:number) {
         var lt = this.settings.compact ? "" : "\n"; 
         var tab = this.settings.compact ? "" : this.settings.indent || "\t";
         return lt + new Array(indent+1).join(tab) + lines.join("," + lt + new Array(indent+1).join(tab)) + lt + new Array(indent).join(tab);
     }
 
-    _process(obj:any, esc:boolean, et:boolean, parseSettings:types.ITransformOutput, offset:number) : string {
+    _process(obj:any, esc:boolean, et:boolean, parseSettings:appfibre.app.ITransformOutput, offset:number) : string {
         var output;
         if (obj === null)
             output = "null";
@@ -71,7 +71,7 @@ export class Transformer implements types.ITransformer {
         return output;
     }
 
-    private processExports(output:types.ITransformOutput, obj:any) {
+    private processExports(output:appfibre.app.ITransformOutput, obj:any) {
         var keys : any[string] = Object.keys(obj);
         var validkeys : any[string] = keys.filter((k:string) => k.indexOf(' ') === -1 && k.indexOf('/') === -1 && k.indexOf('-') === -1 && this.reservedWords.indexOf(k) === -1 );
         var isDefault = keys.length === 1 && keys[0] === 'default';
@@ -103,7 +103,7 @@ export class Transformer implements types.ITransformer {
         }
     }
 
-    private processImports(output:types.ITransformOutput, name:string) {
+    private processImports(output:appfibre.app.ITransformOutput, name:string) {
         var nl = this.settings.compact ? '' : '\n';
         var sp = this.settings.compact ? '' : ' ';
         var vr = this.settings.preferConst ? 'const' : 'var'
@@ -167,14 +167,14 @@ export class Transformer implements types.ITransformer {
         }
     }
 
-    private bundleModule(obj:any, name?:string) : types.ITransformOutput {
-        var output:types.ITransformOutput = {name:name, imports: [], exports: {}, compositeObject:false, code:''};
+    private bundleModule(obj:any, name?:string) : appfibre.app.ITransformOutput {
+        var output:appfibre.app.ITransformOutput = {name:name, imports: [], exports: {}, compositeObject:false, code:''};
         this.processExports(output, obj);
         this.processImports(output, name||'');
         return output;        
     }
 
-    transform (input:string|object, name?:string) : types.ITransformOutput {
+    transform (input:string|object, name?:string) : appfibre.app.ITransformOutput {
         var obj;
         try
         {

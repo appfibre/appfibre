@@ -1,8 +1,10 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@appfibre/webapp')) :
-    typeof define === 'function' && define.amd ? define(['exports', '@appfibre/webapp'], factory) :
-    (global = global || self, factory(global.Designer = {}, global.webapp));
-}(this, function (exports, webapp) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@appfibre/types')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@appfibre/types'], factory) :
+    (global = global || self, factory(global.Designer = {}, global.appfibre));
+}(this, function (exports, appfibre) { 'use strict';
+
+    appfibre = appfibre && appfibre.hasOwnProperty('default') ? appfibre['default'] : appfibre;
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
@@ -46,7 +48,9 @@
 
     var events = {
         "Designer.Load": function (data) { return { type: "Designer.Load", data: data }; },
-        "Designer.Intercept.Select": function (data) { return { type: "Designer.Intercept.Select", data: data }; }
+        "Designer.Intercept.Select": function (data) { return { type: "Designer.Intercept.Select", data: data }; },
+        "Designer.Select": function (event) { return { type: "Designer.Select", data: event ? event.data : undefined, correlationId: event ? event.correlationId : undefined }; }
+        //, "Designer.Deselect": function (correlationId?:string):appfibre.app.IEventData<undefined> {return {type: "Designer.Intercept.DeSelect", correlationId, data:undefined}}
     };
 
     var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
@@ -59,6 +63,7 @@
                 //this.edit = this.edit.bind(this);
                 _this.url_change = _this.url_change.bind(_this);
                 _this.navigate_click = _this.navigate_click.bind(_this);
+                _this.edit_click = _this.edit_click.bind(_this);
                 _this.onSelect = _this.onSelect.bind(_this);
                 return _this;
             }
@@ -77,6 +82,10 @@
             DesktopRibbon.prototype.navigate_click = function () {
                 app.services.events.publish(events["Designer.Load"]({ url: this.state.url }));
             };
+            DesktopRibbon.prototype.edit_click = function () {
+                if (this.state.selectedContext && this.state.selectedContext.data.control)
+                    { app.services.events.publish(events["Designer.Load"]({ url: this.state.selectedContext.data.control.url })); }
+            };
             DesktopRibbon.prototype.render = function () {
                 return _super.prototype.render.call(this, ['div',
                     {},
@@ -85,8 +94,8 @@
                                 ['button', { style: { float: 'right' }, onClick: this.navigate_click }, 'GO']
                             ]
                         ],
-                        ['label', {}, this.state.selectedContext && this.state.selectedContext.control ? this.state.selectedContext.control.url + ' ' + this.state.selectedContext.control.method : '(none)'],
-                        this.state.selectedContext && this.state.selectedContext.control && this.state.selectedContext.canEdit ? ['button', { /*onClick: this.edit*/}, 'Edit'] : ['span', {}, '------']
+                        ['label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)'],
+                        this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', { onClick: this.edit_click }, 'Edit'] : ['span', {}, '------']
                     ]
                 ]);
             };
@@ -117,7 +126,8 @@
                 }
             }*/
             DesktopRibbon.prototype.onSelect = function (ev) {
-                this.setState({ selectedContext: ev.data, source: ev.data.control.url });
+                this.setState({ selectedContext: ev });
+                app.services.events.publish(events["Designer.Select"](ev));
             };
             return DesktopRibbon;
         }(app.services.UI.Component));
@@ -172,7 +182,7 @@
                     if ((!prev.max || prev.max >= p_1 + delta_1) && (!prev.min || prev.min <= p_1 + delta_1) && (!next.min || next.min <= n_1 - delta_1) && (!next.max || next.max >= n_1 - delta_1)) {
                         this.setState({ panels: this.state.panels.map(function (c, i) {
                                 if (i === index_1 || i === index_1 + 1) {
-                                    if (!c.size || app.info.browser === webapp.types.browserType.Safari) {
+                                    if (!c.size || app.info.browser === appfibre.webapp.browserType.Safari) {
                                         c.ratio = (i === index_1 ? pr_1 : nr_1) + ((i === index_1 ? 1 : -1) * (delta_1 / (_this.state.vertical ? screen.availHeight : screen.availWidth)));
                                     }
                                     else
@@ -215,7 +225,7 @@
                         { children.push(["div", { style: sep_style, onMouseDown: function (e) { return _this.splitter_mousedown.call(_this, e, i - 1); } }]); }
                     var style = { border: "0px solid grey", margin: 0, padding: 0 };
                     style[_this.state.vertical ? "width" : "height"] = "100%";
-                    style[_this.state.vertical ? "height" : "width"] = (!c.size || bt === webapp.types.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
+                    style[_this.state.vertical ? "height" : "width"] = (!c.size || bt === appfibre.webapp.browserType.Safari) ? ((c.ratio * 100) + '%') : (c.size + 'px');
                     if (!c.size)
                         { style.flexGrow = 1; }
                     if (_this.state.resize)
@@ -276,16 +286,18 @@
                 _this.state = { src: props.src };
                 _this.navigateTo = _this.navigateTo.bind(_this);
                 _this.onRedirect = _this.onRedirect.bind(_this);
-                _this.designer_Load = _this.designer_Load.bind(_this);
-                return _this;
+                //this.designer_Load = this.designer_Load.bind(this);
                 // this.onMessage = this.onMessage.bind(this);
+                _this.designer_relay = _this.designer_relay.bind(_this);
+                return _this;
             }
             Designer.prototype.componentWillMount = function () {
                 //window.onmessage = this.onMessage;
                 if (window === window.parent) {
                     app.services.events.subscribe({ type: "Navigation.Redirect" }, this.onRedirect);
                 }
-                app.services.events.subscribe(events["Designer.Load"](), this.designer_Load);
+                app.services.events.subscribe(events["Designer.Load"](), this.designer_relay);
+                app.services.events.subscribe(events["Designer.Select"](), this.designer_relay);
             };
             Designer.prototype.componentWillUnmount = function () {
                 //document.body.style.margin = '';
@@ -293,10 +305,15 @@
                 if (window === window.parent) {
                     app.services.events.unsubscribe({ type: "Navigation.Redirect" }, this.onRedirect);
                 }
-                app.services.events.unsubscribe(events["Designer.Load"](), this.designer_Load);
+                app.services.events.unsubscribe(events["Designer.Load"](), this.designer_relay);
+                app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
             };
-            Designer.prototype.designer_Load = function (ev) {
-                if (this.iframe && this.iframe.contentWindow)
+            /*designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+                if (this.iframe && this.iframe.contentWindow && ev.data)
+                    app.services.events.publish(ev, this["iframe"].contentWindow);
+            }*/
+            Designer.prototype.designer_relay = function (ev) {
+                if (this.iframe && this.iframe.contentWindow /*&& ev.data*/)
                     { app.services.events.publish(ev, this["iframe"].contentWindow); }
             };
             /* onMessage(ev) {
@@ -333,18 +350,18 @@
                               ]
                         )
                 ]*/
-                ["div", { style: { height: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#DEDEDE, #EFEFEF)" } },
+                ["div", { style: { height: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#CECECE, #EFEFEF)" } },
                     [[Layout.SplitContainer,
                             { direction: "column", defaults: [{ size: 120, min: 120, max: 120 }, {}, { size: 50, min: 50, max: 50 }] },
                             [[DesktopRibbon, {}, "top"],
                                 [Layout.SplitContainer,
                                     { direction: "row", defaults: [{ size: 350, min: 100, max: 500 }, {}, { size: 350, min: 100, max: 500 }] },
-                                    [[Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "tab 1 content"]]],
+                                    [[Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "-"]]],
                                         ["iframe", { style: { width: "100%", height: "100%", background: "white" }, src: location.href, ref: function (e) { _this["iframe"] = e; } }],
-                                        [Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "tab 1 content"]]]
+                                        [Layout.TabContainer, { placement: "bottom", tabs: ["Tab1", "Tab2", "Tab3"] }, [["div", {}, "-"]]]
                                     ]
                                 ],
-                                ["div", {}, "bottom"]
+                                ["div", {}, "Footer"]
                             ]]
                     ] ]);
             };
@@ -358,18 +375,23 @@
             function Intercept(props) {
                 var _this = _super.call(this, props) || this;
                 _this.state = { focus: false, selected: false, editMode: null, canEdit: true };
-                _this.onMessage = _this.onMessage.bind(_this);
+                //this.onMessage = this.onMessage.bind(this);
                 _this.click = _this.click.bind(_this);
                 _this.mouseEnter = _this.mouseEnter.bind(_this);
                 _this.mouseLeave = _this.mouseLeave.bind(_this);
+                _this.designer_select = _this.designer_select.bind(_this);
                 return _this;
             }
             Intercept.prototype.componentDidMount = function () {
-                window.addEventListener("message", this.onMessage);
-                window.onclick = function () { parent.postMessage({ eventType: "select", correlationId: Date.now().toString() }, location.href); };
+                //window.addEventListener("message", this.onMessage);
+                app.services.events.subscribe(events["Designer.Select"](), this.designer_select);
             };
             Intercept.prototype.componentWillUnmount = function () {
-                window.removeEventListener("message", this.onMessage);
+                //window.removeEventListener("message", this.onMessage);
+                app.services.events.unsubscribe(events["Designer.Select"](), this.designer_select);
+            };
+            Intercept.prototype.designer_select = function (ev) {
+                this.setState({ selected: this.state.selectedCorrelationId == ev.correlationId });
             };
             Intercept.prototype.reconstruct = function (obj) {
                 if (!obj[1])
@@ -403,6 +425,7 @@
                 this.setState({ "focus": false });
             };
             Intercept.prototype.click = function (ev) {
+                var _this = this;
                 ev.stopPropagation();
                 //Designer.notify(this.props.file);
                 var parent = window;
@@ -411,21 +434,8 @@
                 var correlationId = Date.now().toString();
                 //parent.postMessage({eventType: "select", editMode: this.state.editMode, canEdit: this.state.canEdit, correlationId, control: {file:this.props.file, method:this.props.method}}, location.href);
                 if (this.props.file) {
-                    app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: correlationId, data: { editMode: this.state.editMode, canEdit: this.state.canEdit, control: { url: this.props.file, method: this.props.method } } }, parent);
-                    this.setState({ selected: !!correlationId });
-                }
-            };
-            Intercept.prototype.onMessage = function (ev) {
-                if (location.href.substr(0, ev.origin.length) == ev.origin && ev.type == "message" && ev.data) {
-                    if (this.state.selected == ev.data.correlationId)
-                        { switch (ev.data.eventType) {
-                            case "deselect":
-                                this.setState({ selected: false });
-                                break;
-                            case "edit":
-                                this.setState({ editMode: ev.data.editMode });
-                                break;
-                        } }
+                    var file_1 = this.props.file;
+                    this.setState({ selectedCorrelationId: correlationId }, function () { return app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: correlationId, data: { editMode: _this.state.editMode, canEdit: _this.state.canEdit, control: { url: file_1 } } }, parent); });
                 }
             };
             return Intercept;
@@ -448,19 +458,28 @@
                 _this.props = props;
                 _this.state = { content: app.main };
                 _this.designer_Load = _this.designer_Load.bind(_this);
+                _this.window_click = _this.window_click.bind(_this);
                 return _this;
             }
             Designer.prototype.componentWillMount = function () {
+                window.addEventListener("click", this.window_click);
                 app.services.events.subscribe(events["Designer.Load"](), this.designer_Load);
+                //document.body.onclick = function () {debugger;};
+            };
+            Designer.prototype.window_click = function (ev) {
+                app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: Date.now().toString(), data: { editMode: false, canEdit: false } }, parent);
+                //parent.postMessage({eventType: "select", correlationId: Date.now().toString()}, location.href); ev.returnValue = false; 
             };
             Designer.prototype.componentWillUnmount = function () {
                 app.services.events.unsubscribe(events["Designer.Load"](), this.designer_Load);
+                window.removeEventListener("click", this.window_click);
             };
             Designer.prototype.designer_Load = function (ev) {
                 var _this = this;
-                app.services.moduleSystem["import"](ev.data.url).then(function (x) {
-                    _this.setState({ content: x });
-                }, alert);
+                if (ev.data)
+                    { app.services.moduleSystem["import"](ev.data.url).then(function (x) {
+                        _this.setState({ content: x });
+                    }, function (z) { return alert("loaded " + z); }); }
             };
             Designer.prototype.render = function () {
                 return _super.prototype.render.call(this, this.state.content);

@@ -17,5 +17,8 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@appfibre/core": "^0.0.1"
+  },
+  "devDependencies": {
+    "@appfibre/types": "^0.0.1"
   }
 }

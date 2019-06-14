@@ -31,8 +31,11 @@ var SM = function inject(app) {
         function Bind(props, context) {
             var _this = _super.call(this, props, context) || this;
             var s = {};
-            _this.state = { data: clone(props.data), subscribers: s };
-            _this.visit.call(_this, props.childArray, s);
+            _this.state = { loaded: typeof props.data !== "string", data: clone(props.data), subscribers: s };
+            if (typeof props.data === "string")
+                app.services.moduleSystem["import"](props.data).then(function (x) { return _this.setState({ data: clone(x) }, function () { _this.visit.call(_this, props.childArray, s); _this.setState({ loaded: true }); }); });
+            else
+                _this.visit.call(_this, props.childArray, s);
             _this.render = _this.render.bind(_this);
             return _this;
         }
@@ -67,7 +70,7 @@ var SM = function inject(app) {
             }
         };
         Bind.prototype.render = function (e) {
-            return _super.prototype.render.call(this, !!e ? e : this.props.childArray);
+            return this.state.loaded ? _super.prototype.render.call(this, !!e ? e : this.props.childArray) : null;
         };
         return Bind;
     }(components_1.BaseComponent(app)));

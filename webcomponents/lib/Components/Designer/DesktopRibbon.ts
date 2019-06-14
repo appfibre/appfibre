@@ -1,8 +1,8 @@
-import { types } from "@appfibre/webapp";
-import { events, Designer_Intercept_Select, Designer_Load } from "./types";
+import { events, Designer_Select, Designer_Load } from "./types";
+import appfibre from "@appfibre/types";
 
-let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoaded) {
-    return class DesktopRibbon extends app.services.UI.Component<any, {selectedContext: Designer_Intercept_Select|null, source?: string|null, url: string}> {
+let DesktopRibbon /*: fibre.UI.Component */= function inject(app:appfibre.app.IAppLoaded) {
+    return class DesktopRibbon extends app.services.UI.Component<any, {selectedContext: appfibre.app.IEventData<Designer_Select>|null, source?: string|null, url: string}> {
         constructor(props:any) {
             super(props);
             this.state = {selectedContext: null, source: null, url: './pages/latest/index.json'};
@@ -10,6 +10,7 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoade
             //this.edit = this.edit.bind(this);
             this.url_change = this.url_change.bind(this);
             this.navigate_click = this.navigate_click.bind(this);
+            this.edit_click = this.edit_click.bind(this);
             this.onSelect = this.onSelect.bind(this);
         }
 
@@ -32,6 +33,11 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoade
             app.services.events.publish(events["Designer.Load"]({url: this.state.url}));
         }
 
+        edit_click() {
+            if (this.state.selectedContext && this.state.selectedContext.data.control)
+                app.services.events.publish(events["Designer.Load"]({url: this.state.selectedContext.data.control.url}));
+        }
+
         render() {
             return super.render(    [ 'div'
                                     , {}
@@ -40,8 +46,8 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoade
                                                           , [ 'button', {style: { float: 'right'}, onClick: this.navigate_click}, 'GO' ]
                                                           ]
                                           ]
-                                        , [ 'label', {}, this.state.selectedContext && this.state.selectedContext.control ? this.state.selectedContext.control.url + ' ' + this.state.selectedContext.control.method : '(none)' ]
-                                        , this.state.selectedContext && this.state.selectedContext.control && this.state.selectedContext.canEdit ? ['button', {/*onClick: this.edit*/}, 'Edit'] : ['span', {}, '------']
+                                        , [ 'label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)' ]
+                                        , this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', {onClick: this.edit_click}, 'Edit'] : ['span', {}, '------']
                                     ]
                                     ]);
         }
@@ -73,8 +79,9 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.IAppLoade
             }
         }*/
 
-        onSelect(ev:types.IEventData<Designer_Intercept_Select>) {
-            this.setState({selectedContext: ev.data, source: ev.data.control.url});
+        onSelect(ev:appfibre.app.IEventData<Designer_Select>) {
+            this.setState({selectedContext: ev});
+            app.services.events.publish(events["Designer.Select"](ev));
         }
 
     }

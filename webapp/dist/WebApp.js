@@ -23,24 +23,20 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
 var core_1 = require("@appfibre/core");
 var WebUI_1 = require("./services/WebUI");
-var types = __importStar(require("./types"));
+var types_1 = __importDefault(require("@appfibre/types"));
 var WebApp = /** @class */ (function (_super) {
     __extends(WebApp, _super);
     //info: fibre.IInfo
     function WebApp(app, context) {
         if (app === void 0) { app = { main: [] }; }
         var _this = this;
-        var t = __assign({}, app, { info: __assign({ browser: types.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), options: app.options || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
+        var t = __assign({}, app, { info: __assign({ browser: types_1["default"].webapp.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), settings: app.settings || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
         _this = _super.call(this, t) || this;
         return _this;
     }
@@ -49,32 +45,32 @@ var WebApp = /** @class */ (function (_super) {
             var w = window;
             var g = global;
             var d = document;
-            var bt = types.browserType.Unknown;
+            var bt = types_1["default"].webapp.browserType.Unknown;
             if (w && g && d) {
                 if (g.InstallTrigger !== undefined)
-                    this.info.browser = types.browserType.FireFox;
+                    this.info.browser = types_1["default"].webapp.browserType.FireFox;
                 else if ( /*@cc_on!@*/false || !!d.documentMode)
-                    bt = types.browserType.IE;
+                    bt = types_1["default"].webapp.browserType.IE;
                 else if (!!w.StyleMedia)
-                    bt = types.browserType.Edge;
+                    bt = types_1["default"].webapp.browserType.Edge;
                 else if (/constructor/i.test(w.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!w['safari'] || (typeof g.safari !== 'undefined' && g.safari.pushNotification)))
-                    bt = types.browserType.Safari;
+                    bt = types_1["default"].webapp.browserType.Safari;
                 else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime))
-                    bt = types.browserType.Chrome;
+                    bt = types_1["default"].webapp.browserType.Chrome;
                 else if ((Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons")) || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0)
-                    bt = types.browserType.Opera;
-                if ((bt === types.browserType.Chrome || bt === types.browserType.Opera) && !!w.CSS)
-                    bt = types.browserType.Blink;
+                    bt = types_1["default"].webapp.browserType.Opera;
+                if ((bt === types_1["default"].webapp.browserType.Chrome || bt === types_1["default"].webapp.browserType.Opera) && !!w.CSS)
+                    bt = types_1["default"].webapp.browserType.Blink;
             }
             this.info.browser = bt;
-            if (!this.options.baseExecutionPath && document.head)
-                this.options.baseExecutionPath = document.head.baseURI;
+            if (!this.settings.baseExecutionPath && document.head)
+                this.settings.baseExecutionPath = document.head.baseURI;
         }
         _super.prototype.initApp.call(this);
     };
     WebApp.prototype.run = function () {
         var _this = this;
-        this.services.logger.log.call(this, types.LogLevel.Trace, 'App.run');
+        this.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'App.run');
         this.initApp();
         var main = null;
         return new Promise(function (resolve, reject) {
@@ -83,24 +79,24 @@ var WebApp = /** @class */ (function (_super) {
                 main = _this.services.navigation.resolve.apply(_this);
             }
             catch (e) {
-                _this.services.logger.log.call(_this, types.LogLevel.Error, e);
+                _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e);
                 reject(e);
             }
-            _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, types.LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
+            _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
         });
     };
     WebApp.prototype.render = function (ui) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.services.logger.log.call(_this, types.LogLevel.Trace, 'App.render', [{ ui: ui }]);
+            _this.services.logger.log.call(_this, types_1["default"].LogLevel.Trace, 'App.render', [{ ui: ui }]);
             _this.services.processor.process(ui).then(function (value) {
                 try {
                     var target = null;
                     if (typeof document === "object") { // web app
-                        if (typeof _this.options.target === "string")
-                            target = document.getElementById(_this.options.target);
-                        else if (_this.options.target && _this.options.target.tagName === "IFRAME") {
-                            var fr = _this.options.target;
+                        if (typeof _this.settings.target === "string")
+                            target = document.getElementById(_this.settings.target);
+                        else if (_this.settings.target && _this.settings.target.tagName === "IFRAME") {
+                            var fr = _this.settings.target;
                             if (fr.contentDocument)
                                 target = !fr.contentDocument.body ? fr.contentDocument.createElement('BODY') : fr.contentDocument.body;
                         }
@@ -113,7 +109,7 @@ var WebApp = /** @class */ (function (_super) {
                             var doc = (body_1.ownerDocument ? body_1.ownerDocument : document.body);
                             target = doc.getElementById("main") || function () {
                                 var d = body_1.appendChild((body_1.ownerDocument ? body_1.ownerDocument : document.body).createElement("div"));
-                                if (this.options && this.options.fullHeight) {
+                                if (this.settings && this.settings.fullHeight) {
                                     body_1.style.height = body_1.style.height || "100%";
                                     d.style.height = "100%";
                                 }
@@ -122,10 +118,10 @@ var WebApp = /** @class */ (function (_super) {
                             if (target && !target.id)
                                 target.setAttribute("id", "main");
                         }
-                        else if (_this.options.target !== null)
-                            throw new Error("Cannot locate target (" + (_this.options.target ? 'not specified' : _this.options.target) + ") in html document body.");
-                        if (_this.options.title)
-                            document.title = _this.options.title;
+                        else if (_this.settings.target !== null)
+                            throw new Error("Cannot locate target (" + (_this.settings.target ? 'not specified' : _this.settings.target) + ") in html document body.");
+                        if (_this.settings.title)
+                            document.title = _this.settings.title;
                         //if (module && module.hot) module.hot.accept();
                         if (target && target.hasChildNodes())
                             target.innerHTML = "";

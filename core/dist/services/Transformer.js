@@ -10,21 +10,17 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-var types = __importStar(require("../types"));
+var types_1 = __importDefault(require("@appfibre/types"));
 var Transformer = /** @class */ (function () {
     function Transformer(settings) {
         var _this = this;
         this.reservedWords = ['function', 'for', 'var', 'this', 'self', 'null'];
         this.type = "Transformer";
-        this.settings = settings ? __assign({}, settings, { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports }) : { module: types.ModuleSystem.ES };
+        this.settings = settings ? __assign({}, settings, { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1["default"].ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports }) : { module: types_1["default"].ModuleSystem.ES };
         this.settings.parsers = this.settings.parsers || {};
         this.settings.parsers[".require"] = this.settings.parsers[".import"] = function (obj, parseSettings, offset) { return _this.loadModule(_this._process(obj[".import"] || obj[".require"], false, false, parseSettings, offset), parseSettings, offset); };
         this.settings.parsers[".function"] = function (obj, parseSettings, offset) { return "function " + (obj[".function"] ? obj[".function"] : "") + "(" + (obj["arguments"] ? _this._process(obj["arguments"], false, true, parseSettings, offset) : "") + "){ return " + _this._process(obj["return"], true, false, parseSettings, offset) + " }"; };
@@ -48,7 +44,7 @@ var Transformer = /** @class */ (function () {
         if (val[0] === "~") {
             return "" + this._process({ ".function": null, arguments: "loader", "return": { ".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) + "')" + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '') + ";" } }, false, false, parseSettings, offset);
         }
-        if (this.settings.module.toLowerCase() === types.ModuleSystem.ES.toLowerCase())
+        if (this.settings.module.toLowerCase() === types_1["default"].ModuleSystem.ES.toLowerCase())
             m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
         if (parseSettings.imports.indexOf(m) === -1)
             parseSettings.imports.push(m);

@@ -69,8 +69,10 @@ var Intercept = function inject(app) {
                 parent = parent.parent;
             var correlationId = Date.now().toString();
             //parent.postMessage({eventType: "select", editMode: this.state.editMode, canEdit: this.state.canEdit, correlationId, control: {file:this.props.file, method:this.props.method}}, location.href);
-            app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: correlationId, data: { editMode: this.state.editMode, canEdit: this.state.canEdit, control: { url: this.props.file, method: this.props.method } } }, parent);
-            this.setState({ "selected": correlationId });
+            if (this.props.file) {
+                app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: correlationId, data: { editMode: this.state.editMode, canEdit: this.state.canEdit, control: { url: this.props.file, method: this.props.method } } }, parent);
+                this.setState({ selected: !!correlationId });
+            }
         };
         Intercept.prototype.onMessage = function (ev) {
             if (location.href.substr(0, ev.origin.length) == ev.origin && ev.type == "message" && ev.data) {

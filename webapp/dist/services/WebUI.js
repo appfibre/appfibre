@@ -1,18 +1,14 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-var types = __importStar(require("../types"));
+var types_1 = __importDefault(require("@appfibre/types"));
 var WebUI = /** @class */ (function () {
     function WebUI(app) {
         this.type = "UI";
         this.app = app;
-        this.app.options = this.app.options || {};
+        this.app.settings = this.app.settings || {};
         if (typeof window === "object") {
             var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React"));
             if (obj) {
@@ -24,15 +20,15 @@ var WebUI = /** @class */ (function () {
     }
     WebUI.prototype.render = function (ui, parent, mergeWith) {
         if (this.renderInternal) {
-            this.app.services.logger.log.call(this, types.LogLevel.Trace, "WebUI.render", [ui]);
+            this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, "WebUI.render", [ui]);
             return this.renderInternal(ui, parent, mergeWith);
         }
         else
-            this.app.services.logger.log.call(this, types.LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
+            this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, "Unable to render UI - No UI framework detected. \nEnsure that you have referenced a UI framework before executing the application, or specify using app.services.UI");
     };
     WebUI.prototype.overrideStyles = function (style) {
         switch (this.app.info.browser) {
-            case types.browserType.Safari:
+            case types_1["default"].webapp.browserType.Safari:
                 if (style.display === "flex")
                     style.display = "-webkit-flex";
                 if (style.flexDirection)
@@ -52,7 +48,7 @@ var WebUI = /** @class */ (function () {
     WebUI.prototype.processElement = function (element, depth, index) {
         if (depth % 2 === 0) {
             if (typeof element != "string" && !Array.isArray(element)) {
-                this.app.services.logger.log.call(this, types.LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
+                this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
                 //throw new Error("Child element [2] should be either a string or array");
                 return element;
             }

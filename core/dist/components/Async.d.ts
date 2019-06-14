@@ -1,5 +1,5 @@
-import * as types from "../types";
-declare let Async: (app: types.IAppLoaded<{}, {}>) => {
+import appfibre from "@appfibre/types";
+declare let Async: (app: appfibre.app.IAppLoaded<{}, {}>) => {
     new (props: any, context: any): {
         state: {
             value?: any;

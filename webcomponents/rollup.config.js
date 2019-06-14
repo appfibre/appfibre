@@ -47,8 +47,8 @@ export default
         file: 'dist/webapp-components-designer.js',
         format: 'umd',
         name: "Designer",
-        globals: { '@appfibre/webapp': 'webapp' }
-      }, external: ['@appfibre/webapp']
+        globals: { '@appfibre/webapp': 'webapp', '@appfibre/types': 'appfibre' }
+      }, external: ['@appfibre/webapp', '@appfibre/types']
     }/*,
     { input: 'lib/Components/Designer/index.ts',
       plugins:  [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })

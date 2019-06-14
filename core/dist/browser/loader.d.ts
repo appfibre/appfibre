@@ -1,3 +1,3 @@
-import * as types from "../types";
-declare const Loader: types.IModuleSystem;
+import appfibre from "@appfibre/types";
+declare const Loader: appfibre.app.IModuleSystem;
 export default Loader;
