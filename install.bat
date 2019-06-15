@@ -8,6 +8,6 @@ cmd /c "cd services-ui-react & npm install"
 cmd /c "cd services-ui-preact & npm install"
 cmd /c "cd app & npm install"
 cmd /c "cd local-cdn & npm install"
-cmd /c "cd webcomponents & npm install"
+cmd /c "cd bundles & npm install"
 cmd /c "cd tests & npm install"
 rem call link /if
