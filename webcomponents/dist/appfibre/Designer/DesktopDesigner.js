@@ -13,7 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 import { events } from "./types";
 import { DesktopRibbon } from "./DesktopRibbon";
-import { Layout } from "../Index";
+import * as Layout from "../Layout";
 var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Designer, _super);

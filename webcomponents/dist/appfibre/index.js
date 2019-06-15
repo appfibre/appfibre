@@ -2,10 +2,6 @@ var css = '.flex {\ndisplay: -webkit-box;\ndisplay: -moz-box;\ndisplay: box;\ndi
 head.appendChild(style);
 style.type = 'text/css';
 style.appendChild(document.createTextNode(css));
-import { Flex, FlexItem } from "./Layout/FlexBox";
-import { Grid, GridItem } from "./Layout/Grid";
-import { SplitContainer } from "./Layout/SplitContainer";
-import { TabContainer } from "./Layout/TabContainer";
+import * as Layout from "./Layout";
 import { Designer } from "./Designer";
-var Layout = { Flex: Flex, FlexItem: FlexItem, Grid: Grid, GridItem: GridItem, TabContainer: TabContainer, SplitContainer: SplitContainer };
 export { Designer, Layout };

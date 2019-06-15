@@ -1,7 +1,7 @@
 import types from "@appfibre/types";
 import { events, Designer_Load } from "./types";
 import { DesktopRibbon } from "./DesktopRibbon";
-import { Layout } from "../Index";
+import * as Layout from "../Layout";
 
 
 let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.app.IAppLoaded) {

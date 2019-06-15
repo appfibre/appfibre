@@ -6,12 +6,7 @@ head.appendChild(style);
 style.type = 'text/css';
 style.appendChild(document.createTextNode(css));
 
-import { Flex, FlexItem } from "./Layout/FlexBox";
-import { Grid, GridItem } from "./Layout/Grid";
-import { SplitContainer } from "./Layout/SplitContainer";
-import { TabContainer } from "./Layout/TabContainer";
+import * as Layout from "./Layout"
 import { Designer } from "./Designer"
-
-var Layout = {Flex, FlexItem, Grid, GridItem, TabContainer, SplitContainer};
 
 export { Designer, Layout } 

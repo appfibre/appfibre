@@ -1571,8 +1571,9 @@
 	  var appfibre;
 
 	  (function (appfibre) {
+	    var app;
 
-	    (function (app) {})();
+	    (function (app) {})(app = appfibre.app || (appfibre.app = {}));
 
 	    var webapp;
 

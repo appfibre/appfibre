@@ -1,1 +1,0 @@
-{"version":3,"file":"webcomponents-appfibre.js","sources":["../lib/components/appfibre.js"],"sourcesContent":["require(\"@appfibre/webcomponents\");\r\n\r\nexport default appfibre;"],"names":[],"mappings":";;;CAAA,OAAO,CAAC,yBAAyB,CAAC,CAAC;;;;;;;;"}

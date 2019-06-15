@@ -1,3 +1,3 @@
-require("@appfibre/webcomponents");
+export default require("@appfibre/webcomponents");
 
-export default appfibre;
+//export default appfibre;

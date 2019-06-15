@@ -1,5 +1,3 @@
-'use strict';
-
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function unwrapExports (x) {
@@ -1567,8 +1565,9 @@ var appfibre_1 = createCommonjsModule(function (module, exports) {
   var appfibre;
 
   (function (appfibre) {
+    var app;
 
-    (function (app) {})();
+    (function (app) {})(app = appfibre.app || (appfibre.app = {}));
 
     var webapp;
 
@@ -3773,5 +3772,5 @@ function fetch$1(url) {
 
 var system = {};
 
-module.exports = system;
-//# sourceMappingURL=webapp-systemjs.cjs.js.map
+export default system;
+//# sourceMappingURL=webapp-systemjs.es.js.map

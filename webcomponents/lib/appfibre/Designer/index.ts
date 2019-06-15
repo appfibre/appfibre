@@ -8,4 +8,4 @@ import { DesignerFrame } from "./DesignerFrame";
 };*/
 
 let Designer = (window.parent === window) ? DesktopDesigner : DesignerFrame;
-export { Designer }
+export { Designer };
