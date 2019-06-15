@@ -1,13 +1,14 @@
 {
   "name": "@appfibre/types",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "AppFibre TypeScript types",
   "main": "./appfibre.js",
   "module": "./appfibre.ts",
   "types": "./appfibre.d.ts",
   "typings": "./appfibre.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "tsc -w"
   },
   "keywords": [
     "AppFibre",

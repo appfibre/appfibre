@@ -1,15 +1,17 @@
 {
   "name": "@appfibre/core",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "AppFibre Jst/App framework",
   "main": "dist/index.js",
   "module": "lib",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "tsc -w"
   },
   "devDependencies": {
-    "@appfibre/types": "^0.0.1"
+    "@appfibre/types": "^0.0.2",
+    "@types/node": "^12.0.8"
   },
   "keywords": [
     "AppFibre",

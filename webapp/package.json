@@ -1,12 +1,13 @@
 {
   "name": "@appfibre/webapp",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "AppFibre WebApp",
   "main": "dist/index.js",
   "module": "lib",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "tsc -w"
   },
   "keywords": [
     "AppFibre",
@@ -16,9 +17,10 @@
   "author": "Soleil De Gloria",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@appfibre/core": "^0.0.1"
+    "@appfibre/core": "^0.0.3"
   },
   "devDependencies": {
-    "@appfibre/types": "^0.0.1"
+    "@appfibre/types": "^0.0.3",
+    "@types/node": "^12.0.8"
   }
 }

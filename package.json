@@ -3,13 +3,11 @@
   "description": "aggregate functions",
   "private": true,
   "scripts": {
-    "start": "concurrently \"tsc -p types -w\" \"tsc -p core -w\" \"tsc -p webapp -w\" \"tsc -p services-ui-react -w\" \"tsc -p services-ui-preact -w\" \"tsc -p webpack-plugin-jst -w\" \"npm run start-rollup-plugin-jst\" \"npm run start-webcomponents\" ",
-    "build": "tsc -p types && tsc -p core && tsc -p webapp && tsc -p services-ui-react && tsc -p services-ui-preact && tsc -p webpack-plugin-jst && npm run build-rollup-plugin-jst && npm run build-webcomponents",
+    "start": "concurrently \"tsc -p types -w\" \"tsc -p core -w\" \"tsc -p webapp -w\" \"tsc -p webcomponents -w\" \"tsc -p services-ui-react -w\" \"tsc -p services-ui-preact -w\" \"tsc -p webpack-plugin-jst -w\" \"npm run start-bundles\" ",
+    "build": "tsc -p types && tsc -p core && tsc -p webapp && tsc -p webcomponents && tsc -p services-ui-react && tsc -p services-ui-preact && tsc -p webpack-plugin-jst && npm run build-bundles",
     "test": "npm run test-test",
-    "build-rollup-plugin-jst": "cd rollup-plugin-jst & npm run build",
-    "start-rollup-plugin-jst": "cd rollup-plugin-jst & npm start",
-    "build-webcomponents": "cd webcomponents & npm run build",
-    "start-webcomponents": "cd webcomponents & npm start",
+    "build-bundles": "cd webcomponents & npm run build",
+    "start-bundles": "cd webcomponents & npm start",
     "test-test": "cd tests & npm test"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const assert = require('assert');
 const rollup = require('rollup');
-const jst = require('@appfibre/rollup-plugin-jst');
+const jst = require('@appfibre/bundles/dist/rollup-plugin-jst.cjs');
 const resolve = require('rollup-plugin-node-resolve');
 const path = require('path');
 

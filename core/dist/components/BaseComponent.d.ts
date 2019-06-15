@@ -4,79 +4,79 @@ declare let BaseComponent: <P, S>(app: appfibre.app.IAppLoaded<{}, {}>) => {
         props: P & {
             children?: any;
         };
-        renderInternal(e: string | Function | [string | Function, ({
+        renderInternal(e: string | Function | [TimerHandler, ({
             [key: string]: any;
         } | undefined)?, (string | Function | {
-            [index: number]: [string | Function, ({
+            [index: number]: [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | any | {
-                [index: string]: [string | Function, ({
+                [index: string]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | any | undefined)?];
             } | undefined)?];
         } | {
-            [index: string]: [string | Function, ({
+            [index: string]: [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | {
-                [index: number]: [string | Function, ({
+                [index: number]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | any | undefined)?];
             } | any | undefined)?];
         } | undefined)?] | {
-            [index: number]: string | Function | [string | Function, ({
+            [index: number]: string | Function | [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | {
-                [index: number]: [string | Function, ({
+                [index: number]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | {
-                    [index: string]: [string | Function, ({
+                    [index: string]: [TimerHandler, ({
                         [key: string]: any;
                     } | undefined)?, (string | Function | any | any | undefined)?];
                 } | undefined)?];
             } | {
-                [index: string]: [string | Function, ({
+                [index: string]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | {
-                    [index: number]: [string | Function, ({
+                    [index: number]: [TimerHandler, ({
                         [key: string]: any;
                     } | undefined)?, (string | Function | any | any | undefined)?];
                 } | any | undefined)?];
             } | undefined)?] | any | Promise<appfibre.app.element>;
         } | Promise<appfibre.app.element> | undefined, index?: number | undefined): any;
-        render(e?: string | Function | [string | Function, ({
+        render(e?: string | Function | [TimerHandler, ({
             [key: string]: any;
         } | undefined)?, (string | Function | {
-            [index: number]: [string | Function, ({
+            [index: number]: [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | any | {
-                [index: string]: [string | Function, ({
+                [index: string]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | any | undefined)?];
             } | undefined)?];
         } | {
-            [index: string]: [string | Function, ({
+            [index: string]: [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | {
-                [index: number]: [string | Function, ({
+                [index: number]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | any | undefined)?];
             } | any | undefined)?];
         } | undefined)?] | {
-            [index: number]: string | Function | [string | Function, ({
+            [index: number]: string | Function | [TimerHandler, ({
                 [key: string]: any;
             } | undefined)?, (string | Function | {
-                [index: number]: [string | Function, ({
+                [index: number]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | any | {
-                    [index: string]: [string | Function, ({
+                    [index: string]: [TimerHandler, ({
                         [key: string]: any;
                     } | undefined)?, (string | Function | any | any | undefined)?];
                 } | undefined)?];
             } | {
-                [index: string]: [string | Function, ({
+                [index: string]: [TimerHandler, ({
                     [key: string]: any;
                 } | undefined)?, (string | Function | {
-                    [index: number]: [string | Function, ({
+                    [index: number]: [TimerHandler, ({
                         [key: string]: any;
                     } | undefined)?, (string | Function | any | any | undefined)?];
                 } | any | undefined)?];

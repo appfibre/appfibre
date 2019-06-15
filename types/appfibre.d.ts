@@ -8,7 +8,7 @@ export declare module appfibre {
         }
         interface IApp<O, I> {
             main: object | Array<object>;
-            options?: IOptions & O;
+            settings?: ISettings & O;
             info?: IInfo & I;
             services?: IServices<IAppLoaded<O, I>>;
             controllers?: {
@@ -23,7 +23,7 @@ export declare module appfibre {
             controllers: {
                 [name: string]: IController;
             };
-            options: IOptions & O;
+            settings: ISettings & O;
             info: IInfo & I;
             run(): PromiseLike<any>;
         }
@@ -69,7 +69,7 @@ export declare module appfibre {
             subscribe<T>(eventType: IEventType, callback: (data: IEventData<T>) => any): void;
             unsubscribe<T>(eventType: IEventType, callback: (data: IEventData<T>) => any): void;
             publish<T>(data: IEventData<T> & {
-                data: T;
+                data?: T;
             }, target?: {
                 postMessage: (message: any, targetOrigin: string) => void;
             }): any[];
@@ -91,10 +91,14 @@ export declare module appfibre {
             bind: Function;
             format: Function;
         }
-        interface IOptions {
+        interface ISettings {
             title?: string;
             logLevel?: LogLevel;
             baseExecutionPath?: string;
+            startupScripts?: Array<string>;
+            cdn?: {
+                [index: string]: string;
+            };
         }
         interface IProcessor {
             resolve(fullpath: string): any;
@@ -177,13 +181,13 @@ export declare module appfibre {
         interface IInfo extends app.IInfo {
             browser: browserType;
         }
-        interface IOptions extends app.IOptions {
+        interface ISettings extends app.ISettings {
             target?: string | HTMLElement | null;
             fullHeight?: boolean;
         }
-        interface IWebApp extends app.IApp<IOptions, IInfo> {
+        interface IWebApp extends app.IApp<ISettings, IInfo> {
         }
-        interface IWebAppLoaded extends app.IAppLoaded<IOptions, IInfo> {
+        interface IWebAppLoaded extends app.IAppLoaded<ISettings, IInfo> {
         }
         namespace HTML {
             type element = div | table;

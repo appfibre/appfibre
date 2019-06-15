@@ -10,7 +10,7 @@
     "debug": "mocha --inspect-brk=9229"
   },
   "devDependencies": {
-    "@appfibre/types": "0.0.1",
+    "@appfibre/types": "0.0.3",
     "@types/enzyme": "^3.9.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/webpack-env": "^1.13.9",
@@ -26,17 +26,18 @@
     "webpack-cli": "^3.3.3"
   },
   "dependencies": {
-    "@appfibre/core": "^0.0.1",
-    "@appfibre/webapp": "^0.0.1",
-    "@appfibre/rollup-plugin-jst": "^0.0.1",
+    "@appfibre/bundles": "^0.0.1",
+    "@appfibre/core": "^0.0.3",
     "@appfibre/services-ui-preact": "^0.1.0",
     "@appfibre/services-ui-react": "^0.1.0",
+    "@appfibre/webapp": "^0.0.3",
     "@appfibre/webpack-plugin-jst": "0.0.2",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.7",
     "@types/node": "^11.13.13",
     "@types/react-dom": "^16.8.4",
     "@types/webpack": "^4.4.32",
+    "bundles": "^2.0.0",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-plugin-import": "^2.17.3",
