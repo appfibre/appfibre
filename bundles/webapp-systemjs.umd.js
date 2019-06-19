@@ -424,35 +424,6 @@
 	})();
 
 	/*
-	 * Support for a "transform" loader interface
-	 */
-	(function () {
-	  var systemJSPrototype = System.constructor.prototype;
-	  var instantiate = systemJSPrototype.instantiate;
-
-	  systemJSPrototype.instantiate = function (url, parent) {
-	    if (url.slice(-5) === '.wasm') return instantiate.call(this, url, parent);
-	    var loader = this;
-	    return fetch(url, {
-	      credentials: 'same-origin'
-	    }).then(function (res) {
-	      if (!res.ok) throw new Error('Fetch error: ' + res.status + ' ' + res.statusText + (parent ? ' loading from ' + parent : ''));
-	      return res.text();
-	    }).then(function (source) {
-	      return loader.transform.call(this, url, source);
-	    }).then(function (source) {
-	      (0, eval)(source + '\n//# sourceURL=' + url);
-	      return loader.getRegister();
-	    });
-	  }; // Hookable transform function!
-
-
-	  systemJSPrototype.transform = function (_id, source) {
-	    return source;
-	  };
-	})();
-
-	/*
 	 * Named exports support for legacy module formats in SystemJS 2.0
 	 */
 	(function () {
@@ -1253,6 +1224,9 @@
 	        });
 	      });
 	    },
+	    resolve: function resolve(name) {
+	      return name;
+	    },
 	    init: function init(basePath) {
 	      return void {};
 	    }
@@ -1477,6 +1451,9 @@
 	        });
 	      });
 	    },
+	    resolve: function resolve(name) {
+	      return name;
+	    },
 	    init: function init(basePath) {
 	      basepath = basePath;
 	    }
@@ -1507,6 +1484,9 @@
 
 	          this.proxy = {
 	            "import": systemjs.value["import"].bind(systemjs.value),
+	            resolve: function resolve(name) {
+	              return name;
+	            },
 	            instantiate: systemjs.value.instantiate.bind(systemjs.value),
 	            init: function init(basePath) {
 	              return void {};
@@ -1526,12 +1506,12 @@
 	      var u = moduleName.indexOf('#') > -1 ? moduleName.slice(0, moduleName.indexOf('#')) : moduleName;
 	      var b = u.length + 1 < moduleName.length ? moduleName.slice(u.length + 1).split('#') : [];
 	      return new Promise(function (r, rj) {
-	        return _this.proxy["import"](u, normalizedParentName).then(function (x) {
+	        return _this.proxy["import"](_this.resolve(u), normalizedParentName).then(function (x) {
 	          if (x["default"]) x = x["default"];
 
 	          for (var i = 0; i < b.length; i++) {
 	            if ((x = x[b[i]]) === undefined) {
-	              debugger;
+	              //debugger;
 	              rj("Could not resolve property " + b[i] + " on " + moduleName);
 	            }
 	          }
@@ -1543,13 +1523,17 @@
 	      });
 	    };
 
-	    Loader.prototype.instantiate = function (url, parent) {
+	    Loader.prototype.resolve = function (url) {
 	      if (url[0] == '@' && this.app.settings.cdn) {
 	        var cdn = url.slice(0, url.indexOf('/'));
 	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
 	      }
 
-	      return this.proxy.instantiate(url, parent);
+	      return this.proxy.resolve(url);
+	    };
+
+	    Loader.prototype.instantiate = function (url, parent) {
+	      return this.proxy.instantiate(this.resolve(url), parent);
 	    };
 
 	    Loader.prototype.init = function (basePath) {
@@ -2373,7 +2357,7 @@
 
 	        default:
 	          output.code += "return " + (isDefault ? this._process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) {
-	            return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2);
+	            return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2);
 	          }), output, 1) + "}") + ";";
 	      }
 	    };
@@ -2432,14 +2416,10 @@
 	      }
 
 	      if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
-	        /*output.code += ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;' + JSON.stringify(s2) + ' ' + JSON.stringify(r2);
-	        if (this.settings.runtimeModule)
-	            output.code += this.settings.runtimeModule;*/
 	        switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none") {
 	          case "umd":
 	          case "commonjs":
 	          case "cjs":
-	            //throw new Error(JSON.stringify(s2));
 	            for (var req in r2) {
 	              output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
 	            }
@@ -2585,6 +2565,7 @@
 	        s.data = s.data ? _typeof(s.data) === "object" ? s.data : new s.data(this) : services.Data;
 	        s.UI = _typeof(s.UI) === "object" ? s.UI : new s.UI(this);
 	        s.events = s.events ? _typeof(s.events) === "object" ? s.events : new s.events(this) : new services.Events(this);
+	        s.externals = s.externals || {};
 	        this.services = {
 	          moduleSystem: s.moduleSystem,
 	          processor: new services.Processor(this),
@@ -2592,9 +2573,8 @@
 	          logger: s.logger,
 	          UI: s.UI,
 	          navigation: s.navigation,
-	          events: s.events
-	          /*, intercept: s.intercept || ((m) => { if (Array.isArray(m) && m.length > 0 && m[0].default) m[0] = m[0].default; return m.default || m;})*/
-
+	          events: s.events,
+	          externals: s.externals
 	        };
 	        this.controllers = {};
 	        if (app.controllers) for (var c in app.controllers) {
@@ -2612,7 +2592,15 @@
 
 	    App.prototype.initApp = function () {
 	      //if (!this.options.web) this.options.web = { };
+	      var _this = this;
+
 	      this.services.moduleSystem.init(this.settings.baseExecutionPath);
+	      return Promise.resolve(this.services.UI).then(function (UI) {
+	        if (UI) {
+	          _this.services.UI = UI;
+	          if (_this.services.UI.init) _this.services.UI.init();
+	        } else throw new Error('Unable to initialize UI, ensure that you have loaded a UI framework');
+	      });
 	    };
 
 	    return App;
@@ -2813,7 +2801,7 @@
 
 	        default:
 	          output.code += "return " + (isDefault ? this._process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) {
-	            return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2);
+	            return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2);
 	          }), output, 1) + "}") + ";";
 	      }
 	    };
@@ -2872,14 +2860,10 @@
 	      }
 
 	      if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
-	        /*output.code += ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;' + JSON.stringify(s2) + ' ' + JSON.stringify(r2);
-	        if (this.settings.runtimeModule)
-	            output.code += this.settings.runtimeModule;*/
 	        switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none") {
 	          case "umd":
 	          case "commonjs":
 	          case "cjs":
-	            //throw new Error(JSON.stringify(s2));
 	            for (var req in r2) {
 	              output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
 	            }
@@ -2984,6 +2968,9 @@
 
 	          this.proxy = {
 	            "import": systemjs.value["import"].bind(systemjs.value),
+	            resolve: function resolve(name) {
+	              return name;
+	            },
 	            instantiate: systemjs.value.instantiate.bind(systemjs.value),
 	            init: function init(basePath) {
 	              return void {};
@@ -3003,12 +2990,12 @@
 	      var u = moduleName.indexOf('#') > -1 ? moduleName.slice(0, moduleName.indexOf('#')) : moduleName;
 	      var b = u.length + 1 < moduleName.length ? moduleName.slice(u.length + 1).split('#') : [];
 	      return new Promise(function (r, rj) {
-	        return _this.proxy["import"](u, normalizedParentName).then(function (x) {
+	        return _this.proxy["import"](_this.resolve(u), normalizedParentName).then(function (x) {
 	          if (x["default"]) x = x["default"];
 
 	          for (var i = 0; i < b.length; i++) {
 	            if ((x = x[b[i]]) === undefined) {
-	              debugger;
+	              //debugger;
 	              rj("Could not resolve property " + b[i] + " on " + moduleName);
 	            }
 	          }
@@ -3020,13 +3007,17 @@
 	      });
 	    };
 
-	    Loader.prototype.instantiate = function (url, parent) {
+	    Loader.prototype.resolve = function (url) {
 	      if (url[0] == '@' && this.app.settings.cdn) {
 	        var cdn = url.slice(0, url.indexOf('/'));
 	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
 	      }
 
-	      return this.proxy.instantiate(url, parent);
+	      return this.proxy.resolve(url);
+	    };
+
+	    Loader.prototype.instantiate = function (url, parent) {
+	      return this.proxy.instantiate(this.resolve(url), parent);
 	    };
 
 	    Loader.prototype.init = function (basePath) {
@@ -3073,7 +3064,9 @@
 	      this.type = "UI";
 	      this.app = app;
 	      this.app.settings = this.app.settings || {};
+	    }
 
+	    WebUI.prototype.init = function () {
 	      if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") {
 	        var obj = Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React");
 
@@ -3085,7 +3078,7 @@
 	          }).value.render;
 	        }
 	      }
-	    }
+	    };
 
 	    WebUI.prototype.render = function (ui, parent, mergeWith) {
 	      if (this.renderInternal) {
@@ -3246,32 +3239,28 @@
 	        if (!this.settings.baseExecutionPath && document.head) this.settings.baseExecutionPath = document.head.baseURI;
 	      }
 
-	      _super.prototype.initApp.call(this);
+	      return _super.prototype.initApp.call(this);
 	    };
 
 	    WebApp.prototype.run = function () {
 	      var _this = this;
 
 	      this.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'App.run');
-	      this.initApp();
-	      var main = null;
 	      return new Promise(function (resolve, reject) {
-	        try {
-	          _this.initApp();
+	        Promise.resolve(_this.initApp()).then(function () {
+	          var main = _this.services.navigation.resolve.apply(_this);
 
-	          main = _this.services.navigation.resolve.apply(_this);
-	        } catch (e) {
+	          _this.render(main).then(resolve, function (err) {
+	            _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack);
+
+	            reject(err);
+
+	            _this.render(["pre", {}, err.stack]);
+	          });
+	        }, function (e) {
 	          _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e);
 
 	          reject(e);
-	        }
-
-	        _this.render(main).then(resolve, function (err) {
-	          _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack);
-
-	          reject(err);
-
-	          _this.render(["pre", {}, err.stack]);
 	        });
 	      });
 	    };
@@ -3303,7 +3292,8 @@
 	                  var d = body_1.appendChild((body_1.ownerDocument ? body_1.ownerDocument : document.body).createElement("div"));
 
 	                  if (this.settings && this.settings.fullHeight) {
-	                    body_1.style.height = body_1.style.height || "100%";
+	                    body_1.style.height = body_1.style.height || "100vh";
+	                    body_1.style.margin = body_1.style.margin || "0px";
 	                    d.style.height = "100%";
 	                  }
 
@@ -3659,20 +3649,6 @@
 	var instantiate = systemJSPrototype.instantiate;
 
 	systemJSPrototype.instantiate = function (url, parent) {
-	  if (url.slice(-5) === '.wasm') return instantiate.call(this, url, parent);else if (url.slice(-4) === '.css') {
-	    var link = document.createElement('link');
-	    link.rel = 'stylesheet';
-	    link.type = 'text/css';
-	    link.href = url;
-	    document.head.appendChild(link);
-	    return [[], function () {
-	      return {
-	        "execute": undefined
-	      };
-	    }];
-	  }
-	  var loader = this;
-
 	  if (url[0] === '@') {
 	    if (externals[url]) return [[], function (_export) {
 	      _export('default', externals[url]);
@@ -3686,18 +3662,24 @@
 	      return {
 	        execute: function execute() {}
 	      };
-	    }];else throw new Error("Requested component (".concat(url, ") not embedded into bundle"));
+	    }];else throw new Error("Requested component (".concat(url, ") not embedded into bundle or cdn not registered"));
 	  }
 
-	  if (this.registerRegistry && this.registerRegistry[url]) {
-	    var r = this.registerRegistry[url];
-	    debugger;
-	    if (Array.isArray(r) && typeof r[0] === "string") url = r[0];
-	    return resolve$1(url).then(function d() {
-	      debugger;
-	    });
+	  if (url.slice(-5) === '.wasm'
+	  /*|| url.slice(-3) === '.js'*/
+	  ) return instantiate.call(this, url, parent);else if (url.slice(-4) === '.css') {
+	    var link = document.createElement('link');
+	    link.rel = 'stylesheet';
+	    link.type = 'text/css';
+	    link.href = url;
+	    document.head.appendChild(link);
+	    return [[], function () {
+	      return {
+	        "execute": undefined
+	      };
+	    }];
 	  }
-
+	  var loader = this;
 	  return fetch$1(url).then(function (response) {
 	    try {
 	      switch (response.contentType) {
@@ -3719,12 +3701,11 @@
 	  }).then(function (source) {
 	    try {
 	      (0, eval)(source + '\n//# sourceURL=' + url);
+	      return loader.getRegister();
 	    } catch (ex) {
 	      console.error('Error evaluating ' + url + ': ' + ex.description || ex.message, ex.stack || '', [source]);
 	      throw ex;
 	    }
-
-	    return loader.getRegister();
 	  }).catch(function (message) {
 	    console.error('Error instantiating ' + url + ': ' + message.description || message.message, message.stack || "");
 	    throw new Error(message);

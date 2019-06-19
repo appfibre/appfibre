@@ -27,7 +27,7 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
         super(t);
     }
 
-    initApp() 
+    initApp() : PromiseLike<void>|void
     {
         if (typeof document === "object") { // web app
             var w:any = window;
@@ -47,23 +47,19 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
 
             if (!this.settings.baseExecutionPath && document.head)
                 this.settings.baseExecutionPath = document.head.baseURI;
+            
         } 
-        super.initApp();
+        return super.initApp();
     }
 
     run() : PromiseLike<Element>{
         this.services.logger.log.call(this, appfibre.LogLevel.Trace, 'App.run');
-        this.initApp();
-        let main:any = null;
         return new Promise((resolve:any, reject:any) => {
-            try {
-                this.initApp();
-                main = this.services.navigation.resolve.apply(this);
-            } catch (e) {
-                this.services.logger.log.call(this, appfibre.LogLevel.Error, e);
-                reject(e);
-            }
-            this.render(main).then(resolve, err => { this.services.logger.log.call(this, appfibre.LogLevel.Error, err.message, err.stack); reject(err); this.render(["pre", {}, err.stack]) });
+            Promise.resolve(this.initApp()).then(() => {
+                  let main = this.services.navigation.resolve.apply(this);
+                  this.render(main).then(resolve, err => { this.services.logger.log.call(this, appfibre.LogLevel.Error, err.message, err.stack); reject(err); this.render(["pre", {}, err.stack]) })
+                  }, (e) => {this.services.logger.log.call(this, appfibre.LogLevel.Error, e); reject(e)});
+            
         });
     }
 
@@ -93,7 +89,8 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
                                 let d = body.appendChild( (<HTMLDocument>(body.ownerDocument ? body.ownerDocument : document.body)).createElement("div")); 
                                 if (this.settings && this.settings.fullHeight) 
                                 {
-                                    body.style.height = body.style.height || "100%";
+                                    body.style.height = body.style.height || "100vh";
+                                    body.style.margin = body.style.margin || "0px";
                                     d.style.height = "100%";
                                 }
                                 return d; 

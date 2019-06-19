@@ -403,8 +403,8 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             }
         }  */
         Designer.prototype.componentDidMount = function () {
-            document.body.style.margin = '0px';
-            document.body.style.height = '100%';
+            //document.body.style.margin = '0px';
+            //document.body.style.height = '100%';
         };
         Designer.prototype.navigateTo = function (url) {
             this.setState({ url: url });

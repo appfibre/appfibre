@@ -51,7 +51,8 @@ export class FBT
                     if (fs.existsSync(expected)) {
                         var expectedResult = fs.readFileSync(expected, 'utf8');
                         if (this.deferredLogger /* && output != expectedResult*/) this.deferredLogger.print();
-                        expect(output ? output.replace(/: /g, ":").replace(/; /g, ";").replace(/;"/g, "\"") : "").to.equal(expectedResult.replace(/: /g, ":").replace(/; /g, ";").replace(/;"/g, "\""));
+                        //expect(output ? output.replace(/: /g, ":").replace(/; /g, ";").replace(/;"/g, "\"") : "").to.equal(expectedResult.replace(/: /g, ":").replace(/; /g, ";").replace(/;"/g, "\""));
+                        expect(output ? output.replace(/\r\n/g, "\n") : "").to.equal(expectedResult.replace(/\r\n/g, "\n"));
                     }
                     else
                         throw new Error('Could not evaluate test as .expected input file does not exist: ' + expected);

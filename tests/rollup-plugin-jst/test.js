@@ -124,24 +124,24 @@ describe('rollup-plugin-jst', () => {
 	it('generates properly formatted code', () => {
 		//fs.writeFileSync(path.join(__dirname,'samples/form/default.js'), jst().transform(read(path.join(__dirname,'samples/form/input.json')), 'input.json').code);
 		assert.deepEqual(
-			jst().transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
-			read(path.join(__dirname, 'samples/form/default.js'))
+			jst().transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code.replace(/\r\n/g, '\n'),
+			read(path.join(__dirname, 'samples/form/default.js')).replace(/\r\n/g, '\n')
 		);
 	});
 
 	it('generates correct code with preferConst', () => {
 		//fs.writeFileSync(path.join(__dirname,'samples/form/preferConst.js'), jst({ preferConst: true }).transform(read(path.join(__dirname,'samples/form/input.json')), 'input.json').code);
 		assert.deepEqual(
-			jst({ preferConst: true }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
-			read(path.join(__dirname, 'samples/form/preferConst.js'))
+			jst({ preferConst: true }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code.replace(/\r\n/g, '\n'),
+			read(path.join(__dirname, 'samples/form/preferConst.js')).replace(/\r\n/g, '\n')
 		);
 	});
 
 	it('uses custom indent string', () => {
 		//fs.writeFileSync(path.join(__dirname,'samples/form/customIndent.js'), jst({ indent: '  ' }).transform(read(path.join(__dirname,'samples/form/input.json')), 'input.json').code);
 		assert.deepEqual(
-			jst({ indent: '  ' }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code,
-			read(path.join(__dirname, 'samples/form/customIndent.js'))
+			jst({ indent: '  ' }).transform(read(path.join(__dirname, 'samples/form/input.json')), path.join(__dirname, 'input.json')).code.replace(/\r\n/g, '\n'),
+			read(path.join(__dirname, 'samples/form/customIndent.js')).replace(/\r\n/g, '\n')
 		);
 	});
 

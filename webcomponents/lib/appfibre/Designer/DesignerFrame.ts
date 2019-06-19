@@ -2,7 +2,7 @@ import appfibre from "@appfibre/types";
 import { Intercept } from "./Intercept";
 import { events, Designer_Load, Designer_Select } from "./types";
 
-let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:appfibre.app.IAppLoaded) {
+let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:appfibre.webapp.IWebAppLoaded) {
     if (app.services.transformer.settings.parsers)
         app.services.transformer.settings.parsers[".app"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => {
             var obj2:{[key:string]:any} = {};

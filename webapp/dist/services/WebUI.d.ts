@@ -6,6 +6,7 @@ export declare class WebUI implements appfibre.app.IUI {
     processElementInternal: any;
     type: "UI";
     constructor(app: appfibre.webapp.IWebAppLoaded);
+    init(): PromiseLike<void> | void;
     render(ui: any, parent?: any, mergeWith?: any): any;
     private overrideStyles;
     processElement(element: any, depth: number, index?: number): any;

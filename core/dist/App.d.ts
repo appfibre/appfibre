@@ -4,15 +4,15 @@ export declare abstract class App<O, I> implements appfibre.app.IAppLoaded<O, I>
     defaultState?: Object | undefined;
     stateChanged?: Function | undefined;
     settings: appfibre.app.ISettings & O;
-    components?: {
+    components: {
         [name: string]: any;
-    } | Function | undefined;
+    } | Function;
     services: appfibre.app.IServicesLoaded<appfibre.app.IApp<O, I>>;
     controllers: {
         [index: string]: appfibre.app.IController;
     };
     info: appfibre.app.IInfo & I;
     constructor(app: Required<appfibre.app.IApp<O, I>>);
-    protected initApp(): void;
+    protected initApp(): PromiseLike<void> | void;
     abstract run(): PromiseLike<any>;
 }

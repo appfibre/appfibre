@@ -87,6 +87,9 @@ var Loader = {
             return [2 /*return*/];
         });
     }); },
+    resolve: function (name) {
+        return name;
+    },
     init: function (basePath) {
         basepath = basePath;
     }

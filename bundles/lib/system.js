@@ -1,5 +1,5 @@
 require('systemjs/dist/s.js');
-require('systemjs/dist/extras/transform');
+//require('systemjs/dist/extras/transform');
 require('systemjs/dist/extras/named-exports.js');
 require('systemjs/dist/extras/named-register.js');
 require('systemjs/dist/extras/amd.js');
@@ -15,9 +15,19 @@ systemJSPrototype.jst = function(input, name) {
 
 const instantiate = systemJSPrototype.instantiate;
 systemJSPrototype.instantiate = function (url, parent) {
-	if (url.slice(-5) === '.wasm')
+	if (url[0] === '@') {
+		if (externals[url])
+			return [[], function (_export) {
+				_export('default', externals[url]);
+				const k = Object.keys(externals[url]);
+				for (let i in k) _export(k[i], externals[url][k[i]]);
+				return { execute () {}};
+			}];
+		else throw new Error(`Requested component (${url}) not embedded into bundle or cdn not registered`);
+	}
+	if (url.slice(-5) === '.wasm' /*|| url.slice(-3) === '.js'*/)
 		return instantiate.call(this, url, parent);
-	else if (url.slice(-4) === '.css')
+	else if (url.slice(-4) === '.css' )
 	{
 		var link = document.createElement('link');
 		link.rel = 'stylesheet';
@@ -28,28 +38,6 @@ systemJSPrototype.instantiate = function (url, parent) {
 	}
 
 	const loader = this;
-	if (url[0] === '@') {
-		if (externals[url])
-			return [[], function (_export) {
-				_export('default', externals[url]);
-				const k = Object.keys(externals[url]);
-				for (let i in k) _export(k[i], externals[url][k[i]]);
-				return { execute () {}};
-			}];
-		else throw new Error(`Requested component (${url}) not embedded into bundle`);
-	}
-
-	if (this.registerRegistry && this.registerRegistry[url]) {
-		let r = this.registerRegistry[url];
-		debugger;
-		if (Array.isArray(r) && typeof r[0] === "string")
-			url = r[0];
-
-			return resolve(url).then(function d() {
-				debugger;
-			});
-	}
-
 	return fetch(url)
 		.then(function (response) {
 			try {
@@ -68,12 +56,12 @@ systemJSPrototype.instantiate = function (url, parent) {
 		}, (reason) => {throw new Error('Fetch error: ' + reason + (parent ? ' loading from  ' + parent : ''));})
 		.then((source) => {   
     try{
-      (0, eval)(source + '\n//# sourceURL=' + url);
+	  (0, eval)(source + '\n//# sourceURL=' + url);
+	  return loader.getRegister();  
     } catch (ex) {
       console.error('Error evaluating ' + url + ': ' + ex.description || ex.message, ex.stack || '', [source]);
       throw ex;
     }
-    return loader.getRegister();
   }).catch((message) => {console.error('Error instantiating ' + url + ': ' + message.description || message.message, message.stack || ""); throw new Error(message);});
 };
 

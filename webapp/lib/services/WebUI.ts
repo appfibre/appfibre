@@ -11,6 +11,9 @@ export class WebUI implements appfibre.app.IUI
         this.type="UI";
         this.app = app;
         this.app.settings = this.app.settings || {};
+    }
+
+    init() : PromiseLike<void>|void {
         if (typeof window === "object") {
             var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React"));
             if (obj) {

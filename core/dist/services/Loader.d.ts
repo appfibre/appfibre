@@ -12,6 +12,7 @@ export declare class Loader implements appfibre.app.IModuleSystem {
     private app;
     constructor(app: appfibre.app.IAppLoaded<any, any>);
     import(moduleName: string, normalizedParentName?: string): PromiseLike<any>;
+    resolve(url: string): string;
     instantiate(url: string, parent?: any): any;
     init(basePath: string): void;
 }

@@ -35,6 +35,10 @@ const Loader:appfibre.app.IModuleSystem = {
         }
     },
 
+    resolve (name: string): string {
+        return name; 
+    },
+
     init: (basePath: string) => void {
 
     }

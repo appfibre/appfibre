@@ -9,6 +9,8 @@ var WebUI = /** @class */ (function () {
         this.type = "UI";
         this.app = app;
         this.app.settings = this.app.settings || {};
+    }
+    WebUI.prototype.init = function () {
         if (typeof window === "object") {
             var obj = (Object.getOwnPropertyDescriptor(window, "preact") || Object.getOwnPropertyDescriptor(window, "React"));
             if (obj) {
@@ -17,7 +19,7 @@ var WebUI = /** @class */ (function () {
                 this.renderInternal = obj.value.render || (Object.getOwnPropertyDescriptor(window, "ReactDOM") || { value: null }).value.render;
             }
         }
-    }
+    };
     WebUI.prototype.render = function (ui, parent, mergeWith) {
         if (this.renderInternal) {
             this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, "WebUI.render", [ui]);

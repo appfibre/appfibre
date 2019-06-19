@@ -17,12 +17,12 @@ declare let DesktopRibbon: (app: appfibre.app.IAppLoaded<{}, {}>) => {
         props: Readonly<any>;
         context: any;
         base?: HTMLElement | undefined;
-        setState<K extends "source" | "selectedContext" | "url">(state: Pick<{
+        setState<K extends "source" | "url" | "selectedContext">(state: Pick<{
             selectedContext: appfibre.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;
         }, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "source" | "selectedContext" | "url">(fn: (prevState: {
+        setState<K extends "source" | "url" | "selectedContext">(fn: (prevState: {
             selectedContext: appfibre.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;

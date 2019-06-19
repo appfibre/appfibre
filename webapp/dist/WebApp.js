@@ -66,23 +66,16 @@ var WebApp = /** @class */ (function (_super) {
             if (!this.settings.baseExecutionPath && document.head)
                 this.settings.baseExecutionPath = document.head.baseURI;
         }
-        _super.prototype.initApp.call(this);
+        return _super.prototype.initApp.call(this);
     };
     WebApp.prototype.run = function () {
         var _this = this;
         this.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'App.run');
-        this.initApp();
-        var main = null;
         return new Promise(function (resolve, reject) {
-            try {
-                _this.initApp();
-                main = _this.services.navigation.resolve.apply(_this);
-            }
-            catch (e) {
-                _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e);
-                reject(e);
-            }
-            _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
+            Promise.resolve(_this.initApp()).then(function () {
+                var main = _this.services.navigation.resolve.apply(_this);
+                _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
+            }, function (e) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e); reject(e); });
         });
     };
     WebApp.prototype.render = function (ui) {
@@ -110,7 +103,8 @@ var WebApp = /** @class */ (function (_super) {
                             target = doc.getElementById("main") || function () {
                                 var d = body_1.appendChild((body_1.ownerDocument ? body_1.ownerDocument : document.body).createElement("div"));
                                 if (this.settings && this.settings.fullHeight) {
-                                    body_1.style.height = body_1.style.height || "100%";
+                                    body_1.style.height = body_1.style.height || "100vh";
+                                    body_1.style.margin = body_1.style.margin || "0px";
                                     d.style.height = "100%";
                                 }
                                 return d;

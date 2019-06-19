@@ -1,6 +1,6 @@
 import appfibre from "@appfibre/types";
 import { Designer_Load } from "./types";
-declare let DesignerFrame: (app: appfibre.app.IAppLoaded<{}, {}>) => {
+declare let DesignerFrame: (app: appfibre.webapp.IWebAppLoaded) => {
     new (props: {}): {
         context: any;
         base?: HTMLElement | undefined;

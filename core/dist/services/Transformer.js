@@ -110,7 +110,7 @@ var Transformer = /** @class */ (function () {
                 }
                 break;
             default:
-                output.code += "return " + (isDefault ? this._process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2); }), output, 1) + "}") + ";";
+                output.code += "return " + (isDefault ? this._process(obj["default"], true, false, output, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this._process(obj[key], true, false, output, 1) : key + ":" + sp + _this._process(obj[key], true, false, output, 2); }), output, 1) + "}") + ";";
         }
     };
     Transformer.prototype.processImports = function (output, name) {
@@ -151,14 +151,10 @@ var Transformer = /** @class */ (function () {
                     output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
         }
         if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
-            /*output.code += ';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;' + JSON.stringify(s2) + ' ' + JSON.stringify(r2);
-            if (this.settings.runtimeModule)
-                output.code += this.settings.runtimeModule;*/
             switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none") {
                 case "umd":
                 case "commonjs":
                 case "cjs":
-                    //throw new Error(JSON.stringify(s2));
                     for (var req in r2)
                         output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
                     break;

@@ -22,7 +22,7 @@ export module appfibre {
             controllers:{[name:string]: IController}
             settings:ISettings&O
             info: IInfo&I
-            run():PromiseLike<any>
+            //run():PromiseLike<any>
           }
           
           export interface IEventType {
@@ -56,6 +56,7 @@ export module appfibre {
               navigation?:INavigation|Constructable<INavigation, T>
               data?:IData|Constructable<IData, T>
               events?:IEvents|Constructable<IEvents, T>
+              externals?:{[index:string]:object}
           }
           
           export interface IServicesLoaded<T> extends IServices<T> {
@@ -66,6 +67,7 @@ export module appfibre {
               navigation:INavigation
               processor:IProcessor
               events:IEvents
+              externals:{[index:string]:object}
           }
           
           export interface IEvents {
@@ -80,6 +82,7 @@ export module appfibre {
               //processElement(tag:any, attributes?:object|undefined, children?:any|undefined) : any
               processElement(element:any, depth:number, index?:number) : any
               Component: typeof Component
+              init?() : PromiseLike<void>|void
               //render:any
           }
           
@@ -101,7 +104,6 @@ export module appfibre {
             title?:string
             logLevel?:LogLevel
             baseExecutionPath?:string
-            startupScripts?:Array<string>
             cdn?:{[index:string]:string}
           }
           
@@ -122,6 +124,7 @@ export module appfibre {
             import(moduleName: string, normalizedParentName?: string): PromiseLike<any>
             instantiate(url:string, parent?:any):Promise<any>
             init(basePath?:string):void
+            resolve(name:string):string
           }
           
           export interface ITransformSettings {

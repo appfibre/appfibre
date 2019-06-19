@@ -25,7 +25,6 @@ export declare module appfibre {
             };
             settings: ISettings & O;
             info: IInfo & I;
-            run(): PromiseLike<any>;
         }
         interface IEventType {
             type: string;
@@ -55,6 +54,9 @@ export declare module appfibre {
             navigation?: INavigation | Constructable<INavigation, T>;
             data?: IData | Constructable<IData, T>;
             events?: IEvents | Constructable<IEvents, T>;
+            externals?: {
+                [index: string]: object;
+            };
         }
         interface IServicesLoaded<T> extends IServices<T> {
             moduleSystem: IModuleSystem;
@@ -64,6 +66,9 @@ export declare module appfibre {
             navigation: INavigation;
             processor: IProcessor;
             events: IEvents;
+            externals: {
+                [index: string]: object;
+            };
         }
         interface IEvents {
             subscribe<T>(eventType: IEventType, callback: (data: IEventData<T>) => any): void;
@@ -78,6 +83,7 @@ export declare module appfibre {
             render(node: any, parent?: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element;
             processElement(element: any, depth: number, index?: number): any;
             Component: typeof Component;
+            init?(): PromiseLike<void> | void;
         }
         interface INavigation {
             current: {
@@ -95,7 +101,6 @@ export declare module appfibre {
             title?: string;
             logLevel?: LogLevel;
             baseExecutionPath?: string;
-            startupScripts?: Array<string>;
             cdn?: {
                 [index: string]: string;
             };
@@ -113,6 +118,7 @@ export declare module appfibre {
             import(moduleName: string, normalizedParentName?: string): PromiseLike<any>;
             instantiate(url: string, parent?: any): Promise<any>;
             init(basePath?: string): void;
+            resolve(name: string): string;
         }
         interface ITransformSettings {
             async?: boolean;
