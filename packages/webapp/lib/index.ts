@@ -1,4 +1,6 @@
-import { App, Loader, Transformer } from "@appfibre/core";
+import { App } from "@appfibre/core";
 import { WebApp } from './WebApp';
+//import { HtmlUI } from './services/HtmlUI';
+import Services from "./services";
 
-export { App, Loader, Transformer, WebApp };
+export { App, Services, WebApp/*, HtmlUI*/ };

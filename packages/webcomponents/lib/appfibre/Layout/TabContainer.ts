@@ -1,20 +1,22 @@
-import appfibre from "@appfibre/types";
+import {types} from "@appfibre/types";
 import { SplitContainer, SplitContainer_Attributes} from "./SplitContainer";
 
 export interface attr {
     placement?: "top"|"bottom"|"left"|"right"
     tabs: Array<string>
     selectedIndex?: number
+    style?: object
+    tabStyle?: object
+    selectedTabStyle?: object
 };
 
 
-let TabContainer /*: fibre.UI.Component*/ = function inject(app:appfibre.app.IAppLoaded) {
-    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<appfibre.app.element>}, never> {
+let TabContainer /*: fibre.UI.Component*/ = function inject(app:types.app.IAppLoaded) {
+    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<types.app.UI.ElementPromise>}, never> {
         
         constructor(props:attr) {
             super(props);
         }
-
 
         render() {
             let children:any[] = [];
@@ -25,7 +27,10 @@ let TabContainer /*: fibre.UI.Component*/ = function inject(app:appfibre.app.IAp
             
             if (placement === "top" || placement === "left") {
                 defaults.push( {size: 20, min: 20, max: 20});
-                children.push( ["div", null, "tabs"]);
+                children.push( [ "div"
+                                , { style: this.props.style}
+                                , this.props.tabs.map((t, i) => [ "span", {style: i === (this.props.selectedIndex||0) ? this.props.selectedTabStyle : this.props.tabStyle}, t])
+                                ]);
             }
             defaults.push({});
             children.push( (this.props.children && this.props.children.length > index) ? this.props.children[index] : ["div", {}, "empty"] );

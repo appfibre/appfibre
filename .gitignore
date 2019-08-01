@@ -14,3 +14,4 @@
 /local-cdn/react/umd
 node_modules
 /webcomponents/.rpt2_cache
+tsconfig.tsbuildinfo

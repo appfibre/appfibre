@@ -1,4 +1,4 @@
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 export declare class Promise<T> {
     constructor(resolver: Function);
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined): Promise<TResult1 | TResult2>;
@@ -7,11 +7,11 @@ export declare class Promise<T> {
     static race(promises: Promise<any>[]): Promise<{}>;
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
-export declare class Processor implements appfibre.app.IProcessor {
-    app: appfibre.app.IAppLoaded;
+export declare class Processor implements types.app.IProcessor {
+    app: types.app.IAppLoaded;
     cache: any;
     type: "Processor";
-    constructor(app: appfibre.app.IAppLoaded<any, any>);
+    constructor(app: types.app.IAppLoaded<any, any>);
     private async;
     private Async;
     createClass(B: any, d: any): {
@@ -22,11 +22,12 @@ export declare class Processor implements appfibre.app.IProcessor {
     };
     locate(resource: any, path: string): any;
     getFunctionName(obj: any): string;
+    processElementInternal(element: any, depth: number, index?: number): any;
     private parse;
     resolve(fullpath: string): any;
     init(obj: {
         default: any;
     }): any;
-    processElement(obj: appfibre.app.element | appfibre.app.promisedElement, index?: number): any;
+    processElement(obj: types.app.UI.ElementPromise, index?: number): any;
     process(obj: any): PromiseLike<any>;
 }

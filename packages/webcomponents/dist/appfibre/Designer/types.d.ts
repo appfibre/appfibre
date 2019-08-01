@@ -1,4 +1,4 @@
-import appfibre from '@appfibre/types';
+import { types } from '@appfibre/types';
 export interface Designer_Select {
     editMode: boolean;
     canEdit: boolean;
@@ -10,13 +10,13 @@ export interface Designer_Load {
     url: string;
 }
 declare let events: {
-    "Designer.Load": (data?: Designer_Load | undefined) => appfibre.app.IEventType & {
+    "Designer.Load": (data?: Designer_Load | undefined) => types.app.IEventType & {
         data: Designer_Load | undefined;
     };
-    "Designer.Intercept.Select": (data?: Designer_Select | undefined) => appfibre.app.IEventType & {
+    "Designer.Intercept.Select": (data?: Designer_Select | undefined) => types.app.IEventType & {
         data: Designer_Select | undefined;
     };
-    "Designer.Select": (event?: appfibre.app.IEventData<Designer_Select | undefined> | undefined) => appfibre.app.IEventData<Designer_Select | undefined>;
+    "Designer.Select": (event?: types.app.IEventData<Designer_Select | undefined> | undefined) => types.app.IEventData<Designer_Select | undefined>;
 };
 export { events };
 //# sourceMappingURL=types.d.ts.map

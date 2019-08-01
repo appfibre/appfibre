@@ -1,10 +1,10 @@
-import appfibre from '@appfibre/types';
+import { types } from '@appfibre/types';
 
 export interface IEmitPluginArgs {
     name?: string
 }
 
-export interface ILoaderPluginArgs extends appfibre.app.ITransformSettings {
+export interface ILoaderPluginArgs extends types.app.ITransformSettings {
 	name?:string
 }
 

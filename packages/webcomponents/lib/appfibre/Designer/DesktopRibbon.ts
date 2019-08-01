@@ -1,8 +1,18 @@
 import { events, Designer_Select, Designer_Load } from "./types";
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
+import * as Layout from "../Layout";
 
-let DesktopRibbon /*: fibre.UI.Component */= function inject(app:appfibre.app.IAppLoaded) {
-    return class DesktopRibbon extends app.services.UI.Component<any, {selectedContext: appfibre.app.IEventData<Designer_Select>|null, source?: string|null, url: string}> {
+let menus = [ [ "File", [ [ "div", null, "File content"] ] ] 
+            , [ "Edit", [ [ "div", null, "Edit content"] ] ] 
+            , [ "View", [ [ "div", null, "View content"] ] ] 
+            , [ "Insert", [ [ "div", null, "Insert content"] ] ]
+            , [ "Layout", [ [ "div", null, "Layout content"] ] ]
+            , [ "Data", [ [ "div", null, "Data content"] ] ] 
+            ];
+
+
+let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.app.IAppLoaded) {
+    return class DesktopRibbon extends app.services.UI.Component<any, {selectedContext: types.app.IEventData<Designer_Select>|null, source?: string|null, url: string}> {
         constructor(props:any) {
             super(props);
             this.state = {selectedContext: null, source: null, url: './pages/latest/index.json'};
@@ -39,13 +49,24 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:appfibre.app.IA
         }
 
         render() {
+
             return super.render(    [ 'div'
                                     , {}
                                     , [
-                                          [ 'div', {},    [ [ 'input', {type: 'text', 'style': { width: 'calc(100% - 45px)', background: 'transparent'}, value: this.state.url, onChange: this.url_change} ]
+                                            [ 'div', {},    [ [ 'input', {type: 'text', 'style': { width: 'calc(100% - 45px)', background: 'transparent'}, value: this.state.url, onChange: this.url_change} ]
                                                           , [ 'button', {style: { float: 'right'}, onClick: this.navigate_click}, 'GO' ]
                                                           ]
-                                          ]
+                                            ]
+
+                                        ,   [ Layout.TabContainer
+                                            ,   { placement: "top", tabs: menus.map(m => m[0])
+                                                , style: { width: "100%"}
+                                                , tabStyle: {  width: "100px", textAlign: "center", display: "inline-block", borderBottom: "1px solid grey", cursor: "hand" } 
+                                                , selectedTabStyle: { display: "inline-block", width: "100px", textAlign: "center", fontWeight: "bold", borderLeft: "1px solid grey", borderTop: "1px solid grey", borderRight: "1px solid grey", cursor: "default"} 
+                                                }
+                                            , menus.map(m => m[2])
+                                            ]
+
                                         , [ 'label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)' ]
                                         , this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', {onClick: this.edit_click}, 'Edit'] : ['span', {}, '------']
                                     ]
@@ -79,7 +100,7 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:appfibre.app.IA
             }
         }*/
 
-        onSelect(ev:appfibre.app.IEventData<Designer_Select>) {
+        onSelect(ev:types.app.IEventData<Designer_Select>) {
             this.setState({selectedContext: ev});
             app.services.events.publish(events["Designer.Select"](ev));
         }

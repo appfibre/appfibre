@@ -13,10 +13,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
-/*import { Promise } from "../types"; // Compatibility with ES3
-declare class Promise<T>  {
-    static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
-}*/
 var BaseComponent = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(BaseComponent, _super); /*implements types.Component<P,S>*/
@@ -28,12 +24,7 @@ var BaseComponent = function inject(app) {
         }
         BaseComponent.prototype.renderInternal = function (e, index) {
             var _this = this;
-            //if (e) e = types.services.intercept(e);
             if (Array.isArray(e)) {
-                //if (Promise.resolve(e[0]) === e[0]) debugger;
-                /*if (e[1] == null) e[1] = {};
-                if (typeof e[1] === "object") e[1].context = this.context;*/
-                // @ts-ignore: 'Promise' only refers to a type, but is being used as a value here                
                 if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0])
                     return app.services.processor.processElement(e, index);
                 else {
@@ -43,13 +34,11 @@ var BaseComponent = function inject(app) {
                         c[1]["key"] = c[1]["key"] || idx;
                     } return _this.renderInternal(c, idx); });
                 }
-            } //else if (typeof e !== "string")
-            //debugger;
-            //if (!e) debugger;
+            }
             return !e || typeof e === "string" ? e : app.services.processor.processElement(e, index);
         };
-        BaseComponent.prototype.render = function (e) {
-            return this.renderInternal(e || this.props.children);
+        BaseComponent.prototype.render = function (props /*, state?: Readonly<S>, context?: any*/) {
+            return this.renderInternal(props || this.props.children);
         };
         return BaseComponent;
     }(app.services.UI.Component));

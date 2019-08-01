@@ -12,14 +12,12 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 exports.__esModule = true;
+//import { App } from "../app";
 var components_1 = require("../components");
-var types_1 = __importDefault(require("@appfibre/types"));
+var types_1 = require("@appfibre/types");
 function s_xa(a, b) { return Object.prototype.hasOwnProperty.call(a, b); }
-function clone(a, b) { for (var c = 1; c < arguments.length; c++) {
+function clone(a /*,b?:any*/) { for (var c = 1; c < arguments.length; c++) {
     var d = arguments[c];
     if (d)
         for (var e in d)
@@ -81,14 +79,10 @@ var Processor = /** @class */ (function () {
     };
     Processor.prototype.locate = function (resource, path) {
         var parts = path.split('.');
-        var jst = false;
         var obj = resource;
         for (var part = 0; part < parts.length; part++)
-            if (obj[parts[part]] !== undefined) {
-                if (part == path.length - 1)
-                    jst = obj.__jst;
+            if (obj[parts[part]] !== undefined)
                 obj = obj[path[part]];
-            }
             else
                 obj = null;
         return obj;
@@ -103,8 +97,28 @@ var Processor = /** @class */ (function () {
             name = name.substr(name.indexOf('function') + 'function'.length);
         return name.trim();
     };
+    // ether an element, or array of elements depending on depth == even or odd
+    Processor.prototype.processElementInternal = function (element, depth, index) {
+        if (depth % 2 === 0) {
+            if (typeof element != "string" && !Array.isArray(element)) {
+                this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
+                return element;
+            }
+            else if (Array.isArray(element)) {
+                if (index !== undefined) {
+                    element[1] = element[1] || {};
+                    if (!element[1].key)
+                        element[1].key = index;
+                }
+            }
+            //if (Array.isArray(element) && element[1] && element[1].context && typeof element[1].context.intercept === "function")
+            //    element = element[1].context.intercept(element);
+        }
+        //console.log({element, index, depth, code: JSON.stringify(element)});
+        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]);
+    };
     Processor.prototype.parse = function (obj, level, path, index) {
-        this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.parse', obj);
+        this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Trace, 'Processor.parse', obj);
         var processor = this;
         return new Promise(function (r, f) {
             if (!obj)
@@ -120,10 +134,10 @@ var Processor = /** @class */ (function () {
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else
                     Promise.all(obj.map(function (v, i) { return processor.parse(v, level + 1, path + '[' + i + ']', i); })).then(function (o) { try {
-                        r(processor.app.services.UI.processElement(o, level, index));
+                        r(processor.processElementInternal(o, level, index));
                     }
                     catch (e) {
-                        processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
+                        processor.app.services.logger.log(types_1.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
                         f(e);
                     } }, f);
             }
@@ -134,7 +148,7 @@ var Processor = /** @class */ (function () {
                     r(processor.createClass(components_1.BaseComponent(processor.app), obj));
                 }
                 catch (e) {
-                    processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
+                    processor.app.services.logger.log(types_1.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
                     f(e);
                 }
             else if (Promise.resolve(obj) === obj) {
@@ -142,10 +156,10 @@ var Processor = /** @class */ (function () {
             }
             else if (obj) {
                 try {
-                    r(processor.app.services.UI.processElement(obj, level, index));
+                    r(processor.processElementInternal(obj, level, index));
                 }
                 catch (e) {
-                    processor.app.services.logger.log(types_1["default"].LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
+                    processor.app.services.logger.log(types_1.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
                     f(e);
                 }
             }
@@ -155,7 +169,7 @@ var Processor = /** @class */ (function () {
     };
     Processor.prototype.resolve = function (fullpath) {
         var _this = this;
-        this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.resolve', [fullpath]);
+        this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Trace, 'Processor.resolve', [fullpath]);
         if (this.cache[fullpath])
             return this.cache[fullpath];
         if (fullpath.substring(0, 1) == "~") {
@@ -182,7 +196,7 @@ var Processor = /** @class */ (function () {
                     if (fullpath === "Exception")
                         return function transform(obj) { return ["pre", { "style": { "color": "red" } }, obj[1].stack ? obj[1].stack : obj[1]]; };
                     else {
-                        this.app.services.logger.log.call(this, types_1["default"].LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
+                        this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
                         return /** @class */ (function (_super) {
                             __extends(class_2, _super);
                             function class_2() {
@@ -210,7 +224,8 @@ var Processor = /** @class */ (function () {
         if (Array.isArray(obj)) {
             if (typeof obj[0] === "object" && obj[0]['default'])
                 // TODO: Remove <never>
-                obj[0] = this.init(obj[0]);
+                //obj[0] = /*<never>*/this.init(obj[0]);
+                debugger;
             if (typeof obj[0] === "string") {
                 obj[0] = this.resolve(obj[0]);
             }
@@ -232,23 +247,21 @@ var Processor = /** @class */ (function () {
             }
         }
         if (Array.isArray(obj) && obj.some(function (c) { return Promise.resolve(c) === c; }))
-            return this.app.services.UI.processElement([this.Async(), { id: Date.now() }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+            return this.processElementInternal([this.Async(), { id: Date.now() }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
         else if (typeof obj === "string" || !obj)
             return obj;
-        /*else if (typeof obj === "object" && (<{__jst:any}>obj).__jst)
-            return this.processElement([Intercept(this.app), {}, [(<{default:any}>obj).default]]);*/
         //else if (obj.then)  
         //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
         if (Promise.resolve(obj) === obj)
             obj = [this.Async(), { index: index }, obj];
         if (Array.isArray(obj))
-            return this.app.services.UI.processElement([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) { return typeof c === "string" ? c : _this.processElement(c, idx); }) : obj[2]], 0, index);
+            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) { return typeof c === "string" ? c : _this.processElement(c, idx); }) : obj[2]], 0, index);
         else
             return obj;
     };
     Processor.prototype.process = function (obj) {
         var _this = this;
-        this.app.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'Processor.process', obj);
+        this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Trace, 'Processor.process', obj);
         function visit(obj) {
             if (Array.isArray(obj)) {
                 for (var i in obj)

@@ -1,6 +1,5 @@
-import { App } from "@appfibre/core";
+import { App, types } from "@appfibre/core";
 import { WebUI } from "./services/WebUI";
-import appfibre from "@appfibre/types";
 
 declare class Promise<T> implements PromiseLike<T> {
     constructor(resolver: Function);
@@ -11,19 +10,18 @@ declare class Promise<T> implements PromiseLike<T> {
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 
-export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo>
+export class WebApp extends App<types.webapp.ISettings, types.webapp.IInfo>
 {
     //info: fibre.IInfo
-    constructor(app:appfibre.webapp.IWebApp = {main: []}, context?:object)
+    constructor(app:types.webapp.IWebApp = {main: []}/*, context?:object*/)
     {
-        let t:Required<appfibre.app.IApp<appfibre.webapp.ISettings, appfibre.webapp.IInfo>> = { ...app
-            , info: {browser: appfibre.webapp.browserType.Unknown, ...app.info} 
+        let t:Required<types.app.IApp<types.webapp.ISettings, types.webapp.IInfo>> = { ...app
+            , info: {browser: types.webapp.browserType.Unknown, ...app.info} 
             , services: {UI: app.services && app.services.UI || WebUI, ...app.services}  
             , settings: app.settings || {}  
             , controllers: {...app.controllers }
             , components: {...app.components }  
         };
-
         super(t);
     }
 
@@ -33,15 +31,15 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
             var w:any = window;
             var g:any = global;
             var d:any = document;
-            let bt = appfibre.webapp.browserType.Unknown;
+            let bt = types.webapp.browserType.Unknown;
             if (w && g && d) {
-                if (g.InstallTrigger !== undefined) this.info.browser = appfibre.webapp.browserType.FireFox;
-                else if (/*@cc_on!@*/false || !!d.documentMode) bt = appfibre.webapp.browserType.IE;
-                else if (!!w.StyleMedia) bt = appfibre.webapp.browserType.Edge;
-                else if (/constructor/i.test(w.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!w['safari'] || (typeof g.safari !== 'undefined' && g.safari.pushNotification))) bt = appfibre.webapp.browserType.Safari;
-                else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = appfibre.webapp.browserType.Chrome;
-                else if ((Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons")) || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = appfibre.webapp.browserType.Opera;
-                if ((bt === appfibre.webapp.browserType.Chrome || bt === appfibre.webapp.browserType.Opera) && !!w.CSS) bt = appfibre.webapp.browserType.Blink;
+                if (g.InstallTrigger !== undefined) this.info.browser = types.webapp.browserType.FireFox;
+                else if (/*@cc_on!@*/false || !!d.documentMode) bt = types.webapp.browserType.IE;
+                else if (!!w.StyleMedia) bt = types.webapp.browserType.Edge;
+                else if (/constructor/i.test(w.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!w['safari'] || (typeof g.safari !== 'undefined' && g.safari.pushNotification))) bt = types.webapp.browserType.Safari;
+                else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = types.webapp.browserType.Chrome;
+                else if ((Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons")) || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = types.webapp.browserType.Opera;
+                if ((bt === types.webapp.browserType.Chrome || bt === types.webapp.browserType.Opera) && !!w.CSS) bt = types.webapp.browserType.Blink;
             }
             this.info.browser = bt;
 
@@ -53,12 +51,12 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
     }
 
     run() : PromiseLike<Element>{
-        this.services.logger.log.call(this, appfibre.LogLevel.Trace, 'App.run');
+        this.services.logger.log.call(this, types.app.LogLevel.Trace, 'App.run');
         return new Promise((resolve:any, reject:any) => {
             Promise.resolve(this.initApp()).then(() => {
                   let main = this.services.navigation.resolve.apply(this);
-                  this.render(main).then(resolve, err => { this.services.logger.log.call(this, appfibre.LogLevel.Error, err.message, err.stack); reject(err); this.render(["pre", {}, err.stack]) })
-                  }, (e) => {this.services.logger.log.call(this, appfibre.LogLevel.Error, e); reject(e)});
+                  this.render(main).then(resolve, err => { this.services.logger.log.call(this, types.app.LogLevel.Error, err.message, err.stack); reject(err); this.render(["pre", {}, err.stack]) })
+                  }, (e) => {this.services.logger.log.call(this, types.app.LogLevel.Error, e); reject(e)});
             
         });
     }
@@ -66,7 +64,7 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
     private render(ui:any) 
     {
         return new Promise( (resolve:Function, reject:Function) => {
-            this.services.logger.log.call(this, appfibre.LogLevel.Trace, 'App.render', [{ui}]);
+            this.services.logger.log.call(this, types.app.LogLevel.Trace, 'App.render', [{ui}]);
             this.services.processor.process(ui).then((value) => { 
                 try {
 
@@ -85,13 +83,13 @@ export class WebApp extends App<appfibre.webapp.ISettings, appfibre.webapp.IInfo
                         if (target && target.tagName === "BODY") {
                             let body = <HTMLBodyElement>target;
                             let doc = (<HTMLDocument>(body.ownerDocument ? body.ownerDocument : document.body));
-                            target = doc.getElementById("main") || function(this:appfibre.webapp.IWebApp) { 
+                            target = doc.getElementById("main") || function(this:types.webapp.IWebApp) { 
                                 let d = body.appendChild( (<HTMLDocument>(body.ownerDocument ? body.ownerDocument : document.body)).createElement("div")); 
                                 if (this.settings && this.settings.fullHeight) 
                                 {
                                     body.style.height = body.style.height || "100vh";
                                     body.style.margin = body.style.margin || "0px";
-                                    d.style.height = "100%";
+                                    d.style.height = "100vh";
                                 }
                                 return d; 
                             }.apply(this);

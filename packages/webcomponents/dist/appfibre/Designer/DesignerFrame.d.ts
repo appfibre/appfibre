@@ -1,6 +1,6 @@
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 import { Designer_Load } from "./types";
-declare let DesignerFrame: (app: appfibre.webapp.IWebAppLoaded) => {
+declare let DesignerFrame: (app: types.webapp.IWebAppLoaded) => {
     new (props: {}): {
         context: any;
         base?: HTMLElement | undefined;
@@ -11,7 +11,7 @@ declare let DesignerFrame: (app: appfibre.webapp.IWebAppLoaded) => {
         componentWillMount(): void;
         window_click(ev: Event): void;
         componentWillUnmount(): void;
-        designer_Load(ev: appfibre.app.IEventData<Designer_Load>): void;
+        designer_Load(ev: types.app.IEventData<Designer_Load>): void;
         render(): any;
         setState<K extends "content">(state: Pick<{
             content: any;

@@ -1,6 +1,6 @@
 import { Designer_Select } from "./types";
-import appfibre from "@appfibre/types";
-declare let Intercept: (app: appfibre.app.IAppLoaded<{}, {}>) => {
+import { types } from "@appfibre/types";
+declare let Intercept: (app: types.app.IAppLoaded<{}, {}>) => {
     new (props: any): {
         state: {
             focus: boolean;
@@ -11,7 +11,7 @@ declare let Intercept: (app: appfibre.app.IAppLoaded<{}, {}>) => {
         };
         componentDidMount(): void;
         componentWillUnmount(): void;
-        designer_select(ev: appfibre.app.IEventData<Designer_Select>): void;
+        designer_select(ev: types.app.IEventData<Designer_Select>): void;
         reconstruct(obj: any): any;
         render(): any;
         mouseEnter(): void;
@@ -22,7 +22,6 @@ declare let Intercept: (app: appfibre.app.IAppLoaded<{}, {}>) => {
             children?: any;
         }>;
         context: any;
-        base?: HTMLElement | undefined;
         setState<K extends "focus" | "selected" | "selectedCorrelationId" | "editMode" | "canEdit">(state: Pick<{
             focus: boolean;
             selected: boolean;

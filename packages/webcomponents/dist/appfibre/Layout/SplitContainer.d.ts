@@ -37,7 +37,6 @@ declare let SplitContainer: (app: appfibre.webapp.IWebAppLoaded) => {
         render(): any;
         props: Readonly<SplitContainer_Attributes>;
         context: any;
-        base?: HTMLElement | undefined;
         setState<K extends "resize" | "direction" | "vertical" | "container" | "panels">(state: Pick<state, K>, callback?: (() => void) | undefined): void;
         setState<K extends "resize" | "direction" | "vertical" | "container" | "panels">(fn: (prevState: state, props: SplitContainer_Attributes) => Pick<state, K>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;

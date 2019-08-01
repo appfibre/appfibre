@@ -1,4 +1,4 @@
-import appfibre from "@appfibre/types"
+import {types} from "@appfibre/types"
 
 export declare class Promise<T>  {
     constructor(resolver: Function);
@@ -9,29 +9,29 @@ export declare class Promise<T>  {
     static resolve<T>(value: T | PromiseLike<T>): Promise<T>;
 }
 
-export class Loader implements appfibre.app.IModuleSystem {
-    proxy: appfibre.app.IModuleSystem;
+export class Loader implements types.app.IModuleSystem {
+    proxy: types.app.IModuleSystem;
     
-    private app:appfibre.app.IAppLoaded
-    constructor(app:appfibre.app.IAppLoaded<any, any>)
+    private app:types.app.IAppLoaded
+    constructor(app:types.app.IAppLoaded<any, any>)
     {
         this.app = app;
         if (typeof window === "object") {
             let systemjs = Object.getOwnPropertyDescriptor(window, "System");
             if (systemjs) {
                 systemjs.value.constructor.prototype.jst = (input:string, name?:string) => this.app.services.transformer.transform(input, name);
-                this.proxy = { import: systemjs.value.import.bind(systemjs.value), resolve: (name:string)=>name, instantiate: systemjs.value.instantiate.bind(systemjs.value), init: (basePath: string) => void {}};
+                this.proxy = { import: systemjs.value.import.bind(systemjs.value), resolve: (name:string)=>name, instantiate: systemjs.value.instantiate.bind(systemjs.value), init: (/*basePath: string*/) => void {}};
                 systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
                 systemjs.value.constructor.prototype.import = this.import.bind(this);
             }
             else 
-                this.proxy = require('../browser/loader').default;
+                this.proxy = require('./loaders/Browser')["Loader"];
         } 
         if (this['proxy'] == null) 
-            this.proxy = require('../nodeJS/loader').default;
+            this.proxy = require('./loaders/NodeJs')["Loader"];
     }
 
-    import(moduleName: string, normalizedParentName?: string): PromiseLike<any> {
+    import(moduleName: string, normalizedParentName?: string, _references?:{[name:string]:any}): PromiseLike<any> {
         let u = moduleName.indexOf('#') > -1 ? moduleName.slice(0, moduleName.indexOf('#')) : moduleName;
         let b = u.length + 1 < moduleName.length ? moduleName.slice(u.length+1).split('#') : [];
         return new Promise( (r:(value:any)=>any, rj:(reason:any)=>any) => this.proxy.import(this.resolve(u), normalizedParentName).then( x => {
@@ -55,8 +55,8 @@ export class Loader implements appfibre.app.IModuleSystem {
         return this.proxy.resolve(url);
     }
 
-    instantiate(url:string, parent?:any):any {
-        return this.proxy.instantiate(this.resolve(url), parent);
+    instantiate(url:string, parent?:any, references?:{[name:string]:any}):any {
+        return this.proxy.instantiate(this.resolve(url), parent, references);
     }
 
     init(basePath:string) {

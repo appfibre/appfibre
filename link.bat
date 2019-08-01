@@ -30,7 +30,7 @@ GOTO:eof
 IF NOT EXIST %1 GOTO:eof
 IF /I "%OP%"=="/u" ECHO removing %1
 IF /I "%OP%"=="/d" ECHO removing %1
-fsutil reparsepoint query "%1" | find "Symbolic Link" >nul && rd %1 
+fsutil reparsepoint query "%1" | find "Name Surrogate" >nul && rd %1 
 fsutil reparsepoint query "%1" | find "The file or directory is not a reparse point" >nul && (rmdir /Q/S %1)
 GOTO:eof
 

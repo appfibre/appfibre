@@ -1,6 +1,6 @@
 //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 import { BaseComponent } from "../components";
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 
 function parse(url:string)  {
     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
@@ -26,18 +26,18 @@ function clone(o:any):any {
     return o;
 }
 
-const Navigation:appfibre.app.INavigation = {
+const Navigation:types.app.INavigation = {
 
     current: parse(typeof location === "object" ? location.href : ''),
     
-    resolve: function transform(this:appfibre.app.IAppLoaded, container:string) {
+    resolve: function transform(this:types.app.IAppLoaded, container:string) {
         let url = typeof location === "undefined" ? '' : location.href;
         if (this.controllers && Object.keys(this.controllers).length === 0) 
             return this.main;
         for (let c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
-                this.services.logger.log(appfibre.LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
+                this.services.logger.log(types.app.LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
                 if (match) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params:{[key:string]:string} = {};
@@ -49,14 +49,18 @@ const Navigation:appfibre.app.INavigation = {
                     return this.controllers[c].resolve.call(this, params);
                 }
             } else 
-                this.services.logger.log(appfibre.LogLevel.Trace, `Container ${container || '(blank)'} does not match controller ${c}'s container ${this.controllers[c].container  || '(blank)'}`);
+                this.services.logger.log(types.app.LogLevel.Trace, `Container ${container || '(blank)'} does not match controller ${c}'s container ${this.controllers[c].container  || '(blank)'}`);
 
         return ["Error", {}, "Could not locate controller matching " + url];
     },
 
-    a: function inject(app:appfibre.app.IAppLoaded) {
+    a: function inject(app:types.app.IAppLoaded) {
         return class a extends BaseComponent<{href:string, container?:string},any>(app) //app.services.UI.Component 
         {
+            constructor(props:{href:string, container?:string}, context:any) {
+                super(props,context);
+            }
+
             click(e:any) {
                 app.services.navigation.current = parse(this.props.href);
                 var topParent = parent;
@@ -69,12 +73,13 @@ const Navigation:appfibre.app.INavigation = {
             }
 
             render() {
-                return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
+                return super.render(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children]);
+                //return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
             }
         }
     },
 
-    Container: function transform<P={c:any},S={}>(this:appfibre.app.IAppLoaded, a:any, c:any) {
+    Container: function transform<P={c:any}>(this:types.app.IAppLoaded, a:any, c:any) {
             let app = this;
             return [class NavigationContainer extends BaseComponent<P&{c:any},{a?:any, c:any}>(app) {
                 state:{a?:any, c:any}
@@ -85,7 +90,7 @@ const Navigation:appfibre.app.INavigation = {
                     this.onRedirect = this.onRedirect.bind(this)
                 }
 
-                onRedirect(event:appfibre.app.IEventData<any>) {
+                onRedirect(/*event:types.app.IEventData<any>*/) {
                     var e = clone(this.props.c);
                     if (Array.isArray(e)) e.forEach( (c, i) => { if (Array.isArray(c)) c[1].key = Date.now() + i ;} );
                     this.setState( {c: e });

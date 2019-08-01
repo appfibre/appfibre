@@ -4,6 +4,7 @@
 require('core-js/features/map');
 require('core-js/features/set');
 require('core-js/features/object/assign');
+require('core-js/features/object/values');
 
 //require('core-js/fn/object/assign');
 //require('raf').polyfill(window);

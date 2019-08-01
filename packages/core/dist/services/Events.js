@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var Events = /** @class */ (function () {
-    function Events(app) {
+    function Events(_a) {
         this.callbacks = {};
         if (typeof window === "object")
             window.addEventListener("message", this.onWindowMessage.bind(this));

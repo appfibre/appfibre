@@ -1,5 +1,5 @@
-import appfibre from "@appfibre/types";
-declare let Async: (app: appfibre.app.IAppLoaded<{}, {}>) => {
+import types from "@appfibre/types";
+declare let Async: (app: types.app.IAppLoaded<{}, {}>) => {
     new (props: any, context: any): {
         state: {
             value?: any;
@@ -7,7 +7,6 @@ declare let Async: (app: appfibre.app.IAppLoaded<{}, {}>) => {
         render(): any;
         props: Readonly<{}>;
         context: any;
-        base?: HTMLElement | undefined;
         setState<K extends "value">(state: Pick<{
             value?: any;
         }, K>, callback?: (() => void) | undefined): void;

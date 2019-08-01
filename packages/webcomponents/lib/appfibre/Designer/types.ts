@@ -1,4 +1,4 @@
-import appfibre from '@appfibre/types';
+import { types } from '@appfibre/types';
 
 export interface Designer_Select {
     editMode: boolean
@@ -13,10 +13,10 @@ export interface Designer_Load {
 }
 
 let events = {
-      "Designer.Load": function (data?:Designer_Load):appfibre.app.IEventType&{data:Designer_Load|undefined} {return {type: "Designer.Load", data}}
-    , "Designer.Intercept.Select": function (data?:Designer_Select):appfibre.app.IEventType&{data:Designer_Select|undefined} {return {type: "Designer.Intercept.Select", data}}
-    , "Designer.Select": function (event?:appfibre.app.IEventData<Designer_Select|undefined>):appfibre.app.IEventData<Designer_Select|undefined> {return {type: "Designer.Select", data: event ? event.data : undefined, correlationId: event ? event.correlationId : undefined}}
-    //, "Designer.Deselect": function (correlationId?:string):appfibre.app.IEventData<undefined> {return {type: "Designer.Intercept.DeSelect", correlationId, data:undefined}}
+      "Designer.Load": function (data?:Designer_Load):types.app.IEventType&{data:Designer_Load|undefined} {return {type: "Designer.Load", data}}
+    , "Designer.Intercept.Select": function (data?:Designer_Select):types.app.IEventType&{data:Designer_Select|undefined} {return {type: "Designer.Intercept.Select", data}}
+    , "Designer.Select": function (event?:types.app.IEventData<Designer_Select|undefined>):types.app.IEventData<Designer_Select|undefined> {return {type: "Designer.Select", data: event ? event.data : undefined, correlationId: event ? event.correlationId : undefined}}
+    //, "Designer.Deselect": function (correlationId?:string):types.app.IEventData<undefined> {return {type: "Designer.Intercept.DeSelect", correlationId, data:undefined}}
 }
 
 

@@ -20,6 +20,7 @@ var TabContainer /*: fibre.UI.Component*/ = function inject(app) {
             return _super.call(this, props) || this;
         }
         TabContainer.prototype.render = function () {
+            var _this = this;
             var children = [];
             var placement = this.props.placement || "top";
             var v = placement === "top" || placement === "bottom" ? true : false;
@@ -27,7 +28,10 @@ var TabContainer /*: fibre.UI.Component*/ = function inject(app) {
             var index = this.props.selectedIndex || 0;
             if (placement === "top" || placement === "left") {
                 defaults.push({ size: 20, min: 20, max: 20 });
-                children.push(["div", null, "tabs"]);
+                children.push(["div",
+                    { style: this.props.style },
+                    this.props.tabs.map(function (t, i) { return ["span", { style: i === (_this.props.selectedIndex || 0) ? _this.props.selectedTabStyle : _this.props.tabStyle }, t]; })
+                ]);
             }
             defaults.push({});
             children.push((this.props.children && this.props.children.length > index) ? this.props.children[index] : ["div", {}, "empty"]);

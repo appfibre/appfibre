@@ -14,10 +14,10 @@ const external = Object.keys(pkg.dependencies);
 export default 
   [
     { input: 'lib/system.js',
-      output: [ { file: 'webapp-systemjs.js', format: 'iife', sourcemap: true, name: 'webapp', globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
-              , { file: 'webapp-systemjs.cjs.js', format: 'cjs', sourcemap: true, name: 'webapp', globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
-              , { file: 'webapp-systemjs.umd.js', format: 'umd', sourcemap: true, name: 'webapp', globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
-              , { file: 'webapp-systemjs.es.js', format: 'es', sourcemap: true, name: 'webapp', globals: { "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
+      output: [ { file: 'webapp-systemjs.js', format: 'iife', sourcemap: true, name: 'webapp', globals: { "@appfibre/types": 'types', "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
+              , { file: 'webapp-systemjs.cjs.js', format: 'cjs', sourcemap: true, name: 'webapp', globals: { "@appfibre/types": 'types', "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
+              , { file: 'webapp-systemjs.umd.js', format: 'umd', sourcemap: true, name: 'webapp', globals: { "@appfibre/types": 'types', "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
+              , { file: 'webapp-systemjs.es.js', format: 'es', sourcemap: true, name: 'webapp', globals: { "@appfibre/types": 'types', "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
               ],
       plugins: [  resolve({mainFields: ['main']}),
                   cjs(),
@@ -49,8 +49,8 @@ export default
               , { file: 'rollup-plugin-jst.cjs.js', format: 'cjs', sourcemap: true, name: 'appfibre_rollup', globals: { "@appfibre/core": 'core' } }
               , { file: 'rollup-plugin-jst.es.js', format: 'es', sourcemap: true, name: 'appfibre_rollup', globals: { "@appfibre/core": 'core' } }
               ],
-      plugins: [ resolve({jsnext: true})
-               , cjs()
+      plugins: [ /*resolve({jsnext: true})
+               , */cjs()
                ],
       external	
     },

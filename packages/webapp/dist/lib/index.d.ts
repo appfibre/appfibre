@@ -1,3 +1,3 @@
+import { App, Services } from "@appfibre/core";
 import { WebApp } from './WebApp';
-import * as fibre from "./types";
-export { fibre, WebApp };
+export { App, Services, WebApp };

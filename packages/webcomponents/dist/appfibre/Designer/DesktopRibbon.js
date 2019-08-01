@@ -12,6 +12,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import { events } from "./types";
+import * as Layout from "../Layout";
+var menus = [["File", [["div", null, "File content"]]],
+    ["Edit", [["div", null, "Edit content"]]],
+    ["View", [["div", null, "View content"]]],
+    ["Insert", [["div", null, "Insert content"]]],
+    ["Layout", [["div", null, "Layout content"]]],
+    ["Data", [["div", null, "Data content"]]]
+];
 var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(DesktopRibbon, _super);
@@ -52,6 +60,14 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                     ['div', {}, [['input', { type: 'text', 'style': { width: 'calc(100% - 45px)', background: 'transparent' }, value: this.state.url, onChange: this.url_change }],
                             ['button', { style: { float: 'right' }, onClick: this.navigate_click }, 'GO']
                         ]
+                    ],
+                    [Layout.TabContainer,
+                        { placement: "top", tabs: menus.map(function (m) { return m[0]; }),
+                            style: { width: "100%" },
+                            tabStyle: { width: "100px", textAlign: "center", display: "inline-block", borderBottom: "1px solid grey", cursor: "hand" },
+                            selectedTabStyle: { display: "inline-block", width: "100px", textAlign: "center", fontWeight: "bold", borderLeft: "1px solid grey", borderTop: "1px solid grey", borderRight: "1px solid grey", cursor: "default" }
+                        },
+                        menus.map(function (m) { return m[2]; })
                     ],
                     ['label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)'],
                     this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', { onClick: this.edit_click }, 'Edit'] : ['span', {}, '------']

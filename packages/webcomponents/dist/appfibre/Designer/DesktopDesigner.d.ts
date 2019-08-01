@@ -14,7 +14,6 @@ declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
         state: Readonly<any>;
         props: Readonly<any>;
         context: any;
-        base?: HTMLElement | undefined;
         setState<K extends string | number | symbol>(state: Pick<any, K>, callback?: (() => void) | undefined): void;
         setState<K extends string | number | symbol>(fn: (prevState: any, props: any) => Pick<any, K>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;

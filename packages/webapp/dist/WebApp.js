@@ -23,20 +23,16 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 exports.__esModule = true;
 var core_1 = require("@appfibre/core");
 var WebUI_1 = require("./services/WebUI");
-var types_1 = __importDefault(require("@appfibre/types"));
 var WebApp = /** @class */ (function (_super) {
     __extends(WebApp, _super);
     //info: fibre.IInfo
-    function WebApp(app, context) {
+    function WebApp(app /*, context?:object*/) {
         if (app === void 0) { app = { main: [] }; }
         var _this = this;
-        var t = __assign({}, app, { info: __assign({ browser: types_1["default"].webapp.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), settings: app.settings || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
+        var t = __assign({}, app, { info: __assign({ browser: core_1.types.webapp.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), settings: app.settings || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
         _this = _super.call(this, t) || this;
         return _this;
     }
@@ -45,22 +41,22 @@ var WebApp = /** @class */ (function (_super) {
             var w = window;
             var g = global;
             var d = document;
-            var bt = types_1["default"].webapp.browserType.Unknown;
+            var bt = core_1.types.webapp.browserType.Unknown;
             if (w && g && d) {
                 if (g.InstallTrigger !== undefined)
-                    this.info.browser = types_1["default"].webapp.browserType.FireFox;
+                    this.info.browser = core_1.types.webapp.browserType.FireFox;
                 else if ( /*@cc_on!@*/false || !!d.documentMode)
-                    bt = types_1["default"].webapp.browserType.IE;
+                    bt = core_1.types.webapp.browserType.IE;
                 else if (!!w.StyleMedia)
-                    bt = types_1["default"].webapp.browserType.Edge;
+                    bt = core_1.types.webapp.browserType.Edge;
                 else if (/constructor/i.test(w.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!w['safari'] || (typeof g.safari !== 'undefined' && g.safari.pushNotification)))
-                    bt = types_1["default"].webapp.browserType.Safari;
+                    bt = core_1.types.webapp.browserType.Safari;
                 else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime))
-                    bt = types_1["default"].webapp.browserType.Chrome;
+                    bt = core_1.types.webapp.browserType.Chrome;
                 else if ((Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons")) || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0)
-                    bt = types_1["default"].webapp.browserType.Opera;
-                if ((bt === types_1["default"].webapp.browserType.Chrome || bt === types_1["default"].webapp.browserType.Opera) && !!w.CSS)
-                    bt = types_1["default"].webapp.browserType.Blink;
+                    bt = core_1.types.webapp.browserType.Opera;
+                if ((bt === core_1.types.webapp.browserType.Chrome || bt === core_1.types.webapp.browserType.Opera) && !!w.CSS)
+                    bt = core_1.types.webapp.browserType.Blink;
             }
             this.info.browser = bt;
             if (!this.settings.baseExecutionPath && document.head)
@@ -70,18 +66,18 @@ var WebApp = /** @class */ (function (_super) {
     };
     WebApp.prototype.run = function () {
         var _this = this;
-        this.services.logger.log.call(this, types_1["default"].LogLevel.Trace, 'App.run');
+        this.services.logger.log.call(this, core_1.types.app.LogLevel.Trace, 'App.run');
         return new Promise(function (resolve, reject) {
             Promise.resolve(_this.initApp()).then(function () {
                 var main = _this.services.navigation.resolve.apply(_this);
-                _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
-            }, function (e) { _this.services.logger.log.call(_this, types_1["default"].LogLevel.Error, e); reject(e); });
+                _this.render(main).then(resolve, function (err) { _this.services.logger.log.call(_this, core_1.types.app.LogLevel.Error, err.message, err.stack); reject(err); _this.render(["pre", {}, err.stack]); });
+            }, function (e) { _this.services.logger.log.call(_this, core_1.types.app.LogLevel.Error, e); reject(e); });
         });
     };
     WebApp.prototype.render = function (ui) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.services.logger.log.call(_this, types_1["default"].LogLevel.Trace, 'App.render', [{ ui: ui }]);
+            _this.services.logger.log.call(_this, core_1.types.app.LogLevel.Trace, 'App.render', [{ ui: ui }]);
             _this.services.processor.process(ui).then(function (value) {
                 try {
                     var target = null;
@@ -105,7 +101,7 @@ var WebApp = /** @class */ (function (_super) {
                                 if (this.settings && this.settings.fullHeight) {
                                     body_1.style.height = body_1.style.height || "100vh";
                                     body_1.style.margin = body_1.style.margin || "0px";
-                                    d.style.height = "100%";
+                                    d.style.height = "100vh";
                                 }
                                 return d;
                             }.apply(_this);

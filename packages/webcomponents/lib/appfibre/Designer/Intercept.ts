@@ -1,8 +1,8 @@
 import { Designer_Select } from "./types";
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 import { events } from "./types";
 
-let Intercept = function inject(app:appfibre.app.IAppLoaded) {
+let Intercept = function inject(app:types.app.IAppLoaded) {
 
     return class Intercept extends app.services.UI.Component<{file?:string, children?:any}, {focus:boolean, selected:boolean, selectedCorrelationId?:string, editMode:any, canEdit: boolean}> {
 
@@ -30,7 +30,7 @@ let Intercept = function inject(app:appfibre.app.IAppLoaded) {
             app.services.events.unsubscribe(events["Designer.Select"](), this.designer_select);
         }
 
-        designer_select(ev:appfibre.app.IEventData<Designer_Select>) {
+        designer_select(ev:types.app.IEventData<Designer_Select>) {
             this.setState({selected: this.state.selectedCorrelationId == ev.correlationId});
         }
 

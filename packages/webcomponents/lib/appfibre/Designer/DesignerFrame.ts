@@ -1,14 +1,14 @@
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 import { Intercept } from "./Intercept";
 import { events, Designer_Load, Designer_Select } from "./types";
 
-let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:appfibre.webapp.IWebAppLoaded) {
+let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:types.webapp.IWebAppLoaded) {
     if (app.services.transformer.settings.parsers)
-        app.services.transformer.settings.parsers[".app"] = (obj:any, parseSettings:appfibre.app.ITransformOutput, offset:number) => {
+        app.services.transformer.settings.parsers[".app"] = (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
             var obj2:{[key:string]:any} = {};
             var keys = Object.keys(obj);
             keys.forEach(z => obj2[z == ".app" ? "main" : z] = obj[z]);
-            return `[".App", {${app.services.transformer._process(obj2, true, true, parseSettings, offset)}}]`;
+            return `[".App", {${app.services.transformer.process(obj2, context, true, true, offset)}}]`;
         };
     app.services.processor.init = (obj:{default:any, [index:string]:any}) => typeof obj.__esModule === "string" ? [Intercept, {file: obj.__esModule}, [obj.default]] : obj.default;
 
@@ -43,7 +43,7 @@ let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:appfib
             window.removeEventListener("click", this.window_click);
         }
 
-        designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+        designer_Load(ev:types.app.IEventData<Designer_Load>) {
             if (ev.data)
                 app.services.moduleSystem.import(ev.data.url).then(x => {
                     this.setState({content: x});

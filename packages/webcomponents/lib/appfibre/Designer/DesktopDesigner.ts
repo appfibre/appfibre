@@ -38,7 +38,7 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.app.IAp
             app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
         }
 
-        /*designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+        /*designer_Load(ev:types.app.IEventData<Designer_Load>) {
             if (this.iframe && this.iframe.contentWindow && ev.data) 
                 app.services.events.publish(ev, this["iframe"].contentWindow);
         }*/

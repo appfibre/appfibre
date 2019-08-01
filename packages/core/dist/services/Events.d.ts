@@ -1,17 +1,17 @@
-import appfibre from "@appfibre/types";
+import { types } from "@appfibre/types";
 export declare class Events {
     callbacks: {
         [eventType: string]: {
-            type: appfibre.app.IEventType;
+            type: types.app.IEventType;
             correlationId?: string;
-            callback: (data: appfibre.app.IEventData<any>) => any;
+            callback: (data: types.app.IEventData<any>) => any;
         }[];
     };
-    constructor(app: appfibre.app.IAppLoaded<any, any>);
+    constructor({}: {});
     onWindowMessage(ev: MessageEvent): any;
-    subscribe<T>(eventType: appfibre.app.IEventType, callback: (data: appfibre.app.IEventData<T>) => any): void;
-    unsubscribe<T>(eventType: appfibre.app.IEventType, callback: (data: appfibre.app.IEventData<T>) => any): void;
-    publish<T>(event: appfibre.app.IEventData<T>, target?: {
+    subscribe<T>(eventType: types.app.IEventType, callback: (data: types.app.IEventData<T>) => any): void;
+    unsubscribe<T>(eventType: types.app.IEventType, callback: (data: types.app.IEventData<T>) => any): void;
+    publish<T>(event: types.app.IEventData<T>, target?: {
         postMessage: (message: any, targetOrigin: string) => void;
     }): any[];
 }

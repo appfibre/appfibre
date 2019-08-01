@@ -1,7 +1,6 @@
-//import { IAppLoaded, IProcessor, LogLevel, element, promisedElement} from "../types";
-import { App } from "../app";
+//import { App } from "../app";
 import { BaseComponent, Async } from '../components';
-import appfibre from "@appfibre/types";
+import {types} from "@appfibre/types";
 
 export declare class Promise<T>  {
     constructor(resolver: Function);
@@ -14,9 +13,9 @@ export declare class Promise<T>  {
   
   
 function s_xa(a:any,b?:any){return Object.prototype.hasOwnProperty.call(a,b)}
-function clone<T>(a:T,b?:any):T{for(var c=1;c<arguments.length;c++){var d:T=arguments[c];if(d)for(var e in d)s_xa(d,e)&&(a[e]=d[e])}return a}
+function clone<T>(a:T/*,b?:any*/):T{for(var c=1;c<arguments.length;c++){var d:T=arguments[c];if(d)for(var e in d)s_xa(d,e)&&(a[e]=d[e])}return a}
 
-function Inject (app : appfibre.app.IAppLoaded, proxy?:any) : any {
+function Inject (app : types.app.IAppLoaded, proxy?:any) : any {
     let inj = clone(app);
     inj.services.UI.Component = proxy || BaseComponent(app)/*app.services.UI.Component*/;
 
@@ -31,17 +30,17 @@ function Inject (app : appfibre.app.IAppLoaded, proxy?:any) : any {
     return inj;
 }
 
-export class Processor implements appfibre.app.IProcessor
+export class Processor implements types.app.IProcessor
 {
-    app:appfibre.app.IAppLoaded
+    app:types.app.IAppLoaded
     cache = Object();
     type:"Processor";
-    constructor(app:appfibre.app.IAppLoaded<any, any>)
+    constructor(app:types.app.IAppLoaded<any, any>)
     {
         this.type = "Processor";
         this.app = app;
-        this.cache[".App"] = function inject(app:appfibre.app.IAppLoaded) { 
-            return class Proxy extends BaseComponent<{main?:appfibre.app.element|appfibre.app.promisedElement}, any>(app) {
+        this.cache[".App"] = function inject(app:types.app.IAppLoaded) { 
+            return class Proxy extends BaseComponent<{main?:any/*types.app.element|types.app.promisedElement*/}, any>(app) {
                 //app:App;
                 constructor(props:any, context:any) {
                     super(props, context);
@@ -76,13 +75,11 @@ export class Processor implements appfibre.app.IProcessor
 
     locate(resource:any, path:string) {
         var parts = path.split('.');
-        var jst = false;
         var obj = resource;
         for (var part = 0; part < parts.length; part++)
-            if (obj[parts[part]] !== undefined) {
-                if (part == path.length-1) jst = obj.__jst;
+            if (obj[parts[part]] !== undefined) 
                 obj = obj[path[part]];
-            } else
+            else
                 obj = null;  
         return obj;
     }
@@ -98,15 +95,37 @@ export class Processor implements appfibre.app.IProcessor
         return name.trim();
     }
 
+    // ether an element, or array of elements depending on depth == even or odd
+    processElementInternal(element:any, depth:number, index?:number) : any {
+        if (depth % 2 === 0) 
+        {
+            if (typeof element != "string" && !Array.isArray(element)) {
+                this.app.services.logger.log.call(this, types.app.LogLevel.Error, "Child element [2] should be either a string or array", [{element: element}]);
+                return element;
+            }
+            else if (Array.isArray(element)) {
+                if (index !== undefined) {
+                    element[1] = element[1] || {};
+                    if (!element[1].key) element[1].key = index;
+                }
+            }
+            
+            //if (Array.isArray(element) && element[1] && element[1].context && typeof element[1].context.intercept === "function")
+            //    element = element[1].context.intercept(element);
+        } 
+        //console.log({element, index, depth, code: JSON.stringify(element)});
+        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]);
+    }
+
     private parse(obj:any, level:number, path:string, index?:number) : any {
-        this.app.services.logger.log.call(this, appfibre.LogLevel.Trace, 'Processor.parse', obj);
+        this.app.services.logger.log.call(this, types.app.LogLevel.Trace, 'Processor.parse', obj);
         let processor = this;
        
         return new Promise(function (r:Function, f:any) {
             if (!obj) return r(obj);
             
-            if (typeof obj === "object" && !Array.isArray(obj) && (<{default:appfibre.app.element|appfibre.app.promisedElement}>obj).default)        
-                obj = processor.init(<{default:appfibre.app.element|appfibre.app.promisedElement}>obj);
+            if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any/*types.app.element|types.app.promisedElement*/}>obj).default)        
+                obj = processor.init(<{default:any/*types.app.element|types.app.promisedElement*/}>obj);
 
             if (Array.isArray(obj)) {
                 if (typeof obj[0] === "object" && obj[0]['default'])
@@ -118,23 +137,23 @@ export class Processor implements appfibre.app.IProcessor
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") 
                     processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
                 else 
-                    Promise.all(obj.map((v,i) => {return processor.parse(v, level+1, path + '[' + i + ']', i)})).then(o => {try { r(processor.app.services.UI.processElement(o,level, index));} catch (e) {processor.app.services.logger.log(appfibre.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
+                    Promise.all(obj.map((v,i) => {return processor.parse(v, level+1, path + '[' + i + ']', i)})).then(o => {try { r(processor.processElementInternal(o,level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
                 Promise.resolve((obj)(Inject(processor.app))).then(o => processor.parse(o, level,path, index).then(r, f), f);
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") 
-                try{r(processor.createClass( BaseComponent(processor.app), obj));} catch (e) {processor.app.services.logger.log(appfibre.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
+                try{r(processor.createClass( BaseComponent(processor.app), obj));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
             else if (Promise.resolve(obj) === obj)  {
                 Promise.resolve(obj).then(o => processor.parse(o, level, path, index).then((o2:any) => r(o2), f), f);
             }
             else if (obj)
-                { try { r(processor.app.services.UI.processElement(obj, level, index));} catch (e) {processor.app.services.logger.log(appfibre.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
+                { try { r(processor.processElementInternal(obj, level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
             else r(obj);
         });
     }
 
     resolve(fullpath: string) {
-        this.app.services.logger.log.call(this, appfibre.LogLevel.Trace, 'Processor.resolve', [fullpath]);
+        this.app.services.logger.log.call(this, types.app.LogLevel.Trace, 'Processor.resolve', [fullpath]);
 
         if (this.cache[fullpath]) return this.cache[fullpath];
         if (fullpath.substring(0, 1) == "~") {
@@ -159,7 +178,7 @@ export class Processor implements appfibre.app.IProcessor
                     if (fullpath === "Exception")
                         return function transform(obj:any):any { return ["pre", {"style":{"color":"red"}}, obj[1].stack ? obj[1].stack : obj[1]]; }
                     else {
-                        this.app.services.logger.log.call(this, appfibre.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
+                        this.app.services.logger.log.call(this, types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
                         return class extends BaseComponent(this.app) { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
                     }
                 }
@@ -174,17 +193,18 @@ export class Processor implements appfibre.app.IProcessor
         return obj.default;
     }
 
-    processElement(obj:appfibre.app.element|appfibre.app.promisedElement, index?:number) : any {
+    processElement(obj:types.app.UI.ElementPromise, index?:number) : any {
         if (!obj) return obj;
-        if (typeof obj === "object" && !Array.isArray(obj) && (<{default:appfibre.app.element|appfibre.app.promisedElement}>obj).default)        
-            obj = this.init(<{default:appfibre.app.element|appfibre.app.promisedElement}>obj);
+        if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any}>obj).default)        
+            obj = this.init(<{default:any}>obj);
 
         if (Array.isArray(obj)) {
             if (typeof obj[0] === "object" && obj[0]['default'])
                 // TODO: Remove <never>
-                obj[0] = <never>this.init(obj[0]);
+                //obj[0] = /*<never>*/this.init(obj[0]);
+                debugger;
             if (typeof obj[0] === "string"){
-                obj[0] = this.resolve(obj[0]);
+                obj[0] = <never>this.resolve(obj[0]);
             }
 
             if (typeof obj[0] === "function") {
@@ -205,12 +225,9 @@ export class Processor implements appfibre.app.IProcessor
             }
         }
         if (Array.isArray(obj) && obj.some(c => Promise.resolve(c) === c)) 
-            return this.app.services.UI.processElement([this.Async(), {id: Date.now()}, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+            return this.processElementInternal([this.Async(), {id: Date.now()}, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
         else if (typeof obj === "string" || !obj) 
             return obj;
-        /*else if (typeof obj === "object" && (<{__jst:any}>obj).__jst)
-            return this.processElement([Intercept(this.app), {}, [(<{default:any}>obj).default]]);*/
-
         //else if (obj.then)  
         //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
 
@@ -218,15 +235,14 @@ export class Processor implements appfibre.app.IProcessor
            obj = [this.Async(), {index: index}, obj];
 
         if (Array.isArray(obj)) 
-            return this.app.services.UI.processElement([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map((c, idx) => { return typeof c === "string" ?  c : this.processElement(c, idx)}) : obj[2]], 0, index);
+            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map((c, idx) => { return typeof c === "string" ?  c : this.processElement(c, idx)}) : obj[2]], 0, index);
         else 
             return obj;
-    
     }
 
     process(obj:any):PromiseLike<any>
     {
-        this.app.services.logger.log.call(this, appfibre.LogLevel.Trace, 'Processor.process', obj);
+        this.app.services.logger.log.call(this, types.app.LogLevel.Trace, 'Processor.process', obj);
 
         function visit(obj:any):boolean {
             if (Array.isArray(obj)) {

@@ -15,11 +15,11 @@ import { Intercept } from "./Intercept";
 import { events } from "./types";
 var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
     if (app.services.transformer.settings.parsers)
-        app.services.transformer.settings.parsers[".app"] = function (obj, parseSettings, offset) {
+        app.services.transformer.settings.parsers[".app"] = function (transformer, context, obj, offset) {
             var obj2 = {};
             var keys = Object.keys(obj);
             keys.forEach(function (z) { return obj2[z == ".app" ? "main" : z] = obj[z]; });
-            return "[\".App\", {" + app.services.transformer._process(obj2, true, true, parseSettings, offset) + "}]";
+            return "[\".App\", {" + app.services.transformer.process(obj2, context, true, true, offset) + "}]";
         };
     app.services.processor.init = function (obj) { return typeof obj.__esModule === "string" ? [Intercept, { file: obj.__esModule }, [obj["default"]]] : obj["default"]; };
     return /** @class */ (function (_super) {

@@ -1,19 +1,36 @@
 {
   "name": "@appfibre/types",
-  "version": "0.0.3",
-  "description": "AppFibre TypeScript types",
-  "main": "./appfibre.js",
-  "module": "./appfibre.ts",
-  "types": "./appfibre.d.ts",
-  "typings": "./appfibre.ts",
+  "amdName": "appfibre",
+  "version": "0.0.1",
+  "main": "dist",
+  "module": "dist",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc -w"
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/node.git"
   },
   "keywords": [
-    "AppFibre",
-    "JST"
+    "appfibre",
+    "jst",
+    "webcomponents"
+  ],
+  "files": [
+    "lib",
+    "dist"
   ],
   "author": "Soleil De Gloria",
-  "license": "MTI"
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/appfibre/node/issues"
+  },
+  "homepage": "https://appfibre.org",
+  "devDependencies": {
+    "typescript": "^3.0.1"
+  }
 }
+
+
+
+

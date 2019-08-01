@@ -23,13 +23,10 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 exports.__esModule = true;
 //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 var components_1 = require("../components");
-var types_1 = __importDefault(require("@appfibre/types"));
+var types_1 = require("@appfibre/types");
 function parse(url) {
     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
     var params = {};
@@ -63,7 +60,7 @@ var Navigation = {
         for (var c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
                 var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
-                this.services.logger.log(types_1["default"].LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
+                this.services.logger.log(types_1.types.app.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
                 if (match) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params = {};
@@ -77,14 +74,14 @@ var Navigation = {
                 }
             }
             else
-                this.services.logger.log(types_1["default"].LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
+                this.services.logger.log(types_1.types.app.LogLevel.Trace, "Container " + (container || '(blank)') + " does not match controller " + c + "'s container " + (this.controllers[c].container || '(blank)'));
         return ["Error", {}, "Could not locate controller matching " + url];
     },
     a: function inject(app) {
         return /** @class */ (function (_super) {
             __extends(a, _super); //app.services.UI.Component 
-            function a() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            function a(props, context) {
+                return _super.call(this, props, context) || this;
             }
             a.prototype.click = function (e) {
                 app.services.navigation.current = parse(this.props.href);
@@ -101,7 +98,8 @@ var Navigation = {
                 return false;
             };
             a.prototype.render = function () {
-                return app.services.UI.processElement(["a", __assign({}, this.props, { onClick: this.click.bind(this) }), this.props.children], 0, undefined);
+                return _super.prototype.render.call(this, ["a", __assign({}, this.props, { onClick: this.click.bind(this) }), this.props.children]);
+                //return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
             };
             return a;
         }(components_1.BaseComponent(app) //app.services.UI.Component 
@@ -117,7 +115,7 @@ var Navigation = {
                     _this.onRedirect = _this.onRedirect.bind(_this);
                     return _this;
                 }
-                NavigationContainer.prototype.onRedirect = function (event) {
+                NavigationContainer.prototype.onRedirect = function ( /*event:types.app.IEventData<any>*/) {
                     var e = clone(this.props.c);
                     if (Array.isArray(e))
                         e.forEach(function (c, i) { if (Array.isArray(c))

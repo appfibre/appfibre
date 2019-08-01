@@ -8,17 +8,17 @@ var Loader = /** @class */ (function () {
             var systemjs = Object.getOwnPropertyDescriptor(window, "System");
             if (systemjs) {
                 systemjs.value.constructor.prototype.jst = function (input, name) { return _this.app.services.transformer.transform(input, name); };
-                this.proxy = { "import": systemjs.value["import"].bind(systemjs.value), resolve: function (name) { return name; }, instantiate: systemjs.value.instantiate.bind(systemjs.value), init: function (basePath) { return void {}; } };
+                this.proxy = { "import": systemjs.value["import"].bind(systemjs.value), resolve: function (name) { return name; }, instantiate: systemjs.value.instantiate.bind(systemjs.value), init: function ( /*basePath: string*/) { return void {}; } };
                 systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
                 systemjs.value.constructor.prototype["import"] = this["import"].bind(this);
             }
             else
-                this.proxy = require('../browser/loader')["default"];
+                this.proxy = require('./loaders/Browser')["Loader"];
         }
         if (this['proxy'] == null)
-            this.proxy = require('../nodeJS/loader')["default"];
+            this.proxy = require('./loaders/NodeJs')["Loader"];
     }
-    Loader.prototype["import"] = function (moduleName, normalizedParentName) {
+    Loader.prototype["import"] = function (moduleName, normalizedParentName, _references) {
         var _this = this;
         var u = moduleName.indexOf('#') > -1 ? moduleName.slice(0, moduleName.indexOf('#')) : moduleName;
         var b = u.length + 1 < moduleName.length ? moduleName.slice(u.length + 1).split('#') : [];
@@ -42,8 +42,8 @@ var Loader = /** @class */ (function () {
         }
         return this.proxy.resolve(url);
     };
-    Loader.prototype.instantiate = function (url, parent) {
-        return this.proxy.instantiate(this.resolve(url), parent);
+    Loader.prototype.instantiate = function (url, parent, references) {
+        return this.proxy.instantiate(this.resolve(url), parent, references);
     };
     Loader.prototype.init = function (basePath) {
         Object.defineProperty(this.proxy["import"], "jst", this.app.services.transformer.transform);

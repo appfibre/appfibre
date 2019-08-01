@@ -1,6 +1,6 @@
 import { Designer_Select } from "./types";
-import appfibre from "@appfibre/types";
-declare let DesktopRibbon: (app: appfibre.app.IAppLoaded<{}, {}>) => {
+import { types } from "@appfibre/types";
+declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
     new (props: any): {
         componentDidMount(): void;
         componentWillUnmount(): void;
@@ -8,26 +8,25 @@ declare let DesktopRibbon: (app: appfibre.app.IAppLoaded<{}, {}>) => {
         navigate_click(): void;
         edit_click(): void;
         render(): any;
-        onSelect(ev: appfibre.app.IEventData<Designer_Select>): void;
+        onSelect(ev: types.app.IEventData<Designer_Select>): void;
         state: Readonly<{
-            selectedContext: appfibre.app.IEventData<Designer_Select> | null;
+            selectedContext: types.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;
         }>;
         props: Readonly<any>;
         context: any;
-        base?: HTMLElement | undefined;
-        setState<K extends "source" | "url" | "selectedContext">(state: Pick<{
-            selectedContext: appfibre.app.IEventData<Designer_Select> | null;
+        setState<K extends "selectedContext" | "source" | "url">(state: Pick<{
+            selectedContext: types.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;
         }, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "source" | "url" | "selectedContext">(fn: (prevState: {
-            selectedContext: appfibre.app.IEventData<Designer_Select> | null;
+        setState<K extends "selectedContext" | "source" | "url">(fn: (prevState: {
+            selectedContext: types.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;
         }, props: any) => Pick<{
-            selectedContext: appfibre.app.IEventData<Designer_Select> | null;
+            selectedContext: types.app.IEventData<Designer_Select> | null;
             source?: string | null | undefined;
             url: string;
         }, K>, callback?: (() => void) | undefined): void;

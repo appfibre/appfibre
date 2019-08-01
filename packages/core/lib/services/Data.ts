@@ -1,4 +1,4 @@
-import appfibre from "@appfibre/types"
+import { types } from "@appfibre/types"
 import { BaseComponent } from "../components";
 
 function clone(o:any):any {
@@ -12,7 +12,7 @@ function clone(o:any):any {
     return o;
 }
 
-let SM = function inject(app:appfibre.app.IAppLoaded) {
+let SM = function inject(app:types.app.IAppLoaded) {
     return class Bind extends BaseComponent<any, {subscribers:{[path:string]:any}, data:string|object, loaded:boolean}>(app) {
         constructor(props:any, context:any) {
             super(props, context);
@@ -30,7 +30,7 @@ let SM = function inject(app:appfibre.app.IAppLoaded) {
             this.setState({ data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(this.state.data, path, value)});
         }
 
-        getValue(path:string, obj?:any) {
+        getValue(path:string) {
             return (new Function('data', 'path', 'return data' + (path[0] === '[' ? '' : '.') + path))(this.state.data, path); 
         }
 
@@ -53,15 +53,16 @@ let SM = function inject(app:appfibre.app.IAppLoaded) {
             }
         }
 
-        render(e:appfibre.app.promisedElement) {
-            return this.state.loaded ? super.render(!!e ? e : this.props.childArray) : null;
+        //render(e:types.app.promisedElement) {
+        render(props?: types.app.UI.RenderableProps<any>/*, state?: Readonly<S>, context?: any*/): types.app.UI.ComponentChild {
+            return this.state.loaded ? super.render(!!props ? props : this.props.childArray) : null;
         }
     }
 }
 
-const Data : appfibre.app.IData = {
+const Data : types.app.IData = {
 
-    bind: function transform(this:appfibre.app.IAppLoaded, a:object, c:any) {
+    bind: function transform(this:types.app.IAppLoaded, a:object, c:any) {
         return [SM, {data: a, childArray: c}];
         //return ["div", a, c];
     },

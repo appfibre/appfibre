@@ -44,7 +44,7 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             app.services.events.unsubscribe(events["Designer.Load"](), this.designer_relay);
             app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
         };
-        /*designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+        /*designer_Load(ev:types.app.IEventData<Designer_Load>) {
             if (this.iframe && this.iframe.contentWindow && ev.data)
                 app.services.events.publish(ev, this["iframe"].contentWindow);
         }*/
@@ -62,8 +62,8 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             }
         }  */
         Designer.prototype.componentDidMount = function () {
-            //document.body.style.margin = '0px';
-            //document.body.style.height = '100%';
+            document.body.style.margin = '0px';
+            document.body.style.height = '100%';
         };
         Designer.prototype.navigateTo = function (url) {
             this.setState({ url: url });

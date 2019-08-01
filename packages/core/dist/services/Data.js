@@ -44,7 +44,7 @@ var SM = function inject(app) {
                 s.value = value; });
             this.setState({ data: (new Function('data', 'path', 'value', 'data' + (path[0] === '[' ? '' : '.') + path + ' = value; return data;'))(this.state.data, path, value) });
         };
-        Bind.prototype.getValue = function (path, obj) {
+        Bind.prototype.getValue = function (path) {
             return (new Function('data', 'path', 'return data' + (path[0] === '[' ? '' : '.') + path))(this.state.data, path);
         };
         Bind.prototype.subscribe = function (a, s) {
@@ -69,8 +69,9 @@ var SM = function inject(app) {
                 });
             }
         };
-        Bind.prototype.render = function (e) {
-            return this.state.loaded ? _super.prototype.render.call(this, !!e ? e : this.props.childArray) : null;
+        //render(e:types.app.promisedElement) {
+        Bind.prototype.render = function (props /*, state?: Readonly<S>, context?: any*/) {
+            return this.state.loaded ? _super.prototype.render.call(this, !!props ? props : this.props.childArray) : null;
         };
         return Bind;
     }(components_1.BaseComponent(app)));

@@ -21,27 +21,22 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var appfibre_1 = createCommonjsModule(function (module, exports) {
+var UI_1 = createCommonjsModule(function (module, exports) {
 exports.__esModule = true;
-var appfibre;
-(function (appfibre) {
-    var app;
-    (function (app) {
-    })(app = appfibre.app || (appfibre.app = {}));
-    var webapp;
-    (function (webapp) {
-        var browserType;
-        (function (browserType) {
-            browserType[browserType["Opera"] = 0] = "Opera";
-            browserType[browserType["FireFox"] = 1] = "FireFox";
-            browserType[browserType["Safari"] = 2] = "Safari";
-            browserType[browserType["IE"] = 3] = "IE";
-            browserType[browserType["Edge"] = 4] = "Edge";
-            browserType[browserType["Chrome"] = 5] = "Chrome";
-            browserType[browserType["Blink"] = 6] = "Blink";
-            browserType[browserType["Unknown"] = 7] = "Unknown";
-        })(browserType = webapp.browserType || (webapp.browserType = {}));
-    })(webapp = appfibre.webapp || (appfibre.webapp = {}));
+var UI;
+(function (UI) {
+})(UI = exports.UI || (exports.UI = {}));
+});
+
+unwrapExports(UI_1);
+var UI_2 = UI_1.UI;
+
+var app_1 = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+
+var app;
+(function (app) {
+    app.UI = UI_1.UI;
     var LogLevel;
     (function (LogLevel) {
         LogLevel[LogLevel["None"] = 0] = "None";
@@ -50,7 +45,7 @@ var appfibre;
         LogLevel[LogLevel["Warn"] = 3] = "Warn";
         LogLevel[LogLevel["Info"] = 4] = "Info";
         LogLevel[LogLevel["Trace"] = 5] = "Trace";
-    })(LogLevel = appfibre.LogLevel || (appfibre.LogLevel = {}));
+    })(LogLevel = app.LogLevel || (app.LogLevel = {}));
     var ModuleSystem;
     (function (ModuleSystem) {
         ModuleSystem["None"] = "none";
@@ -58,13 +53,75 @@ var appfibre;
         ModuleSystem["AMD"] = "amd";
         ModuleSystem["UMD"] = "umd";
         ModuleSystem["ES"] = "es";
-    })(ModuleSystem = appfibre.ModuleSystem || (appfibre.ModuleSystem = {}));
-})(appfibre = exports.appfibre || (exports.appfibre = {}));
-exports["default"] = appfibre;
+    })(ModuleSystem = app.ModuleSystem || (app.ModuleSystem = {}));
+    var LicenseType;
+    (function (LicenseType) {
+        LicenseType[LicenseType["MIT"] = 0] = "MIT";
+        LicenseType[LicenseType["GNU"] = 1] = "GNU";
+    })(LicenseType = app.LicenseType || (app.LicenseType = {}));
+})(app = exports.app || (exports.app = {}));
 });
 
-var appfibre = unwrapExports(appfibre_1);
-var appfibre_2 = appfibre_1.appfibre;
+unwrapExports(app_1);
+var app_2 = app_1.app;
+
+var webapp_1 = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+var webapp;
+(function (webapp) {
+    var browserType;
+    (function (browserType) {
+        browserType[browserType["Opera"] = 0] = "Opera";
+        browserType[browserType["FireFox"] = 1] = "FireFox";
+        browserType[browserType["Safari"] = 2] = "Safari";
+        browserType[browserType["IE"] = 3] = "IE";
+        browserType[browserType["Edge"] = 4] = "Edge";
+        browserType[browserType["Chrome"] = 5] = "Chrome";
+        browserType[browserType["Blink"] = 6] = "Blink";
+        browserType[browserType["Unknown"] = 7] = "Unknown";
+    })(browserType = webapp.browserType || (webapp.browserType = {}));
+})(webapp = exports.webapp || (exports.webapp = {}));
+});
+
+unwrapExports(webapp_1);
+var webapp_2 = webapp_1.webapp;
+
+var registry_1 = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+var registry;
+(function (registry) {
+    var itemType;
+    (function (itemType) {
+        itemType[itemType["Service"] = 0] = "Service";
+        itemType[itemType["Component"] = 1] = "Component";
+    })(itemType = registry.itemType || (registry.itemType = {}));
+    var licenseType;
+    (function (licenseType) {
+        licenseType[licenseType["MIT"] = 0] = "MIT";
+        licenseType[licenseType["GNU"] = 1] = "GNU";
+    })(licenseType = registry.licenseType || (registry.licenseType = {}));
+})(registry = exports.registry || (exports.registry = {}));
+});
+
+unwrapExports(registry_1);
+var registry_2 = registry_1.registry;
+
+var dist = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+
+
+
+var types;
+(function (types) {
+    types.app = app_1.app;
+    types.registry = registry_1.registry;
+    types.webapp = webapp_1.webapp;
+})(types = exports.types || (exports.types = {}));
+exports["default"] = types;
+});
+
+var appfibre = unwrapExports(dist);
+var dist_1 = dist.types;
 
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -204,6 +261,7 @@ var TabContainer /*: fibre.UI.Component*/ = function inject(app) {
             return _super.call(this, props) || this;
         }
         TabContainer.prototype.render = function () {
+            var _this = this;
             var children = [];
             var placement = this.props.placement || "top";
             var v = placement === "top" || placement === "bottom" ? true : false;
@@ -211,7 +269,10 @@ var TabContainer /*: fibre.UI.Component*/ = function inject(app) {
             var index = this.props.selectedIndex || 0;
             if (placement === "top" || placement === "left") {
                 defaults.push({ size: 20, min: 20, max: 20 });
-                children.push(["div", null, "tabs"]);
+                children.push(["div",
+                    { style: this.props.style },
+                    this.props.tabs.map(function (t, i) { return ["span", { style: i === (_this.props.selectedIndex || 0) ? _this.props.selectedTabStyle : _this.props.tabStyle }, t]; })
+                ]);
             }
             defaults.push({});
             children.push((this.props.children && this.props.children.length > index) ? this.props.children[index] : ["div", {}, "empty"]);
@@ -242,7 +303,7 @@ var events = {
     "Designer.Load": function (data) { return { type: "Designer.Load", data: data }; },
     "Designer.Intercept.Select": function (data) { return { type: "Designer.Intercept.Select", data: data }; },
     "Designer.Select": function (event) { return { type: "Designer.Select", data: event ? event.data : undefined, correlationId: event ? event.correlationId : undefined }; }
-    //, "Designer.Deselect": function (correlationId?:string):appfibre.app.IEventData<undefined> {return {type: "Designer.Intercept.DeSelect", correlationId, data:undefined}}
+    //, "Designer.Deselect": function (correlationId?:string):types.app.IEventData<undefined> {return {type: "Designer.Intercept.DeSelect", correlationId, data:undefined}}
 };
 
 var __extends$2 = (undefined && undefined.__extends) || (function () {
@@ -258,6 +319,13 @@ var __extends$2 = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var menus = [["File", [["div", null, "File content"]]],
+    ["Edit", [["div", null, "Edit content"]]],
+    ["View", [["div", null, "View content"]]],
+    ["Insert", [["div", null, "Insert content"]]],
+    ["Layout", [["div", null, "Layout content"]]],
+    ["Data", [["div", null, "Data content"]]]
+];
 var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
     return /** @class */ (function (_super) {
         __extends$2(DesktopRibbon, _super);
@@ -298,6 +366,14 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                     ['div', {}, [['input', { type: 'text', 'style': { width: 'calc(100% - 45px)', background: 'transparent' }, value: this.state.url, onChange: this.url_change }],
                             ['button', { style: { float: 'right' }, onClick: this.navigate_click }, 'GO']
                         ]
+                    ],
+                    [TabContainer,
+                        { placement: "top", tabs: menus.map(function (m) { return m[0]; }),
+                            style: { width: "100%" },
+                            tabStyle: { width: "100px", textAlign: "center", display: "inline-block", borderBottom: "1px solid grey", cursor: "hand" },
+                            selectedTabStyle: { display: "inline-block", width: "100px", textAlign: "center", fontWeight: "bold", borderLeft: "1px solid grey", borderTop: "1px solid grey", borderRight: "1px solid grey", cursor: "default" }
+                        },
+                        menus.map(function (m) { return m[2]; })
                     ],
                     ['label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)'],
                     this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', { onClick: this.edit_click }, 'Edit'] : ['span', {}, '------']
@@ -381,7 +457,7 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             app.services.events.unsubscribe(events["Designer.Load"](), this.designer_relay);
             app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
         };
-        /*designer_Load(ev:appfibre.app.IEventData<Designer_Load>) {
+        /*designer_Load(ev:types.app.IEventData<Designer_Load>) {
             if (this.iframe && this.iframe.contentWindow && ev.data)
                 app.services.events.publish(ev, this["iframe"].contentWindow);
         }*/
@@ -399,8 +475,8 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
             }
         }  */
         Designer.prototype.componentDidMount = function () {
-            //document.body.style.margin = '0px';
-            //document.body.style.height = '100%';
+            document.body.style.margin = '0px';
+            document.body.style.height = '100%';
         };
         Designer.prototype.navigateTo = function (url) {
             this.setState({ url: url });
@@ -569,11 +645,11 @@ var __extends$5 = (undefined && undefined.__extends) || (function () {
 })();
 var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
     if (app.services.transformer.settings.parsers)
-        app.services.transformer.settings.parsers[".app"] = function (obj, parseSettings, offset) {
+        app.services.transformer.settings.parsers[".app"] = function (transformer, context, obj, offset) {
             var obj2 = {};
             var keys = Object.keys(obj);
             keys.forEach(function (z) { return obj2[z == ".app" ? "main" : z] = obj[z]; });
-            return "[\".App\", {" + app.services.transformer._process(obj2, true, true, parseSettings, offset) + "}]";
+            return "[\".App\", {" + app.services.transformer.process(obj2, context, true, true, offset) + "}]";
         };
     app.services.processor.init = function (obj) { return typeof obj.__esModule === "string" ? [Intercept, { file: obj.__esModule }, [obj["default"]]] : obj["default"]; };
     return /** @class */ (function (_super) {

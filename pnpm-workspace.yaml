@@ -1,0 +1,15 @@
+packages:
+  # the root package.json
+  - '.'
+  # all packages in subdirs of packages/ and components/
+  - 'packages/types'
+  - 'packages/core'
+  - 'packages/webapp'
+  - 'packages/webcomponents'
+  - 'packages/services-ui-preact'
+  - 'packages/services-ui-react'
+  - 'packages/webpack-plugin-jst'
+  - 'packages/bundles'
+  #- 'components/**'
+  # exclude packages that are inside test/ directories
+  #- '!**/test/**'

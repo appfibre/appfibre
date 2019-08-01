@@ -3,11 +3,14 @@ require('systemjs/dist/s.js');
 require('systemjs/dist/extras/named-exports.js');
 require('systemjs/dist/extras/named-register.js');
 require('systemjs/dist/extras/amd.js');
-const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
+//const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
+//const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
 if (!this.Promise) this.Promise = require('pinkie');
+const _jst = new (require("@appfibre/webapp").Services.Transformer)({ module: 'amd'});
+const WebApp = require("@appfibre/webapp").WebApp;
 
 const systemJSPrototype = System.constructor.prototype;
-const _jst = new externals["@appfibre/core"].Transformer({ module: 'amd'});
+//const _jst = new externals["@appfibre/core"].Transformer({ module: 'amd'});
 
 systemJSPrototype.jst = function(input, name) {
 	return _jst.transform(input, name);
@@ -43,11 +46,11 @@ systemJSPrototype.instantiate = function (url, parent) {
 			try {
 				switch (response.contentType) {
 					case "application/javascript":
-							return response.text;
+							return {code: response.text};
 					case "application/json":
-							return systemJSPrototype.jst(response.text, url).code;
+							return systemJSPrototype.jst(response.text, url);
 					default:
-						 return "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})";
+						 return {code: "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})"};
 				}
 			} catch (ex) {
 				console.error('Error transforming ' + url + ': ' + ex.description || ex.message, ex.stack || '', [response.text]);
@@ -56,8 +59,12 @@ systemJSPrototype.instantiate = function (url, parent) {
 		}, (reason) => {throw new Error('Fetch error: ' + reason + (parent ? ' loading from  ' + parent : ''));})
 		.then((source) => {   
     try{
-	  (0, eval)(source + '\n//# sourceURL=' + url);
-	  return loader.getRegister();  
+		let keys = source.references ? Object.keys(source.references) : [];
+		let values = source.references ? Object.values(source.references) : [];
+		keys.push(`${source.code};\n//# sourceURL=' + ${url}`);
+		Function.apply({}, keys).apply({}, values); 
+		//Function('WebApp', `${source.code};\n//# sourceURL=' + ${url}`)(WebApp); 
+	  	return loader.getRegister();  
     } catch (ex) {
       console.error('Error evaluating ' + url + ': ' + ex.description || ex.message, ex.stack || '', [source]);
       throw ex;

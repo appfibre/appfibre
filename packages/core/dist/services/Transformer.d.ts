@@ -1,14 +1,15 @@
-import appfibre from "@appfibre/types";
-export declare class Transformer implements appfibre.app.ITransformer {
+import types from "@appfibre/types";
+export declare class Transformer implements types.app.ITransformer {
     type: "Transformer";
-    settings: appfibre.app.ITransformSettings;
-    constructor(settings?: appfibre.app.ITransformSettings);
-    private loadModule;
+    settings: types.app.ITransformSettings;
+    constructor(settings?: types.app.ITransformSettings);
+    loadModule(context: types.app.ITransformContext, val: string, offset: number): string;
     reservedWords: string[];
     private format;
-    _process(obj: any, esc: boolean, et: boolean, parseSettings: appfibre.app.ITransformOutput, offset: number): string;
+    process(obj: any, context: types.app.ITransformContext, esc: boolean, et: boolean, offset: number): string;
+    private skey;
     private processExports;
     private processImports;
-    private bundleModule;
-    transform(input: string | object, name?: string): appfibre.app.ITransformOutput;
+    transformTemplate(template: types.jst.template, name?: string): types.app.ITransformOutput;
+    transform(input: string, name?: string): types.app.ITransformOutput;
 }
