@@ -1,0 +1,435 @@
+export module types {
+
+    export namespace jst {
+      
+    }
+
+    export namespace app {
+
+      export namespace UI {
+        //export type Element<T> = [ T, { [key:string]:any }?,  (T|{ [index:number]: Element<T>}|{ [index:string]: Element<T>})?]
+        export type Element<T=string, A extends { [key:string]:any } = {}, C=undefined> = C | [ T, A, (C|{ [index:number]: Element<T,A,C>})? ]
+  
+        /*export type elementBase = [ string|Function, { [key:string]:any }?, (string|Function|{ [index:number]: elementBase}|{ [index:string]: elementBase})? ]
+            export type element = elementBase|string|Function|{ [index:number]: element|Promise<element> };
+            export type promisedElement = Promise<element>;          
+  */
+      }
+  
+/*      export interface Constructable<T, U=any> {
+            new (arg:U) : T;
+        }
+        
+        export interface ILogger {
+          log: (logLevel:LogLevel, title?:string, optionalParameters?:any[])=>string|void;
+        }
+
+        export interface IApp<O,I> {
+            main: object|Array<object>
+            settings?:ISettings&O
+            info?:IInfo&I
+            services?:IServices<IAppLoaded<O, I>>
+            controllers?:{[index:number]:IController|Constructable<IController, IApp<O, I>>}
+            components?:{[name:string]:any}|Function
+          }
+          
+          export interface IAppLoaded<O={},I={}> extends IApp<O, I> {
+            services:IServicesLoaded<IAppLoaded<O, I>>
+            controllers:{[name:string]: IController}
+            settings:ISettings&O
+            info: IInfo&I
+            //run():PromiseLike<any>
+          }
+          
+          export interface IEventType {
+              type:string
+              correlationId?:string
+          }
+            
+          export interface IEventData<T> extends IEventType {
+              data:T
+          }
+            
+          export interface IInfo {
+          }
+            
+          export interface IController {
+              path:string
+              match:{test:(url:string)=>boolean}
+              resolve(args:{
+                [key:string]:string;
+                [index:number]:string
+              }):any
+              container?:string
+          }
+            
+            
+          export interface IServices<T> {
+              moduleSystem?:IModuleSystem|Constructable<IModuleSystem, T>
+              transformer?:ITransformer|Constructable<ITransformer, T>
+              logger?:ILogger|Constructable<ILogger, T>
+              UI?:IUI|Constructable<IUI, T>
+              navigation?:INavigation|Constructable<INavigation, T>
+              data?:IData|Constructable<IData, T>
+              events?:IEvents|Constructable<IEvents, T>
+              externals?:{[index:string]:object}
+          }
+          
+          export interface IServicesLoaded<T> extends IServices<T> {
+              moduleSystem:IModuleSystem
+              transformer:ITransformer
+              logger:ILogger
+              UI:IUI
+              navigation:INavigation
+              processor:IProcessor
+              events:IEvents
+              externals:{[index:string]:object}
+          }
+          
+          export interface IEvents {
+            subscribe<T>(eventType:IEventType, callback:(data:IEventData<T>)=>any):void
+            unsubscribe<T>(eventType:IEventType, callback:(data:IEventData<T>)=>any):void
+            publish<T>(data:IEventData<T>&{data?:T}, target?:{postMessage: (message:any, targetOrigin:string)=>void}):any[]
+          }
+          
+          export interface IUI {
+              render(node: any, parent?: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element|Text;
+              //render(ui:any, parent?:any, mergeWith?:any):any
+              //processElement(tag:any, attributes?:object|undefined, children?:any|undefined) : any
+              processElement(element:any, depth:number, index?:number) : any
+              Component: typeof Component
+              init?() : PromiseLike<void>|void
+              //render:any
+          }
+          
+          export interface INavigation {
+              current: {
+                path: string
+              }
+              resolve(container?:string):any
+              a:Function
+              Container:Function
+          }
+          
+          export interface IData {
+            bind:Function
+            format:Function
+          }
+          
+          export interface ISettings {
+            title?:string
+            logLevel?:LogLevel
+            baseExecutionPath?:string
+            cdn?:{[index:string]:string}
+          }
+          
+          export interface IProcessor {
+            resolve(fullpath:string) : any
+            locate(resource:any, path:string) : any
+            //processElement(ar : Array<any>, supportAsync?: boolean, light?:boolean):any
+            //parse(obj:any, key?:number|undefined, supportAsync?:boolean):any
+          
+            process(obj:any):PromiseLike<any>
+            processElement(obj:element|promisedElement, index?:number):any
+            init(obj:{default:element|promisedElement}):element|promisedElement
+          }
+                
+          export interface IModuleSystem {
+            import(moduleName: string, normalizedParentName?: string): PromiseLike<any>
+            instantiate(url:string, parent?:any):Promise<any>
+            init(basePath?:string):void
+            resolve(name:string):string
+          }
+          
+          export interface ITransformSettings {
+            async?: boolean
+            indent?: string
+            compact?: boolean
+            namedExports?: boolean
+            preferConst?: boolean
+            module: ModuleSystem | ModuleSystem.None
+            parsers?:{[key:string]:IParser}
+            dangerouslyProcessJavaScript?: boolean
+            runtimeModule?: ModuleSystem
+            }
+          
+          
+          export interface ITransformer {
+            transform (intput:string|object, name?:string):ITransformOutput
+            _process(obj:any, esc:boolean, et:boolean, parseSettings:ITransformOutput, offset:number) : string
+            settings:ITransformSettings
+          }
+          
+          export interface ITransformOutput {
+            code: string
+            imports:any[string]
+            exports:{[key:string]:string}
+            compositeObject:boolean
+            name?:string
+          }
+          
+          export type IParser = (obj:any, output:ITransformOutput, offset:number, resolve?:Function, reject?:Function) => string|undefined;
+          
+          
+          export type elementBase = [ string|Function, { [key:string]:any }?, (string|Function|{ [index:number]: elementBase}|{ [index:string]: elementBase})? ]
+          export type element = elementBase|string|Function|{ [index:number]: element|Promise<element> };
+          export type promisedElement = Promise<element>;          
+
+          export declare abstract class Component<P, S> {
+            constructor(props?: P, context?: any);
+          
+              static displayName?: string;
+              static defaultProps?: any;
+          
+              state: Readonly<S>;
+              props: Readonly<P>;
+              context: any;
+              base?: HTMLElement;
+          
+              setState<K extends keyof S>(state: Pick<S, K>, callback?: () => void): void;
+              setState<K extends keyof S>(fn: (prevState: S, props: P) => Pick<S, K>, callback?: () => void): void;
+          
+              forceUpdate(callback?: () => void): void;
+          
+              render(props?: Readonly<P|element|promisedElement>, state?: Readonly<S>, context?: any): any;
+          
+          } */
+    }
+
+    export namespace webapp {
+        export enum browserType {
+            "Opera", 
+            "FireFox",
+            "Safari",
+            "IE", 
+            "Edge",
+            "Chrome",
+            "Blink",
+            "Unknown"
+          }
+
+          export namespace UI {
+
+            export type element     = app.UI.Element<string|Function, {}, string>|Promise<app.UI.Element<string|Function, {}, string>>;
+
+            export interface HTMLTagMap {
+              "a": ["a", Partial<HTMLAnchorElement>, (string|Array<element>)?]
+              "abbr": ["abbr", Partial<HTMLElement>, (string|Array<element>)?]
+              "address": ["address", Partial<HTMLElement>, (string|Array<element>)?]
+              "applet": ["applet", Partial<HTMLAppletElement>]
+              "area": ["area", Partial<HTMLAreaElement>, (string|Array<element>)?]
+              "article": ["article", Partial<HTMLElement>, (string|Array<element>)?]
+              "aside": ["aside", Partial<HTMLElement>, (string|Array<element>)?]
+              "audio": ["audio", Partial<HTMLAudioElement>]
+              "b": ["b", Partial<HTMLElement>, (string|Array<element>)?]
+              "base": ["base", Partial<HTMLBaseElement>]
+              //deprecated "basefont": HTMLBaseFontElement;
+              "bdi": ["bdi", Partial<HTMLElement>, (string|Array<element>)?]
+              "bdo": ["bdo", Partial<HTMLElement>, (string|Array<element>)?]
+              "blockquote": ["blockquote", Partial<HTMLQuoteElement>, (string|Array<element>)?]
+              "body": ["body", Partial<HTMLBodyElement>, (string|Array<element/*HTMLTagMap["a"|"address"|"applet"|"area"|"article"|"aside"|"audio"|"b"|"bdi"|"bdo"|"blockquote"|"br"|
+                                                                                 "button"|"cite"|"code"|"data"|"dl"|"div"|"del"|"details"|"dfn"|"em"|"dialog"|"embed"|"fieldset"|
+                                                                                 "figure"|"font"|"footer"|   "input"|"ins"|"script"|"table"|"template"]*/>)?];
+              "br": ["br", Partial<HTMLBRElement>]
+              "button": ["button", Partial<HTMLButtonElement>, (string|Array<Element>)?]
+              //how to implement? "canvas": HTMLCanvasElement;
+              "caption": ["caption", Partial<HTMLTableElement>, (string|Array<Element>)?]
+              "cite": ["cite", Partial<HTMLElement>, (string|Array<Element>)?]
+              "code": ["code", Partial<HTMLElement>, (string|Array<Element>)?]
+              "col": ["col", Partial<HTMLTableColElement>]
+              "colgroup": ["colgroup", Partial<HTMLTableColElement>, Array<HTMLTagMap["col"]>?]
+              "data": ["data", Partial<HTMLDataElement>, (string|Array<Element>)?]
+              "datalist": ["datalist", Partial<HTMLDataListElement>, (string|Array<HTMLTagMap["option"]>)?]
+              "dd": ["dd", Partial<HTMLElement>, (string|Array<element>)?]
+              "del": ["del", Partial<HTMLModElement>, (string|Array<element>)?]
+              "details": ["details", Partial<HTMLDetailsElement>, (string|Array<element>)?]
+              "dfn": ["dfn", Partial<HTMLElement>, (string|Array<phrasing>)?] 
+              "dialog": ["dialog", Partial<HTMLDialogElement>, (string|Array<element>)?];
+              //deprecated "dir": HTMLDirectoryElement;
+              "div": ["div", Partial<HTMLDivElement>, (string|Array<element>)?]
+              "dl": ["dl", Partial<HTMLDListElement>, (string|Array<HTMLTagMap["dt"|"dd"|"script"|"template"|"div"]>)?]
+              "dt": ["dt", Partial<HTMLElement>, (string|Array<element>)?]
+              "em": ["em", Partial<HTMLElement>, (string|Array<element>)?]
+              "embed": ["embed", Partial<HTMLEmbedElement>]
+              "fieldset": ["fieldset", Partial<HTMLFieldSetElement>, (string|Array<element>)?]
+              "figcaption": ["figcaption", Partial<HTMLElement>, (string|Array<element>)?] // parent must be figure
+              "figure": ["figure", Partial<HTMLElement>, (string|Array<element>)?] 
+              "font": ["font", Partial<HTMLFontElement>, (string|Array<element>)?]
+              "footer": ["footer", Partial<HTMLElement>, (string|Array<element>)?]
+              "form": ["form", Partial<HTMLFormElement>, (string|Array<element>)?]
+              //deprecated "frame": ["frame", Partial<HTMLFrameElement>, (string|Array<element>)?]
+              //deprecated "frameset": HTMLFrameSetElement;
+              "h1": ["h1", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "h2": ["h2", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "h3": ["h3", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "h4": ["h4", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "h5": ["h5", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "h6": ["h6", Partial<HTMLHeadingElement>, (string|Array<element>)?];
+              "head": ["head", Partial<HTMLHeadElement>, Array<HTMLTagMap["script"|"base"|"table"|"title"]>?];
+              "header": ["header", Partial<HTMLElement>, (string|Array<element>)?]
+              "hgroup": ["hgroup", Partial<HTMLElement>, (string|Array<HTMLTagMap["h1"|"h2"|"h3"|"h4"|"h5"|"h6"]>)?]
+              "hr": ["hr", Partial<HTMLHRElement>]
+              "html": ["html", Partial<HTMLHtmlElement>, (string|Array<HTMLTagMap["head"]>)?]
+              "i": ["i", Partial<HTMLElement>]
+              "iframe": ["iframe", Partial<HTMLIFrameElement>, (string|Array<element>)?]
+              "img": ["img", Partial<HTMLImageElement>, (string|Array<element>)?]
+              "input": ["input", Partial<HTMLInputElement>, (string|Array<HTMLTagMap["datalist"]>)?]
+              "ins": ["ins", Partial<HTMLModElement>, (string|Array<element>)?]
+              "kbd": ["kbd", Partial<HTMLElement>, (string|Array<element>)?] //phrasing
+              "label": ["abbr", Partial<HTMLLabelElement>, (string|Array<element>)?]
+              //"legend": HTMLLegendElement;
+              "li": ["abbr", Partial<HTMLElement>, (string|Array<element>)?]
+              //"link": HTMLLinkElement;
+              "main": ["main", Partial<HTMLElement>, (string|Array<element>)?]
+              //"map": HTMLMapElement;
+              //"mark": HTMLElement;
+              //"marquee": HTMLMarqueeElement;
+              //math (MathML)
+              //"menu": HTMLMenuElement;
+              //"meta": HTMLMetaElement;
+              //"meter": HTMLMeterElement;
+              //"nav": HTMLElement;
+              //"noscript": HTMLElement;
+              //"object": HTMLObjectElement;
+              //"ol": HTMLOListElement;
+              //"optgroup": HTMLOptGroupElement;
+              "option": ["option", Partial<HTMLOptionElement>];
+              //"output": HTMLOutputElement;
+              //"p": HTMLParagraphElement;
+              //"param": HTMLParamElement;
+              //"picture": HTMLPictureElement;
+              //"pre": HTMLPreElement;
+              //"progress": HTMLProgressElement;
+              //"q": HTMLQuoteElement;
+              //"rp": HTMLElement;
+              //"rt": HTMLElement;
+              //"ruby": HTMLElement;
+              //"s": HTMLElement;
+              //"samp": HTMLElement;
+              "script": ["script", Partial<HTMLScriptElement>];
+              //"section": HTMLElement;
+              //"select": HTMLSelectElement;
+              //"slot": HTMLSlotElement;
+              //"small": HTMLElement;
+              //"source": HTMLSourceElement;
+              //"span": HTMLSpanElement;
+              //"strong": HTMLElement;
+              //"style": HTMLStyleElement;
+              //"sub": HTMLElement;
+              "summary": ["summary", Partial<HTMLElement>, (string|Array<element>)?] // parent must be ["details"]
+              //"sup": HTMLElement;
+              "table": ["table", Partial<HTMLTableElement>, Array<HTMLTagMap["caption"|"colgroup"|"thead"|"tbody"|"tr"|"tfoot"]>?] // need to consider order:https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table
+              "tbody": ["tbody", Partial<HTMLTableSectionElement>, Array<HTMLTagMap["th"]>?]
+              "td": ["td", Partial<HTMLTableDataCellElement>, (string|Array<element>)?]
+              "template": ["abbr", Partial<HTMLTemplateElement>, (string|Array<element>)?];
+              //"textarea": HTMLTextAreaElement;
+              "tfoot": ["tfoot", Partial<HTMLTableSectionElement>, Array<HTMLTagMap["th"]>?]
+              "th": ["th", Partial<HTMLTableHeaderCellElement>, Array<HTMLTagMap["tr"]>?]
+              "thead": ["thead", Partial<HTMLTableSectionElement>, Array<HTMLTagMap["th"]>?]
+              //"time": HTMLTimeElement;
+              "title": ["title", Partial<HTMLTitleElement>, (string|Array<element>)?]
+              "tr": ["tr", Partial<HTMLTableRowElement>, Array<HTMLTagMap["td"]>?]
+              //"track": HTMLTrackElement;
+              //"u": HTMLElement;
+              //"ul": HTMLUListElement;
+              //"var": HTMLElement;
+              //"video": HTMLVideoElement;
+              //"wbr": HTMLElement;
+          }
+          
+
+            //export type htmlElement<K extends keyof HTMLElementTagNameMap> = [ K, Partial<HTMLElementTagNameMap[K]>, Array<any> ] 
+            export type html<K extends keyof HTMLTagMap> = HTMLTagMap[K];
+            export type head = HTMLTagMap["head"];
+            export type body = HTMLTagMap["body"];
+            export type table = HTMLTagMap["table"];
+            export type phrasing = HTMLTagMap["abbr"|"audio"|"b"|"bdo"|"br"|"button"/*|"canvas"*/|"cite"|"code"|"data"|"datalist"|"em"|"embed"]
+/*
+Elements belonging to this category are <abbr>, <audio>, <b>, <bdo>, <br>, <button>, <canvas>, <cite>, <code>, <command>
+, <data>, <datalist>, <dfn>, <em>, <embed>, <i>, <iframe>, <img>, <input>, <kbd>, <keygen>, <label>, <mark>, <math>, <meter>, <noscript>, <object>, <output>, <picture>, <progress>, <q>, <ruby>, <samp>, <script>, <select>, <small>, <span>, <strong>, <sub>, <sup>, <svg>, <textarea>, <time>, <var>, <video>, <wbr> 
+and plain text (not only consisting of white spaces characters).
+*/
+
+
+            //createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, options?: ElementCreationOptions): HTMLElementTagNameMap[K];
+/*
+            export type htmlHeadElement    = base
+            export type htmlBodyElement    = a|abbr|area|address|area|aside|article|audio|
+                                              b|bdo|blockquote|
+                                              comment|
+                                              div|
+                                              table;
+
+            export type a           = Element & [ "a", Partial<HTMLAnchorElement>, (string|Array<Element>)? ]
+            export type abbr        = Element & [ "abbr", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type address     = Element & [ "address", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type area        = Element & [ "area", Partial<HTMLAreaElement>, (string|Array<Element>)? ]
+            export type article     = Element & [ "article", Partial<HTMLAreaElement>, (string|Array<Element>)? ]
+            export type aside       = Element & [ "aside", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type audio       = Element & [ "audio", Partial<HTMLAudioElement>, (string|Array<Element>)? ]
+            
+            export type b           = Element & [ "b", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type base        = Element & [ "base", Partial<HTMLBaseElement>, (string|Array<Element>)? ]
+            export type bdo         = Element & [ "bdo", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type blockquote  = Element & [ "blockquote", Partial<HTMLElement>, (string|Array<Element>)? ]
+            export type body        =           [ "body", Partial<{HTMLBodyElement}>, (string|Array<Element>)? ]
+            
+            
+            export type div         = Element & [ "div", Partial<{}>, (string|Array<Element>)? ]
+            export type table       = Element & [ "table", Partial<{}>, Array<thead|tfoot|tbody|tr>? ]
+            export type thead       =           [ "thead", Partial<{}>, Array<tr>? ]
+            export type tfoot       =           [ "tfoot", Partial<{}>, Array<tr>? ]
+            export type tbody       =           [ "tboty", Partial<{}>, Array<tr>? ]
+            export type tr          =           [ "tr", Partial<{}>, Array<td>? ]
+            export type td          =           [ "td", Partial<{}>, (string|Array<Element>)? ]
+            export type comment     = Element & [ "!", Partial<{}>, (string|Array<Element>)? ]*/
+
+            //export type div<A={}> = [ "div", A, (string|(()=>string|{ [index:number]: node})|{ [index:number]: node})? ]
+            //export type table<A={}> = [ "table", A, (string|Function|{ [index:number]: node})? ]
+            //export type node = div|table;
+            
+          }
+        
+        /*export interface IInfo extends app.IInfo {
+            browser: browserType
+          }
+        
+          export interface ISettings extends app.ISettings {
+            target?: string|HTMLElement|null
+            fullHeight?: boolean  
+        }
+        
+        export interface IWebApp extends app.IApp<ISettings, IInfo> { }
+        export interface IWebAppLoaded extends app.IAppLoaded<ISettings, IInfo> { }
+     
+        export namespace HTML {
+            export type element = div|table;
+        
+            export type div = ["div", Partial<HTMLDivElement>?, (string|{ [index:number]: HTML.element})?];
+            export type table = ["table", Partial<HTMLTableElement>?, Array<HTML.tr>?];
+            export type tr = ["tr", Partial<HTMLTableRowElement>?, Array<HTML.td>?]
+            export type td = ["td", Partial<HTMLTableCellElement>?, (string|{ [index:number]: HTML.element})?]
+        }*/
+        
+    }
+
+
+  export enum LogLevel {
+    "None"=0,
+    "Exception"=1,
+    "Error"=2,
+    "Warn"=3,
+    "Info"=4,
+    "Trace"=5
+  }
+  
+  export enum ModuleSystem {
+      None = "none",  
+      CommonJS = "commonjs",
+      AMD = "amd",
+      UMD = "umd",
+      ES = "es"
+  }
+
+}
+export default types;

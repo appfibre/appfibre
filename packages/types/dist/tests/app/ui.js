@@ -1,0 +1,16 @@
+"use strict";
+exports.__esModule = true;
+var a1 = "test";
+var a2 = ["test", {}];
+var a3 = ["test", {}, "test"];
+var a4 = ["test", {}, []];
+var a5 = ["test", {}, [["test", {}]]];
+var a6 = ["test", {}, [["test", {}, "test"]]];
+console.log('avoiding TS6133', [a1, a2, a3, a4, a5, a6]);
+var b1 = function () { };
+var b2 = [function () { }, {}];
+var b3 = [function () { }, {}, function () { }];
+var b4 = [function () { }, {}, []];
+var b5 = [function () { }, {}, [[function () { }, {}]]];
+var b6 = [function () { }, {}, [[function () { }, {}, function () { }]]];
+console.log('avoiding TS6133', [b1, b2, b3, b4, b5, b6]);

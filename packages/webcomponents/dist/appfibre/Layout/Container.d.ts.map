@@ -1,0 +1,1 @@
+{"version":3,"file":"Container.d.ts","sourceRoot":"","sources":["../../../lib/appfibre/Layout/Container.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,MAAM,iBAAiB,CAAC;AAGvC,UAAU,KAAK;CACd;AAED,UAAU,UAAU;IAChB,QAAQ,EAAE,OAAO,EAAE,CAAC;IACpB,SAAS,EAAE,MAAM,CAAA;IACjB,KAAK,CAAC,EAAE,MAAM,CAAA;CACjB;AAED,QAAA,IAAI,SAAS;;;;;;;;;;;;CAiBZ,CAAC;AAGF,OAAO,EAAC,SAAS,EAAC,CAAC"}

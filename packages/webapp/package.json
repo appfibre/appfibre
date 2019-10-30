@@ -1,0 +1,42 @@
+{
+  "name": "@appfibre/webapp",
+  "amdName": "webapp",
+  "version": "0.0.1",
+  "main": "dist",
+  "source": "dist",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register test/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/node.git"
+  },
+  "keywords": [
+    "appfibre",
+    "jst",
+    "webcomponents"
+  ],
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Soleil De Gloria",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/appfibre/node/issues"
+  },
+  "homepage": "https://appfibre.org",
+  "dependencies": {
+    "@appfibre/core": "0.0.1"
+  },
+  "devDependencies": {
+    "@appfibre/types": "^0.0.1",
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^10.5.2",
+    "chai": "^4.1.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.0.1"
+  }
+}

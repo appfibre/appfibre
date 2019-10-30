@@ -1,0 +1,50 @@
+body {
+    
+}
+
+.Designer-module_desktopRibbon__2Hwr7 {
+    display: table-row;
+    background-image: linear-gradient(#BBB, #AAA);
+}
+
+.Designer-module_desktopRibbon__2Hwr7 .:SplitContainer {
+    background: red;
+}
+
+.Designer-module_desktopRibbon__2Hwr7 .Designer-module__TabContainer__DEzcc .Designer-module__TabStyle__23elJ
+{
+    background: green;
+}
+
+.Designer-module_desktopRibbon__2Hwr7 .Designer-module__TabContainer__DEzcc .Designer-module__SelectedTabStyle__hJ_bN
+{
+    background: orange;
+}
+
+.Designer-module_ribbonNavigator__295U5 { 
+    display: block;
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid #AAA;
+    background: "#DDD";
+    overflow: "hidden" 
+}
+
+.Designer-module_ribbonNavigator__295U5 > div {
+    display:table;
+    border-collapse:collapse;
+    width:100%
+}
+
+.Designer-module_ribbonNavigator__295U5 > div > div {
+    display:table-cell;
+}
+
+.Designer-module_commandButton__SC9dS {
+    
+}
+
+.Designer-module_commandButton__SC9dS:hover {
+    
+}
+
+
