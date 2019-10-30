@@ -1,28 +1,21 @@
 import { types } from "@appfibre/types";
-export interface attr {
+declare type tab = string | {
+    title?: string;
+    className?: string;
+};
+export interface props {
     placement?: "top" | "bottom" | "left" | "right";
-    tabs: Array<string>;
+    className?: string;
+    className_Tab?: string;
+    tabs?: Array<tab>;
     selectedIndex?: number;
     style?: object;
     tabStyle?: object;
+    tabStripStyle?: object;
     selectedTabStyle?: object;
+    containerStyle?: object;
+    onSelectedIndexChanged?: (index: number) => void;
 }
-declare let TabContainer: (app: types.app.IAppLoaded<{}, {}>) => {
-    new (props: attr): {
-        render(): any;
-        state: never;
-        props: Readonly<attr & {
-            children?: types.app.UI.ElementPromise[] | undefined;
-        }>;
-        context: any;
-        setState<K extends string | number | symbol>(state: Pick<never, K>, callback?: (() => void) | undefined): void;
-        setState<K extends string | number | symbol>(fn: (prevState: never, props: attr & {
-            children?: types.app.UI.ElementPromise[] | undefined;
-        }) => Pick<never, K>, callback?: (() => void) | undefined): void;
-        forceUpdate(callback?: (() => void) | undefined): void;
-    };
-    displayName?: string | undefined;
-    defaultProps?: any;
-};
+declare let TabContainer: (this: types.app.IAppLoaded<{}, {}>, a: props, c: any[]) => ["div", props, any[]];
 export { TabContainer };
 //# sourceMappingURL=TabContainer.d.ts.map

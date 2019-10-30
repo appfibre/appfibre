@@ -12,46 +12,65 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import { events } from "./types";
+import { classes } from "./Styles";
 var Intercept = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Intercept, _super);
         function Intercept(props) {
             var _this = _super.call(this, props) || this;
-            _this.state = { focus: false, selected: false, editMode: null, canEdit: true };
+            _this.state = { focus: false, selected: false, editing: false, editMode: null, canEdit: true };
             //this.onMessage = this.onMessage.bind(this);
             _this.click = _this.click.bind(_this);
+            _this.doubleclick = _this.doubleclick.bind(_this);
             _this.mouseEnter = _this.mouseEnter.bind(_this);
             _this.mouseLeave = _this.mouseLeave.bind(_this);
             _this.designer_select = _this.designer_select.bind(_this);
+            _this.edit_event = _this.edit_event.bind(_this);
             return _this;
         }
         Intercept.prototype.componentDidMount = function () {
             //window.addEventListener("message", this.onMessage);
             app.services.events.subscribe(events["Designer.Select"](), this.designer_select);
+            app.services.events.subscribe(events["Edit.Event"](), this.edit_event);
+            var topParent = window.parent;
+            while (topParent.parent != null && topParent.parent !== topParent)
+                topParent = topParent.parent;
+            app.services.events.publish(events["Intercept.Mounted"]({ file: this.props.file }), topParent);
         };
         Intercept.prototype.componentWillUnmount = function () {
             //window.removeEventListener("message", this.onMessage);
             app.services.events.unsubscribe(events["Designer.Select"](), this.designer_select);
+            app.services.events.unsubscribe(events["Edit.Event"](), this.edit_event);
+        };
+        Intercept.prototype.edit_event = function (ev) {
+            var editing = this.props.file ? ev.data.activeFiles.indexOf(this.props.file) > -1 : false;
+            if (this.state.editing != editing)
+                this.setState({ editing: editing });
         };
         Intercept.prototype.designer_select = function (ev) {
-            this.setState({ selected: this.state.selectedCorrelationId == ev.correlationId });
+            if (this.state.selected != (this.props.file == ev.correlationId))
+                this.setState({ selected: !this.state.selected });
         };
         Intercept.prototype.reconstruct = function (obj) {
             if (!obj[1])
                 obj[1] = {};
+            obj[1].className = (obj[1].className ? obj[1].className + ' ' : '') + classes.Intercept + (this.state.focus && !this.state.selected && !this.state.editing ? ' ' + classes.Intercept_Focus : '') + (this.state.selected ? ' ' + classes.Intercept_Selected : '') + (this.state.editing ? ' ' + classes.Intercept_Editing : '');
             if (!obj[1].style)
                 obj[1].style = {};
             if (!obj[1].style.border && !obj[1].style.padding && !obj[1].onMouseEnter && !obj[1].onMouseLeave) {
-                obj[1].style.padding = this.state.focus || this.state.selected ? "1px" : "2px";
-                if (this.state.editMode)
-                    obj[1].style.background = "lightblue";
-                if (this.state.selected)
-                    obj[1].style.border = "1px solid black";
-                else if (this.state.focus)
-                    obj[1].style.border = "1px dashed grey";
+                //obj[1].style.padding = this.state.focus || this.state.selected ? "1px" : "2px";
+                //if (this.state.editing) obj[1].style.background = "#98CCFD";
+                //if (this.state.selected || this.state.editing || this.state.focus)
+                //    obj[1].style.border = `1px ${this.state.selected&&this.state.editing?"solid":"dashed"} ${this.state.editing ? "blue" : "grey"}`;
+                //else
+                //    obj[1].style.padding = '1px';
+                /*if (this.state.selected) obj[1].style.border = "1px solid " + (this.state.editing ? "blue" : "grey");
+                else if (this.state.focus) obj[1].style.border = "1px dashed grey";
+                )*/
                 obj[1].onMouseEnter = this.mouseEnter;
                 obj[1].onMouseLeave = this.mouseLeave;
                 obj[1].onClick = this.click;
+                obj[1].onDoubleClick = this.doubleclick;
             }
             return obj;
         };
@@ -67,18 +86,22 @@ var Intercept = function inject(app) {
             //x.Designer.notify("y");
             this.setState({ "focus": false });
         };
+        Intercept.prototype.doubleclick = function (ev) {
+            app.services.events.publish({ type: "Designer.Ribbon.ToggleEdit", correlationId: Date.now().toString(), data: {} }, parent);
+        };
         Intercept.prototype.click = function (ev) {
-            var _this = this;
             ev.stopPropagation();
+            //ev.stopImmediatePropagation();
             //Designer.notify(this.props.file);
             var parent = window;
             while (parent.parent !== parent && window.parent != null)
                 parent = parent.parent;
-            var correlationId = Date.now().toString();
             //parent.postMessage({eventType: "select", editMode: this.state.editMode, canEdit: this.state.canEdit, correlationId, control: {file:this.props.file, method:this.props.method}}, location.href);
             if (this.props.file) {
-                var file_1 = this.props.file;
-                this.setState({ selectedCorrelationId: correlationId }, function () { return app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: correlationId, data: { editMode: _this.state.editMode, canEdit: _this.state.canEdit, control: { url: file_1 } } }, parent); });
+                app.services.events.publish({ type: "Designer.Intercept.Select", correlationId: this.props.file, data: { editMode: this.state.editMode, canEdit: this.state.canEdit, control: { url: this.props.file } } }, parent);
+                //let file = this.props.file;
+                //this.setState( {selectedCorrelationId: file}
+                //             , () => app.services.events.publish<Designer_Select>({type: "Designer.Intercept.Select", correlationId: file, data: {editMode: this.state.editMode, canEdit: this.state.canEdit, control: {url:file}}}, parent));
             }
         };
         return Intercept;

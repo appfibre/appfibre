@@ -1,3 +1,4 @@
 import * as appfibre from "./appfibre";
-export { appfibre };
+import CodeMirror from "./codemirror";
+export { appfibre, CodeMirror };
 //# sourceMappingURL=index.d.ts.map

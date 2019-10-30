@@ -3,7 +3,10 @@ declare let BaseComponent: <P, S>(app: types.app.IAppLoaded<{}, {}>) => {
     new (props: Readonly<P>, context: any): {
         props: Readonly<P & {
             children?: types.app.UI.ElementPromise[] | undefined;
-        }>;
+        }> & {
+            key?: string | undefined;
+        };
+        key: string;
         renderInternal(e: Readonly<any> | [Readonly<any>, Readonly<any>, (Readonly<Readonly<any>> | Readonly<{
             [index: number]: types.app.UI.Element<any, any, any>;
         }> | undefined)?] | Promise<types.app.UI.Element<any, any, any>> | undefined, index?: number | undefined): any;

@@ -101,7 +101,7 @@ var WebApp = /** @class */ (function (_super) {
                                 if (this.settings && this.settings.fullHeight) {
                                     body_1.style.height = body_1.style.height || "100vh";
                                     body_1.style.margin = body_1.style.margin || "0px";
-                                    d.style.height = "100vh";
+                                    d.style.height = "100%";
                                 }
                                 return d;
                             }.apply(_this);

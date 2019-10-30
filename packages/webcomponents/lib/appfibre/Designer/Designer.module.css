@@ -1,0 +1,41 @@
+.ribbonNavigator { 
+    display: block;
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid #AAA;
+    background: #DDD;
+    overflow: "hidden" 
+}
+
+.ribbonNavigator > div {
+    display: table;
+    border-collapse: collapse;
+    width: 100%
+}
+
+.ribbonNavigator > div > div {
+    display: table-cell;
+}
+
+.desktopRibbon :global .CommandBar :global .Disabled {
+    background: #999;
+}
+
+.desktopRibbon :global .CommandBar :global .Active {
+    background: #CCC;
+}
+
+
+.viewPort {
+    
+}
+
+.viewPort > div {
+    
+}
+
+:global .Full {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}

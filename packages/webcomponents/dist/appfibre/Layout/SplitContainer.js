@@ -114,7 +114,7 @@ var SplitContainer /*: fibre.UI.Component*/ = function inject(app) {
                 }
                 children.push(["div", { style: style }, [c.content]]);
             });
-            return _super.prototype.render.call(this, ["div", { style: { display: "flex", flexDirection: this.state.direction, margin: 0, padding: 0, height: "100%", width: "100%", overflow: "hidden" } }, children]);
+            return _super.prototype.render.call(this, ["div", { className: this.props.className || "SplitContainer", style: __assign({ display: "flex", flexDirection: this.state.direction, margin: 0, padding: 0, height: "100%", width: "100%", overflow: "hidden" }, this.props.style) }, children]);
         };
         return SplitContainer;
     }(app.services.UI.Component));

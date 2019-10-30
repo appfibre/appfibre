@@ -82,6 +82,21 @@ var Loader = {
     resolve: function (name) {
         return name;
     },
-    init: function ( /*basePath: string*/) { return void {}; }
+    init: function ( /*basePath: string*/) { return void {}; },
+    fetch: function (url, headers) { return __awaiter(_this, void 0, void 0, function () {
+        var res, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, fetch(url, { headers: headers, credentials: 'same-origin' })];
+                case 1:
+                    res = _b.sent();
+                    _a = {};
+                    return [4 /*yield*/, res.text()];
+                case 2: return [2 /*return*/, (_a.text = _b.sent(), _a.contentType = (res.headers.get('content-type') || 'text/plain').split(';')[0].toLowerCase(), _a)];
+            }
+        });
+    }); },
+    register: function (_source, _target) {
+    }
 };
 exports["default"] = Loader;

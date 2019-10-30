@@ -3,8 +3,8 @@
   "version": "0.0.4",
   "description": "Fibre WebApp component library",
   "main": "./dist/index.js",
-  "module":"./lib/index.ts",
-  "types":"./dist/index.d.ts",
+  "module": "./lib/index.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "start": "tsc -w"
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@appfibre/core": "^0.0.3",
-    "@appfibre/webapp": "^0.0.3",
-    "@appfibre/types": "^0.0.3"
+    "@appfibre/types": "^0.0.3",
+    "@appfibre/webapp": "^0.0.3"
   }
 }

@@ -89,7 +89,7 @@ export class WebApp extends App<types.webapp.ISettings, types.webapp.IInfo>
                                 {
                                     body.style.height = body.style.height || "100vh";
                                     body.style.margin = body.style.margin || "0px";
-                                    d.style.height = "100vh";
+                                    d.style.height = "100%";
                                 }
                                 return d; 
                             }.apply(this);

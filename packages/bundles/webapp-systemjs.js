@@ -1079,8 +1079,20 @@ var webapp = (function () {
 	  }();
 
 	  exports.__esModule = true;
+	  var seed = '0123456789abcdefgihjlmnopqrstuvwxyzABCDEFGIHJKLMNOPQRSTUVWXYZ';
 
 	  var BaseComponent = function inject(app) {
+	    function generateId() {
+	      var n = 8;
+	      var id = '';
+
+	      while (0 < n--) {
+	        id += seed[Math.random() * 61 | 0];
+	      }
+
+	      return id;
+	    }
+
 	    return (
 	      /** @class */
 	      function (_super) {
@@ -1092,6 +1104,8 @@ var webapp = (function () {
 	        function BaseComponent(props, context) {
 	          var _this = _super.call(this, props, context) || this;
 
+	          if (!props) throw new Error("Expected properties object from parent constructor.  Please ensure that you are passing props to super() call");
+	          _this.key = props["_key"] || 'bc_' + generateId();
 	          _this.props = props;
 	          return _this;
 	        }
@@ -1100,7 +1114,7 @@ var webapp = (function () {
 	          var _this = this;
 
 	          if (Array.isArray(e)) {
-	            if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0]) return app.services.processor.processElement(e, index);else {
+	            if (_typeof(e[0]) === "object" && e[0]["default"] && (typeof e[0]["default"] === "string" || typeof e[0]["default"] === "function" || Promise.resolve(e[0]["default"]) === e[0]["default"])) return app.services.processor.processElement(e, this.key, index);else if (typeof e[0] === "string" || typeof e[0] === "function" || Promise.resolve(e[0]) === e[0]) return app.services.processor.processElement(e, this.key, index);else {
 	              return e.map(function (c, idx) {
 	                if (Array.isArray(c)) {
 	                  if (!c[1]) c[1] = {};
@@ -1112,7 +1126,7 @@ var webapp = (function () {
 	            }
 	          }
 
-	          return !e || typeof e === "string" ? e : app.services.processor.processElement(e, index);
+	          return !e || typeof e === "string" ? e : app.services.processor.processElement(e, this.key, index);
 	        };
 
 	        BaseComponent.prototype.render = function (props
@@ -1625,7 +1639,47 @@ var webapp = (function () {
 	    /*basePath: string*/
 	    {
 	      return void {};
-	    }
+	    },
+	    fetch: function (_fetch) {
+	      function fetch(_x, _x2) {
+	        return _fetch.apply(this, arguments);
+	      }
+
+	      fetch.toString = function () {
+	        return _fetch.toString();
+	      };
+
+	      return fetch;
+	    }(function (url, headers) {
+	      return __awaiter(_this, void 0, void 0, function () {
+	        var res, _a;
+
+	        return __generator(this, function (_b) {
+	          switch (_b.label) {
+	            case 0:
+	              return [4
+	              /*yield*/
+	              , fetch(url, {
+	                headers: headers,
+	                credentials: 'same-origin'
+	              })];
+
+	            case 1:
+	              res = _b.sent();
+	              _a = {};
+	              return [4
+	              /*yield*/
+	              , res.text()];
+
+	            case 2:
+	              return [2
+	              /*return*/
+	              , (_a.text = _b.sent(), _a.contentType = (res.headers.get('content-type') || 'text/plain').split(';')[0].toLowerCase(), _a)];
+	          }
+	        });
+	      });
+	    }),
+	    register: function register(_source, _target) {}
 	  };
 	  exports["default"] = Loader;
 	});
@@ -1857,7 +1911,47 @@ var webapp = (function () {
 	    },
 	    init: function init(basePath) {
 	      basepath = basePath;
-	    }
+	    },
+	    fetch: function (_fetch) {
+	      function fetch(_x, _x2) {
+	        return _fetch.apply(this, arguments);
+	      }
+
+	      fetch.toString = function () {
+	        return _fetch.toString();
+	      };
+
+	      return fetch;
+	    }(function (url, headers) {
+	      return __awaiter(_this, void 0, void 0, function () {
+	        var res, _a;
+
+	        return __generator(this, function (_b) {
+	          switch (_b.label) {
+	            case 0:
+	              return [4
+	              /*yield*/
+	              , fetch(url, {
+	                headers: headers,
+	                credentials: 'same-origin'
+	              })];
+
+	            case 1:
+	              res = _b.sent();
+	              _a = {};
+	              return [4
+	              /*yield*/
+	              , res.text()];
+
+	            case 2:
+	              return [2
+	              /*return*/
+	              , (_a.text = _b.sent(), _a.contentType = (res.headers.get('content-type') || 'text/plain').split(';')[0].toLowerCase(), _a)];
+	          }
+	        });
+	      });
+	    }),
+	    register: function register(_source, _target) {}
 	  };
 	  exports.Loader = Loader;
 	});
@@ -1886,6 +1980,7 @@ var webapp = (function () {
 
 	          this.proxy = {
 	            "import": systemjs.value["import"].bind(systemjs.value),
+	            register: systemjs.value.register.bind(systemjs.value),
 	            resolve: function resolve(name) {
 	              return name;
 	            },
@@ -1894,7 +1989,8 @@ var webapp = (function () {
 	            /*basePath: string*/
 	            {
 	              return void {};
-	            }
+	            },
+	            fetch: this.fetch
 	          };
 	          systemjs.value.constructor.prototype.instantiate = this.instantiate.bind(this);
 	          systemjs.value.constructor.prototype["import"] = this["import"].bind(this);
@@ -1910,7 +2006,9 @@ var webapp = (function () {
 	      var u = moduleName.indexOf('#') > -1 ? moduleName.slice(0, moduleName.indexOf('#')) : moduleName;
 	      var b = u.length + 1 < moduleName.length ? moduleName.slice(u.length + 1).split('#') : [];
 	      return new Promise(function (r, rj) {
-	        return _this.proxy["import"](_this.resolve(u), normalizedParentName).then(function (x) {
+	        return _this.proxy["import"](u
+	        /*this.resolve(u)*/
+	        , normalizedParentName).then(function (x) {
 	          if (x["default"]) x = x["default"];
 
 	          for (var i = 0; i < b.length; i++) {
@@ -1928,12 +2026,17 @@ var webapp = (function () {
 	    };
 
 	    Loader.prototype.resolve = function (url) {
+
 	      if (url[0] == '@' && this.app.settings.cdn) {
 	        var cdn = url.slice(0, url.indexOf('/'));
 	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
 	      }
 
 	      return this.proxy.resolve(url);
+	    };
+
+	    Loader.prototype.register = function (source, target) {
+	      this.proxy.register(source, target);
 	    };
 
 	    Loader.prototype.instantiate = function (url, parent, references) {
@@ -1943,6 +2046,30 @@ var webapp = (function () {
 	    Loader.prototype.init = function (basePath) {
 	      Object.defineProperty(this.proxy["import"], "jst", this.app.services.transformer.transform);
 	      this.proxy.init(basePath);
+	    };
+
+	    Loader.prototype.fetch = function (url, headers) {
+	      return new Promise(function (resolve, reject) {
+	        var rq = new XMLHttpRequest();
+	        rq.open('GET', url); //rq.credentials = 'same-origin';
+
+	        if (headers) Object.keys(headers).forEach(function (h) {
+	          return rq.setRequestHeader(h, headers[h]);
+	        });
+
+	        rq.onload = function () {
+	          if (rq.status == 200) resolve({
+	            text: rq.responseText,
+	            contentType: (rq.getResponseHeader('content-type') || 'text/plain').split(';')[0].toLowerCase()
+	          });else reject(rq.status + ':' + rq.statusText);
+	        };
+
+	        rq.onerror = function () {
+	          reject(rq.status + ': ' + rq.statusText);
+	        };
+
+	        rq.send();
+	      });
 	    };
 
 	    return Loader;
@@ -2054,6 +2181,7 @@ var webapp = (function () {
 	  function () {
 	    function Processor(app) {
 	      this.cache = Object();
+	      this.chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	      this.type = "Processor";
 	      this.app = app;
 
@@ -2127,7 +2255,7 @@ var webapp = (function () {
 	    }; // ether an element, or array of elements depending on depth == even or odd
 
 
-	    Processor.prototype.processElementInternal = function (element, depth, index) {
+	    Processor.prototype.processElementInternal = function (element, parentkey, depth, index) {
 	      if (depth % 2 === 0) {
 	        if (typeof element != "string" && !Array.isArray(element)) {
 	          this.app.services.logger.log.call(this, dist.types.app.LogLevel.Error, "Child element [2] should be either a string or array", [{
@@ -2135,9 +2263,10 @@ var webapp = (function () {
 	          }]);
 	          return element;
 	        } else if (Array.isArray(element)) {
-	          if (index !== undefined) {
+	          if (typeof element[1] !== "string") {
 	            element[1] = element[1] || {};
-	            if (!element[1].key) element[1].key = index;
+	            if (!element[1].key) element[1].key = parentkey + this.generateKey(index);
+	            if (typeof element[0] === "function") element[1]["_key"] = element[1]["key"];
 	          }
 	        } //if (Array.isArray(element) && element[1] && element[1].context && typeof element[1].context.intercept === "function")
 	        //    element = element[1].context.intercept(element);
@@ -2145,31 +2274,39 @@ var webapp = (function () {
 	      } //console.log({element, index, depth, code: JSON.stringify(element)});
 
 
-	      return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]);
+	      return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]
+	      /*&& typeof element[2] === "object" && !Array.isArray(element[2]) && (<{default:any}>element[2]).default ? this.init(element[2], true) : element[2]*/
+	      );
 	    };
 
-	    Processor.prototype.parse = function (obj, level, path, index) {
+	    Processor.prototype.parse = function (obj, parentkey, level, index) {
 	      this.app.services.logger.log.call(this, dist.types.app.LogLevel.Trace, 'Processor.parse', obj);
 	      var processor = this;
 	      return new Promise(function (r, f) {
 	        if (!obj) return r(obj);
-	        if (_typeof(obj) === "object" && !Array.isArray(obj) && obj["default"]) obj = processor.init(obj);
+	        obj = processor.unwrapDefault(obj); //if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any/*types.app.element|types.app.promisedElement*/}>obj).default)        
+	        //   obj = processor.init(obj, false);
 
 	        if (Array.isArray(obj)) {
-	          if (_typeof(obj[0]) === "object" && obj[0]['default']) obj[0] = processor.init(obj[0]);
+	          //if (typeof obj[0] === "object" && obj[0]['default'])
+	          //  obj[0] = processor.init(obj[0], false);
 	          if (typeof obj[0] === "string") obj[0] = processor.resolve(obj[0]);
-	          if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);else Promise.all(obj.map(function (v, i) {
-	            return processor.parse(v, level + 1, path + '[' + i + ']', i);
+	          if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") processor.parse(obj[0].apply(processor.app, obj.slice(1)), parentkey
+	          /*+ ','*/
+	          , level, index).then(r, f);else Promise.all(obj.map(function (v, i) {
+	            return processor.parse(v, parentkey
+	            /*+ '.' */
+	            + processor.generateKey(i), level + 1, i);
 	          })).then(function (o) {
 	            try {
-	              r(processor.processElementInternal(o, level, index));
+	              r(processor.processElementInternal(o, parentkey, level, index));
 	            } catch (e) {
 	              processor.app.services.logger.log(dist.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
 	              f(e);
 	            }
 	          }, f);
 	        } else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject") Promise.resolve(obj(Inject(processor.app))).then(function (o) {
-	          return processor.parse(o, level, path, index).then(r, f);
+	          return processor.parse(o, parentkey, level, index).then(r, f);
 	        }, f);else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") try {
 	          r(processor.createClass(components.BaseComponent(processor.app), obj));
 	        } catch (e) {
@@ -2177,13 +2314,13 @@ var webapp = (function () {
 	          f(e);
 	        } else if (Promise.resolve(obj) === obj) {
 	          Promise.resolve(obj).then(function (o) {
-	            return processor.parse(o, level, path, index).then(function (o2) {
+	            return processor.parse(o, parentkey, level, index).then(function (o2) {
 	              return r(o2);
 	            }, f);
 	          }, f);
 	        } else if (obj) {
 	          try {
-	            r(processor.processElementInternal(obj, level, index));
+	            r(processor.processElementInternal(obj, parentkey, level, index));
 	          } catch (e) {
 	            processor.app.services.logger.log(dist.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
 	            f(e);
@@ -2215,6 +2352,10 @@ var webapp = (function () {
 	          if (obj_1[path[part]] !== undefined) {
 	            obj_1 = obj_1[path[part]];
 	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
+	          } else if (obj_1["default"] && obj_1["default"][path[part]] !== undefined) {
+	            debugger;
+	            obj_1 = obj_1["default"][path[part]];
+	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
 	          } else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0]) obj_1 = path[part];else {
 	            if (fullpath === "Exception") return function transform(obj) {
 	              return ["pre", {
@@ -2223,6 +2364,7 @@ var webapp = (function () {
 	                }
 	              }, obj[1].stack ? obj[1].stack : obj[1]];
 	            };else {
+	              debugger;
 	              this.app.services.logger.log.call(this, dist.types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
 	              return (
 	                /** @class */
@@ -2253,21 +2395,37 @@ var webapp = (function () {
 	      }
 	    };
 
-	    Processor.prototype.init = function (obj) {
-	      return obj["default"];
+	    Processor.prototype.unwrapDefault = function (obj) {
+	      if (obj && obj["default"]) obj = obj["default"];
+	      if (Array.isArray(obj)) return obj.map(function (e) {
+	        return e && e["default"] ? e["default"] : e;
+	      });
+	      return obj;
 	    };
 
-	    Processor.prototype.processElement = function (obj, index) {
+	    Processor.prototype.generateKey = function (index) {
+	      if (!index) return '_';
+	      var key = '';
+
+	      if (index >= this.chars.length) {
+	        while (index >= this.chars.length) {
+	          key = this.chars[index % this.chars.length].toString() + key;
+	          index = (index - index % this.chars.length) / this.chars.length;
+	        }
+
+	        key = '_' + key;
+	      } else key = (index % this.chars.length).toString();
+
+	      return key;
+	    };
+
+	    Processor.prototype.processElement = function (obj, parentkey, index) {
 	      var _this = this;
 
 	      if (!obj) return obj;
-	      if (_typeof(obj) === "object" && !Array.isArray(obj) && obj["default"]) obj = this.init(obj);
+	      obj = this.unwrapDefault(obj);
 
 	      if (Array.isArray(obj)) {
-	        if (_typeof(obj[0]) === "object" && obj[0]['default']) // TODO: Remove <never>
-	          //obj[0] = /*<never>*/this.init(obj[0]);
-	          debugger;
-
 	        if (typeof obj[0] === "string") {
 	          obj[0] = this.resolve(obj[0]);
 	        }
@@ -2279,15 +2437,21 @@ var webapp = (function () {
 	            case "transform":
 	              var key = index;
 	              if (obj[1] && obj[1].key) key = obj[1].key;
-	              return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+	              return this.processElement(obj[0].apply(this.app, obj.slice(1)), parentkey
+	              /*+','*/
+	              , key);
 
 	            case "inject":
 	              obj[0] = obj[0](Inject(this.app));
-	              return this.processElement(obj);
+	              return this.processElement(obj, parentkey
+	              /*+ ','*/
+	              );
 
 	            case "Component":
 	              obj[0] = this.createClass(components.BaseComponent(this.app), obj[0]);
-	              return this.processElement(obj);
+	              return this.processElement(obj, parentkey
+	              /*+ ','*/
+	              );
 	          }
 	        }
 	      }
@@ -2296,15 +2460,20 @@ var webapp = (function () {
 	        return Promise.resolve(c) === c;
 	      })) return this.processElementInternal([this.Async(), {
 	        id: Date.now()
-	      }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);else if (typeof obj === "string" || !obj) return obj; //else if (obj.then)  
+	      }, obj], parentkey + '_async', 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);else if (typeof obj === "string" || !obj) return obj; //else if (obj.then)  
 	      //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
 
 	      if (Promise.resolve(obj) === obj) obj = [this.Async(), {
-	        index: index
+	        key: parentkey
 	      }, obj];
-	      if (Array.isArray(obj)) return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) {
-	        return typeof c === "string" ? c : _this.processElement(c, idx);
-	      }) : obj[2]], 0, index);else return obj;
+
+	      if (Array.isArray(obj)) {
+	        return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) {
+	          return typeof c === "string" ? c : _this.processElement(c, parentkey +
+	          /*'.' +*/
+	          _this.generateKey(idx), idx);
+	        }) : obj[2]], parentkey + this.generateKey(index), 0, index);
+	      } else return obj;
 	    };
 
 	    Processor.prototype.process = function (obj) {
@@ -2337,14 +2506,14 @@ var webapp = (function () {
 
 	            _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
 	              try {
-	                _this.parse(exported["default"] || exported, 0, '').then(resolve, reject);
+	                _this.parse(exported["default"] || exported, "af", 0).then(resolve, reject);
 	              } catch (e) {
 	                reject(e);
 	              }
 	            }, function (rs) {
 	              return reject(rs);
 	            });
-	          } else _this.parse(obj, 0, '').then(resolve, reject);
+	          } else _this.parse(obj, "af", 0).then(resolve, reject);
 	        } catch (e) {
 	          reject(e);
 	        }
@@ -2714,6 +2883,77 @@ var webapp = (function () {
 	      }
 	    };
 
+	    Transformer.prototype.resolve = function (relUrl, parentUrl) {
+	      var backslashRegEx = /\\/g;
+	      if (relUrl.indexOf('\\') !== -1) relUrl = relUrl.replace(backslashRegEx, '/'); // protocol-relative
+
+	      if (relUrl[0] === '/' && relUrl[1] === '/') {
+	        return parentUrl.slice(0, parentUrl.indexOf(':') + 1) + relUrl;
+	      } // relative-url
+	      else if (relUrl[0] === '.' && (relUrl[1] === '/' || relUrl[1] === '.' && (relUrl[2] === '/' || relUrl.length === 2 && (relUrl += '/')) || relUrl.length === 1 && (relUrl += '/')) || relUrl[0] === '/') {
+	          var parentProtocol = parentUrl.slice(0, parentUrl.indexOf(':') + 1); // Disabled, but these cases will give inconsistent results for deep backtracking
+	          //if (parentUrl[parentProtocol.length] !== '/')
+	          //  throw new Error('Cannot resolve');
+	          // read pathname from parent URL
+	          // pathname taken to be part after leading "/"
+
+	          var pathname = void 0;
+
+	          if (parentUrl[parentProtocol.length + 1] === '/') {
+	            // resolving to a :// so we need to read out the auth and host
+	            if (parentProtocol !== 'file:') {
+	              pathname = parentUrl.slice(parentProtocol.length + 2);
+	              pathname = pathname.slice(pathname.indexOf('/') + 1);
+	            } else {
+	              pathname = parentUrl.slice(8);
+	            }
+	          } else {
+	            // resolving to :/ so pathname is the /... part
+	            pathname = parentUrl.slice(parentProtocol.length + (parentUrl[parentProtocol.length] === '/' ? 1 : 0));
+	          }
+
+	          if (relUrl[0] === '/') return parentUrl.slice(0, parentUrl.length - pathname.length - 1) + relUrl; // join together and split for removal of .. and . segments
+	          // looping the string instead of anything fancy for perf reasons
+	          // '../../../../../z' resolved to 'x/y' is just 'z'
+
+	          var segmented = pathname.slice(0, pathname.lastIndexOf('/') + 1) + relUrl;
+	          var output = [];
+	          var segmentIndex = -1;
+
+	          for (var i = 0; i < segmented.length; i++) {
+	            // busy reading a segment - only terminate on '/'
+	            if (segmentIndex !== -1) {
+	              if (segmented[i] === '/') {
+	                output.push(segmented.slice(segmentIndex, i + 1));
+	                segmentIndex = -1;
+	              }
+	            } // new segment - check if it is relative
+	            else if (segmented[i] === '.') {
+	                // ../ segment
+	                if (segmented[i + 1] === '.' && (segmented[i + 2] === '/' || i + 2 === segmented.length)) {
+	                  output.pop();
+	                  i += 2;
+	                } // ./ segment
+	                else if (segmented[i + 1] === '/' || i + 1 === segmented.length) {
+	                    i += 1;
+	                  } else {
+	                    // the start of a new segment as below
+	                    segmentIndex = i;
+	                  }
+	              } // it is the start of a new segment
+	              else {
+	                  segmentIndex = i;
+	                }
+	          } // finish reading out the last segment
+
+
+	          if (segmentIndex !== -1) output.push(segmented.slice(segmentIndex));
+	          return parentUrl.slice(0, parentUrl.length - pathname.length) + output.join('');
+	        }
+
+	      return relUrl;
+	    };
+
 	    Transformer.prototype.processImports = function (output) {
 	      var _this = this;
 
@@ -2745,11 +2985,14 @@ var webapp = (function () {
 	          break;
 
 	        case "amd":
+	          var exp = Object.keys(r).map(function (key, index) {
+	            return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, output.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, output.name || location.href) + "\"};";
+	          }).join('\n');
 	          output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) {
 	            return "" + _this.skey(key);
 	          }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) {
 	            return '_' + r[key];
-	          }).join(", ") + ") { " + output.code + " });" + nl;
+	          }).join(", ") + ") { \n" + exp + " " + output.code + " });" + nl;
 	          break;
 
 	        case "es":
@@ -3196,7 +3439,7 @@ var webapp = (function () {
 	                  if (this.settings && this.settings.fullHeight) {
 	                    body_1.style.height = body_1.style.height || "100vh";
 	                    body_1.style.margin = body_1.style.margin || "0px";
-	                    d.style.height = "100vh";
+	                    d.style.height = "100%";
 	                  }
 
 	                  return d;

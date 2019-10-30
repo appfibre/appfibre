@@ -38,6 +38,7 @@ function Inject(app, proxy) {
 var Processor = /** @class */ (function () {
     function Processor(app) {
         this.cache = Object();
+        this.chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         this.type = "Processor";
         this.app = app;
         this.cache[".App"] = function inject(app) {
@@ -98,43 +99,46 @@ var Processor = /** @class */ (function () {
         return name.trim();
     };
     // ether an element, or array of elements depending on depth == even or odd
-    Processor.prototype.processElementInternal = function (element, depth, index) {
+    Processor.prototype.processElementInternal = function (element, parentkey, depth, index) {
         if (depth % 2 === 0) {
             if (typeof element != "string" && !Array.isArray(element)) {
                 this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Error, "Child element [2] should be either a string or array", [{ element: element }]);
                 return element;
             }
             else if (Array.isArray(element)) {
-                if (index !== undefined) {
+                if (typeof element[1] !== "string") {
                     element[1] = element[1] || {};
                     if (!element[1].key)
-                        element[1].key = index;
+                        element[1].key = parentkey + this.generateKey(index);
+                    if (typeof element[0] === "function")
+                        element[1]["_key"] = element[1]["key"];
                 }
             }
             //if (Array.isArray(element) && element[1] && element[1].context && typeof element[1].context.intercept === "function")
             //    element = element[1].context.intercept(element);
         }
         //console.log({element, index, depth, code: JSON.stringify(element)});
-        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]);
+        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2] /*&& typeof element[2] === "object" && !Array.isArray(element[2]) && (<{default:any}>element[2]).default ? this.init(element[2], true) : element[2]*/);
     };
-    Processor.prototype.parse = function (obj, level, path, index) {
+    Processor.prototype.parse = function (obj, parentkey, level, index) {
         this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Trace, 'Processor.parse', obj);
         var processor = this;
         return new Promise(function (r, f) {
             if (!obj)
                 return r(obj);
-            if (typeof obj === "object" && !Array.isArray(obj) && obj["default"])
-                obj = processor.init(obj);
+            obj = processor.unwrapDefault(obj);
+            //if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any/*types.app.element|types.app.promisedElement*/}>obj).default)        
+            //   obj = processor.init(obj, false);
             if (Array.isArray(obj)) {
-                if (typeof obj[0] === "object" && obj[0]['default'])
-                    obj[0] = processor.init(obj[0]);
+                //if (typeof obj[0] === "object" && obj[0]['default'])
+                //  obj[0] = processor.init(obj[0], false);
                 if (typeof obj[0] === "string")
                     obj[0] = processor.resolve(obj[0]);
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform")
-                    processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
+                    processor.parse(obj[0].apply(processor.app, obj.slice(1)), parentkey /*+ ','*/, level, index).then(r, f);
                 else
-                    Promise.all(obj.map(function (v, i) { return processor.parse(v, level + 1, path + '[' + i + ']', i); })).then(function (o) { try {
-                        r(processor.processElementInternal(o, level, index));
+                    Promise.all(obj.map(function (v, i) { return processor.parse(v, parentkey /*+ '.' */ + processor.generateKey(i), level + 1, i); })).then(function (o) { try {
+                        r(processor.processElementInternal(o, parentkey, level, index));
                     }
                     catch (e) {
                         processor.app.services.logger.log(types_1.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]);
@@ -142,7 +146,7 @@ var Processor = /** @class */ (function () {
                     } }, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")
-                Promise.resolve((obj)(Inject(processor.app))).then(function (o) { return processor.parse(o, level, path, index).then(r, f); }, f);
+                Promise.resolve((obj)(Inject(processor.app))).then(function (o) { return processor.parse(o, parentkey, level, index).then(r, f); }, f);
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component")
                 try {
                     r(processor.createClass(components_1.BaseComponent(processor.app), obj));
@@ -152,11 +156,11 @@ var Processor = /** @class */ (function () {
                     f(e);
                 }
             else if (Promise.resolve(obj) === obj) {
-                Promise.resolve(obj).then(function (o) { return processor.parse(o, level, path, index).then(function (o2) { return r(o2); }, f); }, f);
+                Promise.resolve(obj).then(function (o) { return processor.parse(o, parentkey, level, index).then(function (o2) { return r(o2); }, f); }, f);
             }
             else if (obj) {
                 try {
-                    r(processor.processElementInternal(obj, level, index));
+                    r(processor.processElementInternal(obj, parentkey, level, index));
                 }
                 catch (e) {
                     processor.app.services.logger.log(types_1.types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj);
@@ -190,12 +194,19 @@ var Processor = /** @class */ (function () {
                     if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject")
                         obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
                 }
+                else if (obj_1["default"] && obj_1["default"][path[part]] !== undefined) {
+                    debugger;
+                    obj_1 = obj_1["default"][path[part]];
+                    if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject")
+                        obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
+                }
                 else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj_1 = path[part];
                 else {
                     if (fullpath === "Exception")
                         return function transform(obj) { return ["pre", { "style": { "color": "red" } }, obj[1].stack ? obj[1].stack : obj[1]]; };
                     else {
+                        debugger;
                         this.app.services.logger.log.call(this, types_1.types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'");
                         return /** @class */ (function (_super) {
                             __extends(class_2, _super);
@@ -212,20 +223,34 @@ var Processor = /** @class */ (function () {
             return this.cache[fullpath] = obj_1;
         }
     };
-    Processor.prototype.init = function (obj) {
-        return obj["default"];
+    Processor.prototype.unwrapDefault = function (obj) {
+        if (obj && obj["default"])
+            obj = obj["default"];
+        if (Array.isArray(obj))
+            return obj.map(function (e) { return e && e["default"] ? e["default"] : e; });
+        return obj;
     };
-    Processor.prototype.processElement = function (obj, index) {
+    Processor.prototype.generateKey = function (index) {
+        if (!index)
+            return '_';
+        var key = '';
+        if (index >= this.chars.length) {
+            while (index >= this.chars.length) {
+                key = this.chars[(index % this.chars.length)].toString() + key;
+                index = (index - (index % this.chars.length)) / this.chars.length;
+            }
+            key = '_' + key;
+        }
+        else
+            key = (index % this.chars.length).toString();
+        return key;
+    };
+    Processor.prototype.processElement = function (obj, parentkey, index) {
         var _this = this;
         if (!obj)
             return obj;
-        if (typeof obj === "object" && !Array.isArray(obj) && obj["default"])
-            obj = this.init(obj);
+        obj = this.unwrapDefault(obj);
         if (Array.isArray(obj)) {
-            if (typeof obj[0] === "object" && obj[0]['default'])
-                // TODO: Remove <never>
-                //obj[0] = /*<never>*/this.init(obj[0]);
-                debugger;
             if (typeof obj[0] === "string") {
                 obj[0] = this.resolve(obj[0]);
             }
@@ -236,26 +261,27 @@ var Processor = /** @class */ (function () {
                         var key = index;
                         if (obj[1] && obj[1].key)
                             key = obj[1].key;
-                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), parentkey /*+','*/, key);
                     case "inject":
                         obj[0] = (obj[0])(Inject(this.app));
-                        return this.processElement(obj);
+                        return this.processElement(obj, parentkey /*+ ','*/);
                     case "Component":
                         obj[0] = this.createClass(components_1.BaseComponent(this.app), obj[0]);
-                        return this.processElement(obj);
+                        return this.processElement(obj, parentkey /*+ ','*/);
                 }
             }
         }
         if (Array.isArray(obj) && obj.some(function (c) { return Promise.resolve(c) === c; }))
-            return this.processElementInternal([this.Async(), { id: Date.now() }, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+            return this.processElementInternal([this.Async(), { id: Date.now() }, obj], parentkey + '_async', 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
         else if (typeof obj === "string" || !obj)
             return obj;
         //else if (obj.then)  
         //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
         if (Promise.resolve(obj) === obj)
-            obj = [this.Async(), { index: index }, obj];
-        if (Array.isArray(obj))
-            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) { return typeof c === "string" ? c : _this.processElement(c, idx); }) : obj[2]], 0, index);
+            obj = [this.Async(), { key: parentkey }, obj];
+        if (Array.isArray(obj)) {
+            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map(function (c, idx) { return typeof c === "string" ? c : _this.processElement(c, parentkey + /*'.' +*/ _this.generateKey(idx), idx); }) : obj[2]], parentkey + this.generateKey(index), 0, index);
+        }
         else
             return obj;
     };
@@ -285,7 +311,7 @@ var Processor = /** @class */ (function () {
                     _this.app.services.moduleSystem.init(_this.app.settings.baseExecutionPath);
                     _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
                         try {
-                            _this.parse(exported["default"] || exported, 0, '').then(resolve, reject);
+                            _this.parse(exported["default"] || exported, "af", 0).then(resolve, reject);
                         }
                         catch (e) {
                             reject(e);
@@ -293,7 +319,7 @@ var Processor = /** @class */ (function () {
                     }, function (rs) { return reject(rs); });
                 }
                 else
-                    _this.parse(obj, 0, '').then(resolve, reject);
+                    _this.parse(obj, "af", 0).then(resolve, reject);
             }
             catch (e) {
                 reject(e);

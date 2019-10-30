@@ -10,7 +10,28 @@ let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:types.
             keys.forEach(z => obj2[z == ".app" ? "main" : z] = obj[z]);
             return `[".App", {${app.services.transformer.process(obj2, context, true, true, offset)}}]`;
         };
-    app.services.processor.init = (obj:{default:any, [index:string]:any}) => typeof obj.__esModule === "string" ? [Intercept, {file: obj.__esModule}, [obj.default]] : obj.default;
+
+        app.services.processor.unwrapDefault = (obj:any) => {
+            if (typeof obj === "object" && typeof obj.__esModule === "string" ) 
+                return app.services.processor.processElement([Intercept, {file: obj.__esModule}, typeof obj.default === "string" ? obj.default : [obj.default]]);
+            if (obj && obj.default)
+                obj = obj.default;
+            if (Array.isArray(obj)) { 
+                /*if (typeof obj[0] === "object" && typeof obj[0].__esModule === "string" && obj[0].default) {
+                    let __esModule = obj[0].__esModule;
+                    obj[0] = obj[0].default;
+                    return app.services.processor.processElement([Intercept, {file: __esModule}, [obj]]);
+                }*/
+
+                if (typeof obj[2] === "object" && typeof obj[2].__esModule === "string" && obj[2].default) {
+                    obj[2] = [[Intercept, {file: obj[2].__esModule}, obj[2].default]];
+                }
+
+                return obj.map(e => e && e.default ? e.default : e);
+            }
+            return obj;
+        }
+    
 
     return class Designer extends app.services.UI.Component<{}, {content:any}>
     {
@@ -44,10 +65,14 @@ let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:types.
         }
 
         designer_Load(ev:types.app.IEventData<Designer_Load>) {
-            if (ev.data)
-                app.services.moduleSystem.import(ev.data.url).then(x => {
-                    this.setState({content: x});
-                }, z => alert("loaded "+z));
+            if (ev.data) {
+                if (ev.data.url > '')
+                    app.services.moduleSystem.import(ev.data.url).then(x => {
+                        this.setState({content: x});
+                    }, z => alert(z));
+                else
+                    this.setState({content: app.main});
+            }
         }
 
         render() {

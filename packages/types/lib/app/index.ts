@@ -77,7 +77,7 @@ export namespace app {
   export interface IEvents {
     subscribe<T>(eventType:IEventType, callback:(data:IEventData<T>)=>any):void
     unsubscribe<T>(eventType:IEventType, callback:(data:IEventData<T>)=>any):void
-    publish<T>(data:IEventData<T>&{data?:T}, target?:{postMessage: (message:any, targetOrigin:string)=>void}):any[]
+    publish<T={}>(data:IEventData<T>&{data?:T}, target?:{postMessage: (message:any, targetOrigin:string)=>void}):any[]
   }
     
   export interface IUI<BaseElement> {
@@ -121,13 +121,22 @@ export namespace app {
     locate(resource:any, path:string) : any
   
     process(obj:any):PromiseLike<any>
-    processElement(obj:UI.ElementPromise, index?:number):any
-    init(obj:{default:UI.ElementPromise}):UI.ElementPromise
+    processElement(obj:UI.ElementPromise, parentkey?:string, index?:number):any
+    //init(obj:{default:UI.ElementPromise}, innerElement:boolean):UI.ElementPromise
+
+    unwrapDefault(obj:any):UI.ElementPromise
+  }
+
+  export interface filedetail {
+    text: string
+    contentType: string
   }
         
   export interface IModuleSystem {
     /*load (url : string, parent?: any) : PromiseLike<any> 
     exec(source:string, url?:string) :any*/
+    register(source:string, target:string):void
+    fetch(url:string, headers?:Record<string, string>): PromiseLike<app.filedetail>
     import(moduleName: string, normalizedParentName?: string, references?:{[name:string]:any}): PromiseLike<any>
     instantiate(url:string, parent?:any, references?:{[name:string]:any}):Promise<any>
     init(basePath?:string):void

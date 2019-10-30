@@ -22,12 +22,12 @@ export declare class Processor implements types.app.IProcessor {
     };
     locate(resource: any, path: string): any;
     getFunctionName(obj: any): string;
-    processElementInternal(element: any, depth: number, index?: number): any;
+    processElementInternal(element: any, parentkey: string, depth: number, index?: number): any;
     private parse;
     resolve(fullpath: string): any;
-    init(obj: {
-        default: any;
-    }): any;
-    processElement(obj: types.app.UI.ElementPromise, index?: number): any;
+    unwrapDefault(obj: any): any;
+    chars: string;
+    generateKey(index?: number): string;
+    processElement(obj: types.app.UI.ElementPromise, parentkey?: string, index?: number): any;
     process(obj: any): PromiseLike<any>;
 }

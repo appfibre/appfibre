@@ -1,79 +1,54 @@
 import {types} from "@appfibre/types";
-import { SplitContainer, SplitContainer_Attributes} from "./SplitContainer";
+import styles from "./Styles";
 
-export interface attr {
+type tab = string | {title?:string,className?:string}
+
+export interface props {
     placement?: "top"|"bottom"|"left"|"right"
-    tabs: Array<string>
+    className?: string
+    className_Tab?: string
+    tabs?: Array<tab>
     selectedIndex?: number
     style?: object
     tabStyle?: object
+    tabStripStyle?: object
     selectedTabStyle?: object
+    containerStyle?: object
+    onSelectedIndexChanged?: (index:number)=>void
 };
 
 
-let TabContainer /*: fibre.UI.Component*/ = function inject(app:types.app.IAppLoaded) {
-    return class TabContainer extends app.services.UI.Component<attr&{children?:Array<types.app.UI.ElementPromise>}, never> {
-        
-        constructor(props:attr) {
-            super(props);
-        }
+type Container = ["div", props, Array<any>];
+let TabContainer = function transform(this:types.app.IAppLoaded, a:props, c:Array<any>):Container {
+    let {className, placement, containerStyle, selectedIndex, onSelectedIndexChanged, tabStyle, tabs, style, selectedTabStyle, tabStripStyle, className_Tab, ...props} = a;
 
-        render() {
-            let children:any[] = [];
-            let placement: "top"|"bottom"|"left"|"right" = this.props.placement || "top";
-            let v = placement === "top" || placement === "bottom" ? true : false;
-            let defaults = [];
-            let index = this.props.selectedIndex || 0;
-            
-            if (placement === "top" || placement === "left") {
-                defaults.push( {size: 20, min: 20, max: 20});
-                children.push( [ "div"
-                                , { style: this.props.style}
-                                , this.props.tabs.map((t, i) => [ "span", {style: i === (this.props.selectedIndex||0) ? this.props.selectedTabStyle : this.props.tabStyle}, t])
-                                ]);
-            }
-            defaults.push({});
-            children.push( (this.props.children && this.props.children.length > index) ? this.props.children[index] : ["div", {}, "empty"] );
-            if (placement === "bottom" || placement === "right") {
-                defaults.push( {size: 20, min: 20, max: 20});
-                children.push(["div", null, "tabs"]);
-            }
-            
-            return super.render([  SplitContainer
-                                , { direction: (v ? "column" : "row"), defaults: defaults }
-                                , children]);
-        }
-
-    };
-}
-/*
-type Tab = [types.element|types.promisedElement, {title?:string}, Array<types.element|types.promisedElement>]
-type TabContainer = [types.element, SplitContainer_Attributes, Array<Tab>];
-
-var TabContainer = function transform(a:attr, c:Array<Tab>):TabContainer {
     let children:any[] = [];
-    let placement: "top"|"bottom"|"left"|"right" = a.placement || "top";
+    placement = placement || "top";
     let v = placement === "top" || placement === "bottom" ? true : false;
-    let defaults = [];
-    let index = a.selectedIndex || 0;
-    
-    if (placement === "top" || placement === "left") {
-        defaults.push( {size: 20, min: 20, max: 20});
-        children.push( ["div", null, "tabs"]);
-    }
-    defaults.push({});
-    //children.push( (c && a.children.length > index) ? this.props.children[index] : ["div", {}, "empty"] );
-    children.push(["div", {}, "(empty)"])
 
-    if (placement === "bottom" || placement === "right") {
-        defaults.push( {size: 20, min: 20, max: 20});
-        children.push(["div", null, "tabs"]);
+    let drawTab = (tab: tab, index: number) =>  Array.isArray(tab) ? tab :
+                                                [ "div"
+                                                ,   { className: (placement === "left" ? styles.TableRow : styles.TableCell) + (' ' + (typeof tab !== "string" && tab.className ? tab.className : className_Tab || '')) + ' ' + styles.Tab + ' ' + (index === selectedIndex ? styles.Tab_Selected : styles.Tab_Normal )
+                                                    , style: index === selectedIndex ? selectedTabStyle : tabStyle, onClick: () => onSelectedIndexChanged ? onSelectedIndexChanged(index) : null 
+                                                    }
+                                                , typeof tab === "string" ? tab : tab.title
+                                                ];
+
+    if (placement === "top" || placement === "left") {
+        children.push( [ "div"
+                        , { style: tabStripStyle, className: styles.TabStrip + ' ' + (placement === "top" ? styles.TableRow : styles.TableCell)}
+                        , [["div", { className: styles.Table + ' ' + styles.Fill }, tabs ? tabs.map(drawTab) : null]]
+                        ]);
     }
-                
-    return  [ SplitContainer
-            , { direction: (v ? "column" : "row"), defaults: defaults }
-            , children
-            ];
+    if (c) children.push( ["div", {className: (v ? styles.TableRow  : styles.TableCell) + ' ' + styles.Fill}, c ]);
+    if (placement === "bottom" || placement === "right") {
+        children.push( [ "div"
+                        , { style: tabStripStyle, className: styles.TabStrip + ' ' + (placement === "bottom" ? styles.TableRow : styles.TableCell) }
+                        , [["div", { className: styles.Table }, tabs ? tabs.map(drawTab) : null]]
+                        ]);
+    }
+
+    return ["div", {className: styles.TabContainer + ' ' + styles.Table + (className ? ' ' + className : '') + ' ' + styles.Fill, style, ...props}, children];
 }
-*/
+
 export {TabContainer};

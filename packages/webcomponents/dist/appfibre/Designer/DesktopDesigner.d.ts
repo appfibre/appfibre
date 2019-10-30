@@ -4,18 +4,34 @@ declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
         src?: string | undefined;
     }): {
         iframe?: HTMLFrameElement | undefined;
-        componentWillMount(): void;
-        componentWillUnmount(): void;
-        designer_relay<T>(ev: types.app.IEventData<T>): void;
         componentDidMount(): void;
         navigateTo(url: string): void;
-        onRedirect(event: types.app.IEventData<any>): void;
         render(): any;
-        state: Readonly<any>;
+        state: Readonly<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }>;
         props: Readonly<any>;
         context: any;
-        setState<K extends string | number | symbol>(state: Pick<any, K>, callback?: (() => void) | undefined): void;
-        setState<K extends string | number | symbol>(fn: (prevState: any, props: any) => Pick<any, K>, callback?: (() => void) | undefined): void;
+        setState<K extends "url" | "src" | "leftMenuIndex" | "rightMenuIndex">(state: Pick<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, K>, callback?: (() => void) | undefined): void;
+        setState<K extends "url" | "src" | "leftMenuIndex" | "rightMenuIndex">(fn: (prevState: {
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, props: any) => Pick<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, K>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

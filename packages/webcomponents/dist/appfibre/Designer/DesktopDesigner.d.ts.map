@@ -1,1 +1,1 @@
-{"version":3,"file":"DesktopDesigner.d.ts","sourceRoot":"","sources":["../../../lib/appfibre/Designer/DesktopDesigner.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,iBAAiB,CAAC;AAMpC,QAAA,IAAI,eAAe;;;;;;;;;;;;;;;;;;;;;CAkIlB,CAAA;AAED,OAAO,EAAC,eAAe,EAAC,CAAC"}
+{"version":3,"file":"DesktopDesigner.d.ts","sourceRoot":"","sources":["../../../lib/appfibre/Designer/DesktopDesigner.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,iBAAiB,CAAC;AAQpC,QAAA,IAAI,eAAe;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CAyElB,CAAA;AAED,OAAO,EAAC,eAAe,EAAC,CAAC"}

@@ -115,6 +115,83 @@ var Transformer = /** @class */ (function () {
                 context.code += "return " + (isDefault ? this.process(obj["default"], context, true, false, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, true, false, 1) : key + ":" + sp + _this.process(obj[key], context, true, false, 2); }), 1) + "}") + ";";
         }
     };
+    Transformer.prototype.resolve = function (relUrl, parentUrl) {
+        var backslashRegEx = /\\/g;
+        if (relUrl.indexOf('\\') !== -1)
+            relUrl = relUrl.replace(backslashRegEx, '/');
+        // protocol-relative
+        if (relUrl[0] === '/' && relUrl[1] === '/') {
+            return parentUrl.slice(0, parentUrl.indexOf(':') + 1) + relUrl;
+        }
+        // relative-url
+        else if (relUrl[0] === '.' && (relUrl[1] === '/' || relUrl[1] === '.' && (relUrl[2] === '/' || relUrl.length === 2 && (relUrl += '/')) ||
+            relUrl.length === 1 && (relUrl += '/')) ||
+            relUrl[0] === '/') {
+            var parentProtocol = parentUrl.slice(0, parentUrl.indexOf(':') + 1);
+            // Disabled, but these cases will give inconsistent results for deep backtracking
+            //if (parentUrl[parentProtocol.length] !== '/')
+            //  throw new Error('Cannot resolve');
+            // read pathname from parent URL
+            // pathname taken to be part after leading "/"
+            var pathname = void 0;
+            if (parentUrl[parentProtocol.length + 1] === '/') {
+                // resolving to a :// so we need to read out the auth and host
+                if (parentProtocol !== 'file:') {
+                    pathname = parentUrl.slice(parentProtocol.length + 2);
+                    pathname = pathname.slice(pathname.indexOf('/') + 1);
+                }
+                else {
+                    pathname = parentUrl.slice(8);
+                }
+            }
+            else {
+                // resolving to :/ so pathname is the /... part
+                pathname = parentUrl.slice(parentProtocol.length + (parentUrl[parentProtocol.length] === '/' ? 1 : 0));
+            }
+            if (relUrl[0] === '/')
+                return parentUrl.slice(0, parentUrl.length - pathname.length - 1) + relUrl;
+            // join together and split for removal of .. and . segments
+            // looping the string instead of anything fancy for perf reasons
+            // '../../../../../z' resolved to 'x/y' is just 'z'
+            var segmented = pathname.slice(0, pathname.lastIndexOf('/') + 1) + relUrl;
+            var output = [];
+            var segmentIndex = -1;
+            for (var i = 0; i < segmented.length; i++) {
+                // busy reading a segment - only terminate on '/'
+                if (segmentIndex !== -1) {
+                    if (segmented[i] === '/') {
+                        output.push(segmented.slice(segmentIndex, i + 1));
+                        segmentIndex = -1;
+                    }
+                }
+                // new segment - check if it is relative
+                else if (segmented[i] === '.') {
+                    // ../ segment
+                    if (segmented[i + 1] === '.' && (segmented[i + 2] === '/' || i + 2 === segmented.length)) {
+                        output.pop();
+                        i += 2;
+                    }
+                    // ./ segment
+                    else if (segmented[i + 1] === '/' || i + 1 === segmented.length) {
+                        i += 1;
+                    }
+                    else {
+                        // the start of a new segment as below
+                        segmentIndex = i;
+                    }
+                }
+                // it is the start of a new segment
+                else {
+                    segmentIndex = i;
+                }
+            }
+            // finish reading out the last segment
+            if (segmentIndex !== -1)
+                output.push(segmented.slice(segmentIndex));
+            return parentUrl.slice(0, parentUrl.length - pathname.length) + output.join('');
+        }
+        return relUrl;
+    };
     Transformer.prototype.processImports = function (output) {
         var _this = this;
         var nl = this.settings.compact ? '' : '\n';
@@ -144,7 +221,8 @@ var Transformer = /** @class */ (function () {
                     output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
                 break;
             case "amd":
-                output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { " + output.code + " });" + nl;
+                var exp = Object.keys(r).map(function (key, index) { return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, output.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, output.name || location.href) + "\"};"; }).join('\n');
+                output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { \n" + exp + " " + output.code + " });" + nl;
                 break;
             case "es":
                 output.code = Object.keys(s).map(function (key) { return "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from " + _this.skey(key) + ";" + nl; }).join('') + Object.keys(r).map(function (key) { return "import * as _" + r[key] + " from " + _this.skey(key.substr(key[0] == "~" ? 1 : 0)) + ";" + nl; }).join('') + output.code;

@@ -41,6 +41,15 @@ const Loader:types.app.IModuleSystem = {
 
     init: (/*basePath: string*/) => void {
 
+    },
+
+    fetch: async (url:string, headers?:Record<string, string>) => {
+        const res = await fetch(url, {headers: headers, credentials: 'same-origin'});
+        return { text: await res.text(), contentType: (res.headers.get('content-type')||'text/plain').split(';')[0].toLowerCase() };
+    },
+
+    register(_source:string, _target:string) {
+
     }
 }
 

@@ -96,7 +96,7 @@ export class Processor implements types.app.IProcessor
     }
 
     // ether an element, or array of elements depending on depth == even or odd
-    processElementInternal(element:any, depth:number, index?:number) : any {
+    processElementInternal(element:any, parentkey:string, depth:number, index?:number) : any {
         if (depth % 2 === 0) 
         {
             if (typeof element != "string" && !Array.isArray(element)) {
@@ -104,9 +104,10 @@ export class Processor implements types.app.IProcessor
                 return element;
             }
             else if (Array.isArray(element)) {
-                if (index !== undefined) {
+                if (typeof element[1] !== "string") {
                     element[1] = element[1] || {};
-                    if (!element[1].key) element[1].key = index;
+                    if (!element[1].key) element[1].key = parentkey + this.generateKey(index);
+                    if (typeof element[0]==="function") element[1]["_key"] = element[1]["key"];
                 }
             }
             
@@ -114,40 +115,40 @@ export class Processor implements types.app.IProcessor
             //    element = element[1].context.intercept(element);
         } 
         //console.log({element, index, depth, code: JSON.stringify(element)});
-        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2]);
+        return depth % 2 === 1 || !Array.isArray(element) ? element : this.app.services.UI.createElement(element[0], element[1], element[2] /*&& typeof element[2] === "object" && !Array.isArray(element[2]) && (<{default:any}>element[2]).default ? this.init(element[2], true) : element[2]*/);
     }
 
-    private parse(obj:any, level:number, path:string, index?:number) : any {
+    private parse(obj:any, parentkey:string, level:number, index?:number) : any {
         this.app.services.logger.log.call(this, types.app.LogLevel.Trace, 'Processor.parse', obj);
         let processor = this;
        
         return new Promise(function (r:Function, f:any) {
             if (!obj) return r(obj);
-            
-            if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any/*types.app.element|types.app.promisedElement*/}>obj).default)        
-                obj = processor.init(<{default:any/*types.app.element|types.app.promisedElement*/}>obj);
+            obj = processor.unwrapDefault(obj);
+            //if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any/*types.app.element|types.app.promisedElement*/}>obj).default)        
+            //   obj = processor.init(obj, false);
 
             if (Array.isArray(obj)) {
-                if (typeof obj[0] === "object" && obj[0]['default'])
-                    obj[0] = processor.init(obj[0]);
+                //if (typeof obj[0] === "object" && obj[0]['default'])
+                  //  obj[0] = processor.init(obj[0], false);
 
                 if (typeof obj[0] === "string")
                     obj[0] = processor.resolve(obj[0]);
 
                 if (typeof obj[0] === "function" && processor.getFunctionName(obj[0]) === "transform") 
-                    processor.parse(obj[0].apply(processor.app, obj.slice(1)), level, path + '[0]()', index).then(r, f);
+                    processor.parse(obj[0].apply(processor.app, obj.slice(1)), parentkey /*+ ','*/, level, index).then(r, f);
                 else 
-                    Promise.all(obj.map((v,i) => {return processor.parse(v, level+1, path + '[' + i + ']', i)})).then(o => {try { r(processor.processElementInternal(o,level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
+                    Promise.all(obj.map((v,i) => {return processor.parse(v, parentkey /*+ '.' */ + processor.generateKey(i), level+1, i)})).then(o => {try { r(processor.processElementInternal(o, parentkey, level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, [o]); f(e)}}, f);
             }
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "inject")  
-                Promise.resolve((obj)(Inject(processor.app))).then(o => processor.parse(o, level,path, index).then(r, f), f);
+                Promise.resolve((obj)(Inject(processor.app))).then(o => processor.parse(o, parentkey, level, index).then(r, f), f);
             else if (typeof obj === "function" && processor.getFunctionName(obj) === "Component") 
                 try{r(processor.createClass( BaseComponent(processor.app), obj));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}
             else if (Promise.resolve(obj) === obj)  {
-                Promise.resolve(obj).then(o => processor.parse(o, level, path, index).then((o2:any) => r(o2), f), f);
+                Promise.resolve(obj).then(o => processor.parse(o, parentkey, level, index).then((o2:any) => r(o2), f), f);
             }
             else if (obj)
-                { try { r(processor.processElementInternal(obj, level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
+                { try { r(processor.processElementInternal(obj, parentkey, level, index));} catch (e) {processor.app.services.logger.log(types.app.LogLevel.Error, 'Processor.parse: ' + e.stack, obj); f(e)}}
             else r(obj);
         });
     }
@@ -172,12 +173,18 @@ export class Processor implements types.app.IProcessor
                     obj = obj[path[part]];
                     if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
                 }
+                else if (obj.default && obj.default[path[part]] !== undefined) {
+                    debugger;
+                    obj = obj.default[path[part]];
+                    if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
+                }
                 else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0])
                     obj = path[part];
                 else {
                     if (fullpath === "Exception")
                         return function transform(obj:any):any { return ["pre", {"style":{"color":"red"}}, obj[1].stack ? obj[1].stack : obj[1]]; }
                     else {
+                        debugger;
                         this.app.services.logger.log.call(this, types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
                         return class extends BaseComponent(this.app) { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
                     }
@@ -189,20 +196,34 @@ export class Processor implements types.app.IProcessor
         } 
     }
 
-    init(obj:{default:any}):any {
-        return obj.default;
+    unwrapDefault(obj:any) {
+        if (obj && obj.default)
+            obj = obj.default;
+        if (Array.isArray(obj)) 
+            return obj.map(e => e && e.default ? e.default : e);
+        return obj;
+    }
+    
+    chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    generateKey(index?:number) {
+        if (!index) return '_';
+        let key = '';
+        if (index >= this.chars.length) {
+            while (index >= this.chars.length) {
+                key = this.chars[(index % this.chars.length)].toString() + key;
+                index = (index - (index % this.chars.length)) / this.chars.length;
+            }
+            key = '_' + key;
+        } else
+            key = (index % this.chars.length).toString();
+        return key;
     }
 
-    processElement(obj:types.app.UI.ElementPromise, index?:number) : any {
+    processElement(obj:types.app.UI.ElementPromise, parentkey?:string, index?:number) : any {
         if (!obj) return obj;
-        if (typeof obj === "object" && !Array.isArray(obj) && (<{default:any}>obj).default)        
-            obj = this.init(<{default:any}>obj);
-
+        
+        obj = this.unwrapDefault(obj);
         if (Array.isArray(obj)) {
-            if (typeof obj[0] === "object" && obj[0]['default'])
-                // TODO: Remove <never>
-                //obj[0] = /*<never>*/this.init(obj[0]);
-                debugger;
             if (typeof obj[0] === "string"){
                 obj[0] = <never>this.resolve(obj[0]);
             }
@@ -214,28 +235,29 @@ export class Processor implements types.app.IProcessor
                     case "transform":
                         let key = index;
                         if (obj[1] && obj[1].key) key = obj[1].key;
-                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), key);
+                        return this.processElement(obj[0].apply(this.app, obj.slice(1)), parentkey/*+','*/, key);
                     case "inject":
                         obj[0] = (obj[0])(Inject(this.app));
-                        return this.processElement(obj);
+                        return this.processElement(obj, parentkey /*+ ','*/);
                     case "Component":
                         obj[0] = this.createClass( BaseComponent(this.app), obj[0]);
-                        return this.processElement(obj);
+                        return this.processElement(obj, parentkey /*+ ','*/);
                 }                  
             }
-        }
+        }   
         if (Array.isArray(obj) && obj.some(c => Promise.resolve(c) === c)) 
-            return this.processElementInternal([this.Async(), {id: Date.now()}, obj], 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
+            return this.processElementInternal([this.Async(), {id: Date.now()}, obj], parentkey + '_async', 0, obj && obj[1] && obj[1].key !== undefined ? obj[1].key : index);
         else if (typeof obj === "string" || !obj) 
             return obj;
         //else if (obj.then)  
         //    Promise.all( [ obj ]).then(o => processor.parse(o[0], level, path, index).then((o2:any) => r(o2), f), f);
 
         if (Promise.resolve(obj)===obj) 
-           obj = [this.Async(), {index: index}, obj];
+           obj = [this.Async(), {key: parentkey}, obj];
 
-        if (Array.isArray(obj)) 
-            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map((c, idx) => { return typeof c === "string" ?  c : this.processElement(c, idx)}) : obj[2]], 0, index);
+        if (Array.isArray(obj))  {
+            return this.processElementInternal([obj[0], obj[1], Array.isArray(obj[2]) ? obj[2].map((c, idx) => { return typeof c === "string" ?  c : this.processElement(c, parentkey + /*'.' +*/ this.generateKey(idx), idx)}) : obj[2]], parentkey + this.generateKey(index), 0, index);
+        }
         else 
             return obj;
     }
@@ -267,7 +289,7 @@ export class Processor implements types.app.IProcessor
                     this.app.services.moduleSystem.init(this.app.settings.baseExecutionPath);
                     this.app.services.moduleSystem.import(this.app.services.transformer.transform(JSON.stringify(obj)).code).then((exported:any) => {
                         try{
-                            this.parse(exported.default || exported, 0, '').then(resolve, reject);
+                            this.parse(exported.default || exported, "af", 0).then(resolve, reject);
                         }
                         catch(e) {
                             reject(e);
@@ -276,7 +298,7 @@ export class Processor implements types.app.IProcessor
                     }, (rs:any) =>reject(rs)); 
                 }
                 else 
-                    this.parse(obj, 0, '').then(resolve, reject);
+                    this.parse(obj, "af", 0).then(resolve, reject);
             }
             catch(e) {
                 reject(e);

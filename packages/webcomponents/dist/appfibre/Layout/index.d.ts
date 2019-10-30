@@ -1,6 +1,5 @@
-import { Flex, FlexItem } from "./FlexBox";
-import { Grid, GridItem } from "./Grid";
-import { SplitContainer } from "./SplitContainer";
 import { TabContainer } from "./TabContainer";
-export { Flex, FlexItem, Grid, GridItem, TabContainer, SplitContainer };
+import { CommandBar } from "./CommandBar";
+import Style from './Style';
+export { Style, TabContainer, CommandBar };
 //# sourceMappingURL=index.d.ts.map

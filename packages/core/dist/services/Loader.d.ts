@@ -15,8 +15,12 @@ export declare class Loader implements types.app.IModuleSystem {
         [name: string]: any;
     }): PromiseLike<any>;
     resolve(url: string): string;
+    register(source: string, target: string): void;
     instantiate(url: string, parent?: any, references?: {
         [name: string]: any;
     }): any;
     init(basePath: string): void;
+    fetch(url: string, headers?: {
+        [header: string]: string;
+    }): Promise<types.app.filedetail>;
 }

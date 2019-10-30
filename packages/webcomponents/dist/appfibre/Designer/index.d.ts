@@ -28,18 +28,34 @@ declare let Designer: ((app: import("@appfibre/types/dist/webapp").webapp.IWebAp
         src?: string | undefined;
     }): {
         iframe?: HTMLFrameElement | undefined;
-        componentWillMount(): void;
-        componentWillUnmount(): void;
-        designer_relay<T>(ev: import("@appfibre/types/dist/app").app.IEventData<T>): void;
         componentDidMount(): void;
         navigateTo(url: string): void;
-        onRedirect(event: import("@appfibre/types/dist/app").app.IEventData<any>): void;
         render(): any;
-        state: Readonly<any>;
+        state: Readonly<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }>;
         props: Readonly<any>;
         context: any;
-        setState<K extends string | number | symbol>(state: Pick<any, K>, callback?: (() => void) | undefined): void;
-        setState<K extends string | number | symbol>(fn: (prevState: any, props: any) => Pick<any, K>, callback?: (() => void) | undefined): void;
+        setState<K extends "src" | "url" | "leftMenuIndex" | "rightMenuIndex">(state: Pick<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, K>, callback?: (() => void) | undefined): void;
+        setState<K extends "src" | "url" | "leftMenuIndex" | "rightMenuIndex">(fn: (prevState: {
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, props: any) => Pick<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }, K>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

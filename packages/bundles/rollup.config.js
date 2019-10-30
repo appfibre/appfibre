@@ -6,12 +6,13 @@
 import resolve from 'rollup-plugin-node-resolve';
 import cjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
+import postcss from 'rollup-plugin-postcss';
+//import copy from 'rollup-plugin-copy';
 
 const pkg = require('./package.json');
 const external = Object.keys(pkg.dependencies);
 
-
-export default 
+export default
   [
     { input: 'lib/system.js',
       output: [ { file: 'webapp-systemjs.js', format: 'iife', sourcemap: true, name: 'webapp', globals: { "@appfibre/types": 'types', "@appfibre/core": 'core','@appfibre/webapp': 'webapp', 'systemjs-plugin-babel': 'babel', 'systemjs-babel-build': 'systemjsBabelBuild'} }
@@ -53,12 +54,31 @@ export default
                , */cjs()
                ],
       external	
+
     },
-    { input: '@appfibre/webcomponents/dist/appfibre',
+    //css
+    /*{ input: '../webcomponents/index.js', 
+      plugins: [ copy({
+                targets: [
+                  { src: '../webcomponents/lib/appfibre/Designer/*.css', dest: '../webcomponents/dist/appfibre/Designer/' }
+                , { src: '../webcomponents/lib/appfibre/Layout/*.css', dest: '../webcomponents/dist/appfibre/Layout/' }
+                ], verbose: true
+              })
+              ] 
+      , output: {format: 'iife', dir: './'}
+    },*/
+    { input: '@appfibre/webcomponents',
       plugins: [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
-               , resolve({mainFields: ['main']})
+                 resolve({mainFields: ['main'], browser: true})                 
+                /*, typescript({
+                  //tsconfigDefaults: { compilerOptions: { declaration: true } },
+                  tsconfig: "./node_modules/@appfibre/webcomponents/tsconfig.json",
+                  rollupCommonJSResolveHack: true,
+                  //tsconfigOverride: { compilerOptions: { declaration: false } }
+                 })*/
                , cjs()
-               //s, buble({namedFunctionExpressions: false})
+               , postcss({extract: false, plugins: [], extensions: ['.css'] })
+               //, buble({namedFunctionExpressions: false})
                ],
       output: [ { file: 'webcomponents-appfibre.js', format: 'iife', sourcemap: true, name: "appfibre_webcomponents", globals: { '@appfibre/types': 'appfibre' } }
               , { file: 'webcomponents-appfibre.umd.js', format: 'umd', sourcemap: true, name: "appfibre_webcomponents", globals: { '@appfibre/types': 'appfibre' } }
@@ -66,7 +86,7 @@ export default
               , { file: 'webcomponents-appfibre.es.js', format: 'es', sourcemap: true, name: "appfibre_webcomponents", globals: { '@appfibre/types': 'appfibre' } }
               ]
       //, external: ['@appfibre/webapp', '@appfibre/types']
-    }/*,
+    },/*
     { input: 'lib/Components/Designer/index.ts',
       plugins:  [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
                 , typescript()
@@ -81,4 +101,28 @@ export default
       }
     }*/
 
+    {
+      input: '@appfibre/webcomponents/dist/codemirror',
+      plugins: [ //postcss({extract: true, plugins: [autoprefixer()], writeDefinitions: true })
+                 resolve({mainFields: ['main'], browser: true})                 
+                /*, typescript({
+                  //tsconfigDefaults: { compilerOptions: { declaration: true } },
+                  tsconfig: "./node_modules/@appfibre/webcomponents/tsconfig.json",
+                  rollupCommonJSResolveHack: true,
+                  //tsconfigOverride: { compilerOptions: { declaration: false } }
+                 })*/
+               , cjs()
+               , postcss({extract: false, plugins: [], extensions: ['.css'] })
+               //, buble({namedFunctionExpressions: false})
+               ],
+      output: [ { file: 'webcomponents-codemirror.js', format: 'iife', sourcemap: true, name: "codemirror" }
+              , { file: 'webcomponents-codemirror.umd.js', format: 'umd', sourcemap: true, name: "codemirror" }
+              , { file: 'webcomponents-codemirror.cjs.js', format: 'cjs', sourcemap: true, name: "codemirror" }
+              , { file: 'webcomponents-codemirror.es.js', format: 'es', sourcemap: true, name: "codemirror" }
+              ]
+    }
+
 ]
+
+
+

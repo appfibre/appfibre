@@ -21,7 +21,24 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
             keys.forEach(function (z) { return obj2[z == ".app" ? "main" : z] = obj[z]; });
             return "[\".App\", {" + app.services.transformer.process(obj2, context, true, true, offset) + "}]";
         };
-    app.services.processor.init = function (obj) { return typeof obj.__esModule === "string" ? [Intercept, { file: obj.__esModule }, [obj["default"]]] : obj["default"]; };
+    app.services.processor.unwrapDefault = function (obj) {
+        if (typeof obj === "object" && typeof obj.__esModule === "string")
+            return app.services.processor.processElement([Intercept, { file: obj.__esModule }, typeof obj["default"] === "string" ? obj["default"] : [obj["default"]]]);
+        if (obj && obj["default"])
+            obj = obj["default"];
+        if (Array.isArray(obj)) {
+            /*if (typeof obj[0] === "object" && typeof obj[0].__esModule === "string" && obj[0].default) {
+                let __esModule = obj[0].__esModule;
+                obj[0] = obj[0].default;
+                return app.services.processor.processElement([Intercept, {file: __esModule}, [obj]]);
+            }*/
+            if (typeof obj[2] === "object" && typeof obj[2].__esModule === "string" && obj[2]["default"]) {
+                obj[2] = [[Intercept, { file: obj[2].__esModule }, obj[2]["default"]]];
+            }
+            return obj.map(function (e) { return e && e["default"] ? e["default"] : e; });
+        }
+        return obj;
+    };
     return /** @class */ (function (_super) {
         __extends(Designer, _super);
         function Designer(props) {
@@ -47,10 +64,14 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
         };
         Designer.prototype.designer_Load = function (ev) {
             var _this = this;
-            if (ev.data)
-                app.services.moduleSystem["import"](ev.data.url).then(function (x) {
-                    _this.setState({ content: x });
-                }, function (z) { return alert("loaded " + z); });
+            if (ev.data) {
+                if (ev.data.url > '')
+                    app.services.moduleSystem["import"](ev.data.url).then(function (x) {
+                        _this.setState({ content: x });
+                    }, function (z) { return alert(z); });
+                else
+                    this.setState({ content: app.main });
+            }
         };
         Designer.prototype.render = function () {
             return _super.prototype.render.call(this, this.state.content);

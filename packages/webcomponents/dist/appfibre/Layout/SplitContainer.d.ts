@@ -3,6 +3,8 @@ export interface SplitContainer_Attributes {
     direction?: "row" | "column" | "row-reverse" | "column-reverse";
     defaults?: Array<initial>;
     children?: Array<any>;
+    style?: object;
+    className?: string;
 }
 export interface state {
     direction: "row" | "column" | "row-reverse" | "column-reverse";

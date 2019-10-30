@@ -1,6 +1,7 @@
-import { Flex, FlexItem } from "./FlexBox";
-import { Grid, GridItem } from "./Grid";
-import { SplitContainer } from "./SplitContainer";
+//import { Flex, FlexItem } from "./FlexBox";
+//import { Grid, GridItem } from "./Grid";
 import { TabContainer } from "./TabContainer";
+import { CommandBar } from "./CommandBar";
+import Style from './Style';
 
-export {Flex, FlexItem, Grid, GridItem, TabContainer, SplitContainer};
+export {Style, TabContainer, CommandBar};
