@@ -16,7 +16,7 @@ var CommandBar = function transform(props, children) {
         for (var _i = 0, _a = props.sections; _i < _a.length; _i++) {
             var section = _a[_i];
             c.push(["div",
-                { style: __assign({}, props.section_style, { display: "table-cell" }), className: 'Section' },
+                { style: __assign(__assign({}, props.section_style), { display: "table-cell" }), className: 'Section' },
                 [["div",
                         { style: { height: '80px' }, className: 'Section-Commands' },
                         section.commands ? section.commands.map(function (s) { return ["div", __assign({ className: s.className }, s.style), [["div", { title: s.title, onClick: s.onClick }, s.title]]]; }) : null

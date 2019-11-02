@@ -47,7 +47,6 @@ export class Loader implements types.app.IModuleSystem {
     }
     
     resolve(url:string) {
-        var u = url;
         if (url[0] == '@' && this.app.settings.cdn) {
             let cdn = url.slice(0, url.indexOf('/'));
             if (this.app.settings.cdn[cdn])

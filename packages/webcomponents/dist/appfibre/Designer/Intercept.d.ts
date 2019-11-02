@@ -20,12 +20,51 @@ declare let Intercept: (app: types.app.IAppLoaded<{}, {}>) => {
         mouseLeave(): void;
         doubleclick(ev: MouseEvent): void;
         click(ev: MouseEvent): void;
+        componentWillMount?(): void;
+        getChildContext?(): object;
+        componentWillReceiveProps?(nextProps: Readonly<{
+            file?: string | undefined;
+            children?: any;
+        }>, nextContext: any): void;
+        shouldComponentUpdate?(nextProps: Readonly<{
+            file?: string | undefined;
+            children?: any;
+        }>, nextState: Readonly<{
+            focus: boolean;
+            selected: boolean;
+            editing: boolean;
+            selectedCorrelationId?: string | undefined;
+            editMode: any;
+            canEdit: boolean;
+        }>, nextContext: any): boolean;
+        componentWillUpdate?(nextProps: Readonly<{
+            file?: string | undefined;
+            children?: any;
+        }>, nextState: Readonly<{
+            focus: boolean;
+            selected: boolean;
+            editing: boolean;
+            selectedCorrelationId?: string | undefined;
+            editMode: any;
+            canEdit: boolean;
+        }>, nextContext: any): void;
+        componentDidUpdate?(previousProps: Readonly<{
+            file?: string | undefined;
+            children?: any;
+        }>, previousState: Readonly<{
+            focus: boolean;
+            selected: boolean;
+            editing: boolean;
+            selectedCorrelationId?: string | undefined;
+            editMode: any;
+            canEdit: boolean;
+        }>, previousContext: any): void;
         props: Readonly<{
             file?: string | undefined;
             children?: any;
         }>;
         context: any;
-        setState<K extends "editMode" | "editing" | "focus" | "selected" | "selectedCorrelationId" | "canEdit">(state: Pick<{
+        setState<K extends "focus" | "editMode" | "editing" | "selected" | "selectedCorrelationId" | "canEdit">(state: Pick<{
             focus: boolean;
             selected: boolean;
             editing: boolean;
@@ -33,7 +72,7 @@ declare let Intercept: (app: types.app.IAppLoaded<{}, {}>) => {
             editMode: any;
             canEdit: boolean;
         }, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "editMode" | "editing" | "focus" | "selected" | "selectedCorrelationId" | "canEdit">(fn: (prevState: {
+        setState<K_1 extends "focus" | "editMode" | "editing" | "selected" | "selectedCorrelationId" | "canEdit">(fn: (prevState: {
             focus: boolean;
             selected: boolean;
             editing: boolean;
@@ -50,7 +89,7 @@ declare let Intercept: (app: types.app.IAppLoaded<{}, {}>) => {
             selectedCorrelationId?: string | undefined;
             editMode: any;
             canEdit: boolean;
-        }, K>, callback?: (() => void) | undefined): void;
+        }, K_1>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

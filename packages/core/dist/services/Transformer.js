@@ -22,7 +22,7 @@ var Transformer = /** @class */ (function () {
         this.type = "Transformer";
         if (settings) {
             settings.parsers = settings.parsers || Parsers_1.Parsers;
-            this.settings = __assign({}, settings, { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1["default"].app.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports });
+            this.settings = __assign(__assign({}, settings), { indent: settings.indent || '\t', compact: settings.compact || false, module: settings.module || types_1["default"].app.ModuleSystem.None, namedExports: settings.namedExports === undefined ? true : settings.namedExports });
         }
         else
             this.settings = { module: types_1["default"].app.ModuleSystem.ES, parsers: Parsers_1.Parsers };

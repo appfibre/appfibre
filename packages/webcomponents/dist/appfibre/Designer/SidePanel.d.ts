@@ -16,8 +16,14 @@ declare let SidePanel: (app: types.webapp.IWebAppLoaded) => {
         componentWillMount(): void;
         componentWillUnmount(): void;
         render(): any;
+        componentDidMount?(): void;
+        getChildContext?(): object;
+        componentWillReceiveProps?(nextProps: Readonly<props>, nextContext: any): void;
+        shouldComponentUpdate?(nextProps: Readonly<props>, nextState: Readonly<state>, nextContext: any): boolean;
+        componentWillUpdate?(nextProps: Readonly<props>, nextState: Readonly<state>, nextContext: any): void;
+        componentDidUpdate?(previousProps: Readonly<props>, previousState: Readonly<state>, previousContext: any): void;
         setState<K extends "selectedIndex">(state: Pick<state, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "selectedIndex">(fn: (prevState: state, props: props) => Pick<state, K>, callback?: (() => void) | undefined): void;
+        setState<K_1 extends "selectedIndex">(fn: (prevState: state, props: props) => Pick<state, K_1>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

@@ -111,7 +111,7 @@ var appfibre_webcomponents = (function (exports) {
             for (var _i = 0, _a = props.sections; _i < _a.length; _i++) {
                 var section = _a[_i];
                 c.push(["div",
-                    { style: __assign$1({}, props.section_style, { display: "table-cell" }), className: 'Section' },
+                    { style: __assign$1(__assign$1({}, props.section_style), { display: "table-cell" }), className: 'Section' },
                     [["div",
                             { style: { height: '80px' }, className: 'Section-Commands' },
                             section.commands ? section.commands.map(function (s) { return ["div", __assign$1({ className: s.className }, s.style), [["div", { title: s.title, onClick: s.onClick }, s.title]]]; }) : null
@@ -302,7 +302,7 @@ var appfibre_webcomponents = (function (exports) {
                     files.splice(index, 1);
                 else
                     files.push(filename);
-                this.setState({ editing: __assign$2({}, this.state.editing, { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(events["Edit.Event"](_this.state.editing)); });
+                this.setState({ editing: __assign$2(__assign$2({}, this.state.editing), { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(events["Edit.Event"](_this.state.editing)); });
             };
             DesktopRibbon.prototype.componentDidMount = function () {
                 //this.setState({url: this.props.document});
@@ -395,9 +395,8 @@ var appfibre_webcomponents = (function (exports) {
 
     var UI_1 = createCommonjsModule(function (module, exports) {
     exports.__esModule = true;
-    var UI;
     (function (UI) {
-    })(UI = exports.UI || (exports.UI = {}));
+    })();
     });
 
     unwrapExports(UI_1);

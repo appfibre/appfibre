@@ -80,7 +80,7 @@ declare let CodeMirror: (this: types.webapp.IWebAppLoaded, attr: {
         indentWithTabs: boolean;
         electricChars: boolean;
         specialChars: RegExp;
-        direction: "rtl" | "ltr";
+        direction: "ltr" | "rtl";
         rtlMoveVisually: boolean;
         keyMap: string;
         extraKeys: object;

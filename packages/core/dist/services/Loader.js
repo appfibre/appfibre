@@ -35,7 +35,6 @@ var Loader = /** @class */ (function () {
         }, rj); });
     };
     Loader.prototype.resolve = function (url) {
-        var u = url;
         if (url[0] == '@' && this.app.settings.cdn) {
             var cdn = url.slice(0, url.indexOf('/'));
             if (this.app.settings.cdn[cdn])

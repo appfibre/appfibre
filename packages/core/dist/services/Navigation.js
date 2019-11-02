@@ -98,7 +98,7 @@ var Navigation = {
                 return false;
             };
             a.prototype.render = function () {
-                return _super.prototype.render.call(this, ["a", __assign({}, this.props, { onClick: this.click.bind(this) }), this.props.children]);
+                return _super.prototype.render.call(this, ["a", __assign(__assign({}, this.props), { onClick: this.click.bind(this) }), this.props.children]);
                 //return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
             };
             return a;

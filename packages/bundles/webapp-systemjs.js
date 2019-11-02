@@ -941,9 +941,8 @@ var webapp = (function () {
 	var UI_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
-	  var UI;
 
-	  (function (UI) {})(UI = exports.UI || (exports.UI = {}));
+	  (function (UI) {})();
 	});
 	unwrapExports(UI_1);
 	var UI_2 = UI_1.UI;
@@ -1424,6 +1423,12 @@ var webapp = (function () {
 	var Browser = createCommonjsModule(function (module, exports) {
 
 	  var __awaiter = commonjsGlobal && commonjsGlobal.__awaiter || function (thisArg, _arguments, P, generator) {
+	    function adopt(value) {
+	      return value instanceof P ? value : new P(function (resolve) {
+	        resolve(value);
+	      });
+	    }
+
 	    return new (P || (P = Promise))(function (resolve, reject) {
 	      function fulfilled(value) {
 	        try {
@@ -1442,9 +1447,7 @@ var webapp = (function () {
 	      }
 
 	      function step(result) {
-	        result.done ? resolve(result.value) : new P(function (resolve) {
-	          resolve(result.value);
-	        }).then(fulfilled, rejected);
+	        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
 	      }
 
 	      step((generator = generator.apply(thisArg, _arguments || [])).next());
@@ -1562,7 +1565,6 @@ var webapp = (function () {
 	    }
 	  };
 
-	  var _this = commonjsGlobal;
 	  exports.__esModule = true;
 	  var basePath = '';
 
@@ -1589,7 +1591,7 @@ var webapp = (function () {
 
 	  var Loader = {
 	    instantiate: function instantiate(url, parent) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var res;
 	        return __generator(this, function (_a) {
 	          switch (_a.label) {
@@ -1611,7 +1613,7 @@ var webapp = (function () {
 	      });
 	    },
 	    "import": function _import(source, url) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var output;
 	        return __generator(this, function (_a) {
 	          try {
@@ -1651,7 +1653,7 @@ var webapp = (function () {
 
 	      return fetch;
 	    }(function (url, headers) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var res, _a;
 
 	        return __generator(this, function (_b) {
@@ -1688,6 +1690,12 @@ var webapp = (function () {
 	var NodeJs = createCommonjsModule(function (module, exports) {
 
 	  var __awaiter = commonjsGlobal && commonjsGlobal.__awaiter || function (thisArg, _arguments, P, generator) {
+	    function adopt(value) {
+	      return value instanceof P ? value : new P(function (resolve) {
+	        resolve(value);
+	      });
+	    }
+
 	    return new (P || (P = Promise))(function (resolve, reject) {
 	      function fulfilled(value) {
 	        try {
@@ -1706,9 +1714,7 @@ var webapp = (function () {
 	      }
 
 	      function step(result) {
-	        result.done ? resolve(result.value) : new P(function (resolve) {
-	          resolve(result.value);
-	        }).then(fulfilled, rejected);
+	        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
 	      }
 
 	      step((generator = generator.apply(thisArg, _arguments || [])).next());
@@ -1826,7 +1832,20 @@ var webapp = (function () {
 	    }
 	  };
 
-	  var _this = commonjsGlobal;
+	  var __spreadArrays = commonjsGlobal && commonjsGlobal.__spreadArrays || function () {
+	    for (var s = 0, i = 0, il = arguments.length; i < il; i++) {
+	      s += arguments[i].length;
+	    }
+
+	    for (var r = Array(s), k = 0, i = 0; i < il; i++) {
+	      for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) {
+	        r[k] = a[j];
+	      }
+	    }
+
+	    return r;
+	  };
+
 	  exports.__esModule = true; //import path from 'path';
 
 	  var basepath;
@@ -1854,7 +1873,7 @@ var webapp = (function () {
 
 	      var refkeys = references ? Object.keys(references) : [];
 	      var refs = references ? Object.values(references) : [];
-	      Function.apply(void 0, refkeys.concat(['require', 'module', source + ";\n//# sourceURL=' + " + url])).apply(void 0, refs.concat([nodeRequire, m]));
+	      Function.apply(void 0, __spreadArrays(refkeys, ['require', 'module', source + ";\n//# sourceURL=' + " + url])).apply(void 0, __spreadArrays(refs, [nodeRequire, m]));
 	    } catch (f) {
 	      console.log('Error running script from source "' + (url || source) + '"', f);
 	      throw f;
@@ -1865,7 +1884,7 @@ var webapp = (function () {
 
 	  var Loader = {
 	    instantiate: function instantiate(url, parent, _references) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var res;
 	        return __generator(this, function (_a) {
 	          switch (_a.label) {
@@ -1887,7 +1906,7 @@ var webapp = (function () {
 	      });
 	    },
 	    "import": function _import(source, url, references) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var output;
 	        return __generator(this, function (_a) {
 	          try {
@@ -1923,7 +1942,7 @@ var webapp = (function () {
 
 	      return fetch;
 	    }(function (url, headers) {
-	      return __awaiter(_this, void 0, void 0, function () {
+	      return __awaiter(void 0, void 0, void 0, function () {
 	        var res, _a;
 
 	        return __generator(this, function (_b) {
@@ -2026,7 +2045,6 @@ var webapp = (function () {
 	    };
 
 	    Loader.prototype.resolve = function (url) {
-
 	      if (url[0] == '@' && this.app.settings.cdn) {
 	        var cdn = url.slice(0, url.indexOf('/'));
 	        if (this.app.settings.cdn[cdn]) url = this.app.settings.cdn[cdn] + url.substr(cdn.length);
@@ -2655,7 +2673,7 @@ var webapp = (function () {
 	          };
 
 	          a.prototype.render = function () {
-	            return _super.prototype.render.call(this, ["a", __assign({}, this.props, {
+	            return _super.prototype.render.call(this, ["a", __assign(__assign({}, this.props), {
 	              onClick: this.click.bind(this)
 	            }), this.props.children]); //return app.services.UI.processElement(["a", {...this.props, onClick: this.click.bind(this)}, this.props.children], 0, undefined);
 	          };
@@ -2760,7 +2778,7 @@ var webapp = (function () {
 
 	      if (settings) {
 	        settings.parsers = settings.parsers || Parsers.Parsers;
-	        this.settings = __assign({}, settings, {
+	        this.settings = __assign(__assign({}, settings), {
 	          indent: settings.indent || '\t',
 	          compact: settings.compact || false,
 	          module: settings.module || types_1["default"].app.ModuleSystem.None,
@@ -3347,7 +3365,7 @@ var webapp = (function () {
 
 	      var _this = this;
 
-	      var t = __assign({}, app, {
+	      var t = __assign(__assign({}, app), {
 	        info: __assign({
 	          browser: dist$1.types.webapp.browserType.Unknown
 	        }, app.info),
@@ -3374,7 +3392,7 @@ var webapp = (function () {
 	        if (w && g && d) {
 	          if (g.InstallTrigger !== undefined) this.info.browser = dist$1.types.webapp.browserType.FireFox;else if (
 	          /*@cc_on!@*/
-	           !!d.documentMode) bt = dist$1.types.webapp.browserType.IE;else if (!!w.StyleMedia) bt = dist$1.types.webapp.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
+	          !!d.documentMode) bt = dist$1.types.webapp.browserType.IE;else if (!!w.StyleMedia) bt = dist$1.types.webapp.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
 	            return p.toString() === "[object SafariRemoteNotification]";
 	          }(!w['safari'] || typeof g.safari !== 'undefined' && g.safari.pushNotification)) bt = dist$1.types.webapp.browserType.Safari;else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = dist$1.types.webapp.browserType.Chrome;else if (Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons") || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = dist$1.types.webapp.browserType.Opera;
 	          if ((bt === dist$1.types.webapp.browserType.Chrome || bt === dist$1.types.webapp.browserType.Opera) && !!w.CSS) bt = dist$1.types.webapp.browserType.Blink;
@@ -3491,7 +3509,7 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
-	  exports.Parsers = __assign({}, dist$1.Services.Parsers, {
+	  exports.Parsers = __assign(__assign({}, dist$1.Services.Parsers), {
 	    /*".app": (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
 	        var obj2:{[key:string]:any} = {};
 	        var keys = Object.keys(obj);

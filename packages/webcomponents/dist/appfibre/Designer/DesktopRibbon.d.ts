@@ -61,6 +61,39 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 url_change(ev: any): void;
                 navigate_click(): void;
                 render(): any;
+                componentWillMount?(): void;
+                componentDidMount?(): void;
+                componentWillUnmount?(): void;
+                getChildContext?(): object;
+                componentWillReceiveProps?(nextProps: Readonly<{
+                    url?: string | undefined;
+                    activeFiles: string[];
+                    toggleActiveFile: (file: string) => void;
+                }>, nextContext: any): void;
+                shouldComponentUpdate?(nextProps: Readonly<{
+                    url?: string | undefined;
+                    activeFiles: string[];
+                    toggleActiveFile: (file: string) => void;
+                }>, nextState: Readonly<{
+                    url?: string | undefined;
+                    allowEdit: boolean;
+                }>, nextContext: any): boolean;
+                componentWillUpdate?(nextProps: Readonly<{
+                    url?: string | undefined;
+                    activeFiles: string[];
+                    toggleActiveFile: (file: string) => void;
+                }>, nextState: Readonly<{
+                    url?: string | undefined;
+                    allowEdit: boolean;
+                }>, nextContext: any): void;
+                componentDidUpdate?(previousProps: Readonly<{
+                    url?: string | undefined;
+                    activeFiles: string[];
+                    toggleActiveFile: (file: string) => void;
+                }>, previousState: Readonly<{
+                    url?: string | undefined;
+                    allowEdit: boolean;
+                }>, previousContext: any): void;
                 props: Readonly<{
                     url?: string | undefined;
                     activeFiles: string[];
@@ -71,7 +104,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                     url?: string | undefined;
                     allowEdit: boolean;
                 }, K>, callback?: (() => void) | undefined): void;
-                setState<K extends "allowEdit" | "url">(fn: (prevState: {
+                setState<K_1 extends "allowEdit" | "url">(fn: (prevState: {
                     url?: string | undefined;
                     allowEdit: boolean;
                 }, props: {
@@ -81,7 +114,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 }) => Pick<{
                     url?: string | undefined;
                     allowEdit: boolean;
-                }, K>, callback?: (() => void) | undefined): void;
+                }, K_1>, callback?: (() => void) | undefined): void;
                 forceUpdate(callback?: (() => void) | undefined): void;
             };
             displayName?: string | undefined;
@@ -99,11 +132,17 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
         ribbon_toggle_edit(): void;
         render(): any;
         onSelect(ev: types.app.IEventData<Designer_Select>): void;
+        componentWillMount?(): void;
+        getChildContext?(): object;
+        componentWillReceiveProps?(nextProps: Readonly<props>, nextContext: any): void;
+        shouldComponentUpdate?(nextProps: Readonly<props>, nextState: Readonly<state>, nextContext: any): boolean;
+        componentWillUpdate?(nextProps: Readonly<props>, nextState: Readonly<state>, nextContext: any): void;
+        componentDidUpdate?(previousProps: Readonly<props>, previousState: Readonly<state>, previousContext: any): void;
         state: Readonly<state>;
         props: Readonly<props>;
         context: any;
-        setState<K extends "source" | "menuIndex" | "selectedContext" | "allowEdit" | "editMode" | "editing">(state: Pick<state, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "source" | "menuIndex" | "selectedContext" | "allowEdit" | "editMode" | "editing">(fn: (prevState: state, props: props) => Pick<state, K>, callback?: (() => void) | undefined): void;
+        setState<K_2 extends "source" | "menuIndex" | "selectedContext" | "allowEdit" | "editMode" | "editing">(state: Pick<state, K_2>, callback?: (() => void) | undefined): void;
+        setState<K_3 extends "source" | "menuIndex" | "selectedContext" | "allowEdit" | "editMode" | "editing">(fn: (prevState: state, props: props) => Pick<state, K_3>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

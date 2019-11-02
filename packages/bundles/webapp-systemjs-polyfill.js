@@ -210,7 +210,7 @@ var appfibre_polyfill = (function () {
       return store[key] || (store[key] = value !== undefined ? value : {});
     })('versions', []).push({
       version: '3.1.3',
-      mode:  'global',
+      mode: 'global',
       copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
     });
   });
@@ -1076,7 +1076,7 @@ var appfibre_polyfill = (function () {
 
   if (IteratorPrototype == undefined) IteratorPrototype = {}; // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
 
-  if ( !has(IteratorPrototype, ITERATOR$3)) hide(IteratorPrototype, ITERATOR$3, returnThis);
+  if (!has(IteratorPrototype, ITERATOR$3)) hide(IteratorPrototype, ITERATOR$3, returnThis);
   var iteratorsCore = {
     IteratorPrototype: IteratorPrototype,
     BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS
@@ -1150,7 +1150,7 @@ var appfibre_polyfill = (function () {
       CurrentIteratorPrototype = objectGetPrototypeOf(anyNativeIterator.call(new Iterable()));
 
       if (IteratorPrototype$2 !== Object.prototype && CurrentIteratorPrototype.next) {
-        if ( objectGetPrototypeOf(CurrentIteratorPrototype) !== IteratorPrototype$2) {
+        if (objectGetPrototypeOf(CurrentIteratorPrototype) !== IteratorPrototype$2) {
           if (objectSetPrototypeOf) {
             objectSetPrototypeOf(CurrentIteratorPrototype, IteratorPrototype$2);
           } else if (typeof CurrentIteratorPrototype[ITERATOR$4] != 'function') {
@@ -1173,7 +1173,7 @@ var appfibre_polyfill = (function () {
     } // define iterator
 
 
-    if ( IterablePrototype[ITERATOR$4] !== defaultIterator) {
+    if (IterablePrototype[ITERATOR$4] !== defaultIterator) {
       hide(IterablePrototype, ITERATOR$4, defaultIterator);
     }
 
@@ -1631,7 +1631,7 @@ var appfibre_polyfill = (function () {
     return anObject(iteratorMethod.call(it));
   };
 
-  var getMapIterator =  function (it) {
+  var getMapIterator = function (it) {
     // eslint-disable-next-line no-undef
     return Map.prototype.entries.call(it);
   };
@@ -2078,7 +2078,7 @@ var appfibre_polyfill = (function () {
     }
   });
 
-  var getSetIterator =  function (it) {
+  var getSetIterator = function (it) {
     // eslint-disable-next-line no-undef
     return Set.prototype.values.call(it);
   };

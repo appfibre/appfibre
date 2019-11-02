@@ -110,7 +110,7 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                 files.splice(index, 1);
             else
                 files.push(filename);
-            this.setState({ editing: __assign({}, this.state.editing, { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(events["Edit.Event"](_this.state.editing)); });
+            this.setState({ editing: __assign(__assign({}, this.state.editing), { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(events["Edit.Event"](_this.state.editing)); });
         };
         DesktopRibbon.prototype.componentDidMount = function () {
             //this.setState({url: this.props.document});

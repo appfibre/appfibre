@@ -31,10 +31,16 @@ declare let DesignerViewPort: (app: types.webapp.IWebAppLoaded) => {
         onSelectedIndexChanged(index: number): void;
         onCodeChange(file: string, value: string): void;
         render(): any;
+        componentDidMount?(): void;
+        getChildContext?(): object;
+        componentWillReceiveProps?(nextProps: Readonly<{}>, nextContext: any): void;
+        shouldComponentUpdate?(nextProps: Readonly<{}>, nextState: Readonly<state>, nextContext: any): boolean;
+        componentWillUpdate?(nextProps: Readonly<{}>, nextState: Readonly<state>, nextContext: any): void;
+        componentDidUpdate?(previousProps: Readonly<{}>, previousState: Readonly<state>, previousContext: any): void;
         state: Readonly<state>;
         context: any;
         setState<K extends "selectedIndex" | "editMode" | "sources">(state: Pick<state, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "selectedIndex" | "editMode" | "sources">(fn: (prevState: state, props: {}) => Pick<state, K>, callback?: (() => void) | undefined): void;
+        setState<K_1 extends "selectedIndex" | "editMode" | "sources">(fn: (prevState: state, props: {}) => Pick<state, K_1>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;

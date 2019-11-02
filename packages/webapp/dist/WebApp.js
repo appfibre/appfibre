@@ -32,7 +32,7 @@ var WebApp = /** @class */ (function (_super) {
     function WebApp(app /*, context?:object*/) {
         if (app === void 0) { app = { main: [] }; }
         var _this = this;
-        var t = __assign({}, app, { info: __assign({ browser: core_1.types.webapp.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), settings: app.settings || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
+        var t = __assign(__assign({}, app), { info: __assign({ browser: core_1.types.webapp.browserType.Unknown }, app.info), services: __assign({ UI: app.services && app.services.UI || WebUI_1.WebUI }, app.services), settings: app.settings || {}, controllers: __assign({}, app.controllers), components: __assign({}, app.components) });
         _this = _super.call(this, t) || this;
         return _this;
     }

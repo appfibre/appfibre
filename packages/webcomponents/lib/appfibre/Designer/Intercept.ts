@@ -98,7 +98,7 @@ let Intercept = function inject(app:types.app.IAppLoaded) {
             //ev.stopImmediatePropagation();
             
             //Designer.notify(this.props.file);
-            var parent = window;
+            var parent:any = window;
             while (parent.parent !== parent && window.parent != null)
                 parent = parent.parent;
             

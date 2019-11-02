@@ -7,6 +7,28 @@ declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
         componentDidMount(): void;
         navigateTo(url: string): void;
         render(): any;
+        componentWillMount?(): void;
+        componentWillUnmount?(): void;
+        getChildContext?(): object;
+        componentWillReceiveProps?(nextProps: Readonly<any>, nextContext: any): void;
+        shouldComponentUpdate?(nextProps: Readonly<any>, nextState: Readonly<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }>, nextContext: any): boolean;
+        componentWillUpdate?(nextProps: Readonly<any>, nextState: Readonly<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }>, nextContext: any): void;
+        componentDidUpdate?(previousProps: Readonly<any>, previousState: Readonly<{
+            src?: string | undefined;
+            url?: string | undefined;
+            leftMenuIndex: number;
+            rightMenuIndex: number;
+        }>, previousContext: any): void;
         state: Readonly<{
             src?: string | undefined;
             url?: string | undefined;
@@ -21,7 +43,7 @@ declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
             leftMenuIndex: number;
             rightMenuIndex: number;
         }, K>, callback?: (() => void) | undefined): void;
-        setState<K extends "url" | "src" | "leftMenuIndex" | "rightMenuIndex">(fn: (prevState: {
+        setState<K_1 extends "url" | "src" | "leftMenuIndex" | "rightMenuIndex">(fn: (prevState: {
             src?: string | undefined;
             url?: string | undefined;
             leftMenuIndex: number;
@@ -31,7 +53,7 @@ declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
             url?: string | undefined;
             leftMenuIndex: number;
             rightMenuIndex: number;
-        }, K>, callback?: (() => void) | undefined): void;
+        }, K_1>, callback?: (() => void) | undefined): void;
         forceUpdate(callback?: (() => void) | undefined): void;
     };
     displayName?: string | undefined;
