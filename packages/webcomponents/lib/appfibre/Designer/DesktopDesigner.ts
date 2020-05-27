@@ -40,7 +40,7 @@ let DesktopDesigner /*: fibre.UI.Component*/ = function inject(app:types.app.IAp
                                     ,   [ SidePanel, { name:"rightSidePanel", className: classes.SidePanel, placement: "right", tabs: [{title:'Properties', className: classes.Tab_Properties }] } ]
                                     ] 
                                 ]
-                            ,   [ "div", {style: {display: "table-row", height: "0%" }}, [[ SidePanel, { name:"bottomSidePanel", className: classes.SidePanel, placement: "bottom", tabs: ['Logs'] } ]]]
+                            ,   [ "div", {style: {display: "table-row", height: "30px" }}, [[ SidePanel, { name:"bottomSidePanel", className: classes.SidePanel, placement: "bottom", tabs: ['Logs'] } ]]]
                             ]
                         ]
                     

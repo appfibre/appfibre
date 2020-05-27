@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.webapp = void 0;
 var webapp;
 (function (webapp) {
     var browserType;

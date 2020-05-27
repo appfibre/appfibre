@@ -87,15 +87,15 @@ declare let CodeMirror: (this: types.webapp.IWebAppLoaded, attr: {
         lineWrapping: boolean;
         lineNumbers: boolean;
         firstLineNumber: number;
-        gutters: (string | {
+        gutters: Array<string | {
             className: string;
-            style?: string | undefined;
-        })[];
+            style?: string;
+        }>;
         fixedGutter: boolean;
         scrollbarStyle: string;
         coverGutterNextToScrollbar: boolean;
         inputStyle: string;
-        readOnly: string | boolean;
+        readOnly: boolean | string;
         showCursorWhenSelecting: boolean;
         lineWiseCopyCut: boolean;
         pasteLinesPerSelection: boolean;
@@ -106,7 +106,7 @@ declare let CodeMirror: (this: types.webapp.IWebAppLoaded, attr: {
         autofocus: boolean;
         phrases: object;
         dragDrop: boolean;
-        allowDropFileTypes: string[];
+        allowDropFileTypes: Array<string>;
         cursorBlinkRate: number;
         cursorScrollMargin: number;
         cursorHeight: number;

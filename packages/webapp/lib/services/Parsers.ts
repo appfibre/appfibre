@@ -4,19 +4,19 @@ import {WebApp} from "../WebApp"
 
 export var Parsers : {[key:string]:types.app.IParser} = {
     ...Services.Parsers,
-    /*".app": (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
+    /*".app": (transformer:types.app.ITransformer, tc:types.app.ITransformtc, obj:any, offset:number) => {
         var obj2:{[key:string]:any} = {};
         var keys = Object.keys(obj);
         for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
         console.log(WebApp);
-        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, context, true, true, offset)}`;
+        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, tc, true, true, offset)}`;
     }*/
 
-    ".app": (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
-        if (!context.references['WebApp']) context.references['WebApp'] = WebApp;
+    ".app": (jst: any, transformer:types.app.ITransformer, tc:types.app.ITransformContext, context:types.app.ITransformProcessingContext) => {
+        if (!tc.references['WebApp']) tc.references['WebApp'] = WebApp;
         var obj2:{[key:string]:any} = {};
-        var keys = Object.keys(obj);
-        for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
-        return `${transformer.process({ ".new": "WebApp", "arguments": [obj2]}, context, true, true, offset)}`;
+        var keys = Object.keys(jst);
+        for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = jst[keys[key]];
+        return transformer.process({ ".new": "WebApp", "arguments": [obj2]}, tc, context);
     }
 }

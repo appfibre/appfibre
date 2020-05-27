@@ -3,10 +3,10 @@ export declare class Transformer implements types.app.ITransformer {
     type: "Transformer";
     settings: types.app.ITransformSettings;
     constructor(settings?: types.app.ITransformSettings);
-    loadModule(context: types.app.ITransformContext, val: string, offset: number): string;
+    loadModule(tc: types.app.ITransformContext, val: string, depth: number): string;
     reservedWords: string[];
     private format;
-    process(obj: any, context: types.app.ITransformContext, esc: boolean, et: boolean, offset: number): string;
+    process(obj: any, tc: types.app.ITransformContext, context: types.app.ITransformProcessingContext): types.app.IProcessOutput;
     private skey;
     private processExports;
     private resolve;

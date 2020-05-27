@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.registry = void 0;
 var registry;
 (function (registry) {
     var itemType;

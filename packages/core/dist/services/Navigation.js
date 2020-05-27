@@ -24,6 +24,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+exports.Navigation = void 0;
 //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 var components_1 = require("../components");
 var types_1 = require("@appfibre/types");
@@ -54,14 +55,15 @@ function clone(o) {
 var Navigation = {
     current: parse(typeof location === "object" ? location.href : ''),
     resolve: function transform(container) {
+        var _a;
         var url = typeof location === "undefined" ? '' : location.href;
         if (this.controllers && Object.keys(this.controllers).length === 0)
             return this.main;
         for (var c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
-                var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
+                var match = (_a = this.controllers[c].match) === null || _a === void 0 ? void 0 : _a.test(url);
                 this.services.logger.log(types_1.types.app.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
-                if (match) {
+                if (match === undefined || match === true) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params = {};
                     var index = 0;

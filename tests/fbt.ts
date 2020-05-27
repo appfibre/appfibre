@@ -3,7 +3,7 @@ import path from "path";
 import { expect, assert } from "chai";
 import { DeferredLogger } from "./app/services/DeferredLogger";
 
-// Runs file-based-tests by comparing the transoformation output with expected 
+// Runs file-based-tests by comparing the transformation output with expected 
 export class FBT
 {
 

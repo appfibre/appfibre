@@ -1,4 +1,5 @@
 import { types } from "@appfibre/types"
+import { render, Component, createElement } from "../components/ui"
 export class WebUI implements types.app.IUI<Element>
 {
     Component: any;
@@ -20,6 +21,10 @@ export class WebUI implements types.app.IUI<Element>
                 this.createElement = obj.value.h || obj.value.createElement;
                 this.Component = obj.value.Component;
                 this.renderInternal = obj.value.render || (Object.getOwnPropertyDescriptor(window, "ReactDOM")||{value: null}).value.render;
+            } else {
+                this.createElement = createElement;
+                this.Component = Component;
+                this.renderInternal = render;
             }
         }
     }

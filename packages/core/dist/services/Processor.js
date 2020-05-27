@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+exports.Processor = void 0;
 //import { App } from "../app";
 var components_1 = require("../components");
 var types_1 = require("@appfibre/types");
@@ -195,7 +196,7 @@ var Processor = /** @class */ (function () {
                         obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
                 }
                 else if (obj_1["default"] && obj_1["default"][path[part]] !== undefined) {
-                    debugger;
+                    //debugger;
                     obj_1 = obj_1["default"][path[part]];
                     if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject")
                         obj_1 = obj_1(Inject(this.app, components_1.BaseComponent(this.app)));
@@ -213,7 +214,7 @@ var Processor = /** @class */ (function () {
                             function class_2() {
                                 return _super !== null && _super.apply(this, arguments) || this;
                             }
-                            class_2.prototype.render = function () { return _super.prototype.render ? _super.prototype.render.call(this, ["span", { "style": { "color": "red" } }, (fullpath || 'undefined') + " not found!"]) : (fullpath || 'undefined') + " not found!"; };
+                            class_2.prototype.render = function () { return /*super.render ?*/ _super.prototype.render.call(this, ["span", { "style": { "color": "red" } }, (fullpath || 'undefined') + " not found!"]); /*: `${fullpath||'undefined'} not found!`*/ };
                             return class_2;
                         }(components_1.BaseComponent(this.app)));
                     }
@@ -309,7 +310,7 @@ var Processor = /** @class */ (function () {
             try {
                 if (isTemplate) {
                     _this.app.services.moduleSystem.init(_this.app.settings.baseExecutionPath);
-                    _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
+                    _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).output).then(function (exported) {
                         try {
                             _this.parse(exported["default"] || exported, "af", 0).then(resolve, reject);
                         }

@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -11,10 +12,12 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { DesktopRibbon } from "./DesktopRibbon";
-import { DesignerViewPort } from "./DesignerViewport";
-import { SidePanel } from './SidePanel';
-import { classes } from './Styles';
+exports.__esModule = true;
+exports.DesktopDesigner = void 0;
+var DesktopRibbon_1 = require("./DesktopRibbon");
+var DesignerViewport_1 = require("./DesignerViewport");
+var SidePanel_1 = require("./SidePanel");
+var Styles_1 = require("./Styles");
 var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Designer, _super);
@@ -38,15 +41,15 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
         };
         Designer.prototype.render = function () {
             return _super.prototype.render.call(this, ["div", { style: { display: "table", width: "100%", height: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#BBB, #F0F0F0)" } },
-                [[DesktopRibbon, { className: classes.DesktopRibbon, className_Tab: classes.DesktopRibbon_Tab }],
+                [[DesktopRibbon_1.DesktopRibbon, { className: Styles_1.classes.DesktopRibbon, className_Tab: Styles_1.classes.DesktopRibbon_Tab }],
                     ["div", { style: { display: "table", width: "100%", height: "100%" } },
-                        [[SidePanel, { name: "leftSidePanel", className: classes.SidePanel, placement: "left", tabs: [{ title: 'Explore', className: classes.Tab_Explore }] }],
+                        [[SidePanel_1.SidePanel, { name: "leftSidePanel", className: Styles_1.classes.SidePanel, placement: "left", tabs: [{ title: 'Explore', className: Styles_1.classes.Tab_Explore }] }],
                             ,
-                            [DesignerViewPort, { style: { display: "table-cell", resize: "horizontal" } }],
-                            [SidePanel, { name: "rightSidePanel", className: classes.SidePanel, placement: "right", tabs: [{ title: 'Properties', className: classes.Tab_Properties }] }]
+                            [DesignerViewport_1.DesignerViewPort, { style: { display: "table-cell", resize: "horizontal" } }],
+                            [SidePanel_1.SidePanel, { name: "rightSidePanel", className: Styles_1.classes.SidePanel, placement: "right", tabs: [{ title: 'Properties', className: Styles_1.classes.Tab_Properties }] }]
                         ]
                     ],
-                    ["div", { style: { display: "table-row", height: "0%" } }, [[SidePanel, { name: "bottomSidePanel", className: classes.SidePanel, placement: "bottom", tabs: ['Logs'] }]]]
+                    ["div", { style: { display: "table-row", height: "30px" } }, [[SidePanel_1.SidePanel, { name: "bottomSidePanel", className: Styles_1.classes.SidePanel, placement: "bottom", tabs: ['Logs'] }]]]
                 ]
             ]
             /*[   "div", {style: {display:"table", height: "100%", width: "100%", backgroundColor: "#EEE", backgroundImage: "linear-gradient(#BBB, #F0F0F0)"}},
@@ -84,4 +87,4 @@ var DesktopDesigner /*: fibre.UI.Component*/ = function inject(app) {
         return Designer;
     }(app.services.UI.Component));
 };
-export { DesktopDesigner };
+exports.DesktopDesigner = DesktopDesigner;

@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+exports.Transformer = void 0;
 var types_1 = require("@appfibre/types");
 var core_1 = require("@appfibre/core");
 var Parsers_1 = require("../services/Parsers");

@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.LogLevel = void 0;
 var preact_1 = require("preact");
 var LogLevel;
 (function (LogLevel) {

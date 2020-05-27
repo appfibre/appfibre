@@ -5,14 +5,14 @@
   },
   "bundleDependencies": [],
   "dependencies": {
-    "@appfibre/webapp": "^0.0.3",
     "@appfibre/core": "^0.0.3",
-    "@appfibre/types": "^0.0.3"
+    "@appfibre/types": "^0.0.3",
+    "@appfibre/webapp": "^0.0.3"
   },
   "deprecated": false,
   "description": "Webpack app/jst plugin",
   "devDependencies": {
-    "@types/webpack": "^4.4.32"
+    "@types/webpack": "^4.41.13"
   },
   "homepage": "https://github.com/appfibre/core#readme",
   "keywords": [

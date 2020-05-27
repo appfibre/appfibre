@@ -1,6 +1,8 @@
 "use strict";
 exports.__esModule = true;
+exports.WebUI = void 0;
 var types_1 = require("@appfibre/types");
+var ui_1 = require("../components/ui");
 var WebUI = /** @class */ (function () {
     function WebUI(app) {
         this.type = "UI";
@@ -14,6 +16,11 @@ var WebUI = /** @class */ (function () {
                 this.createElement = obj.value.h || obj.value.createElement;
                 this.Component = obj.value.Component;
                 this.renderInternal = obj.value.render || (Object.getOwnPropertyDescriptor(window, "ReactDOM") || { value: null }).value.render;
+            }
+            else {
+                this.createElement = ui_1.createElement;
+                this.Component = ui_1.Component;
+                this.renderInternal = ui_1.render;
             }
         }
     };

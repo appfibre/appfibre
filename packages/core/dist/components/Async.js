@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+exports.Async = void 0;
 var Async = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Async, _super);

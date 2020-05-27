@@ -1,0 +1,48 @@
+{
+  "name": "@appfibre/serve-jst",
+  "amdName": "serve_jst",
+  "version": "0.0.1",
+  "main": "dist",
+  "source": "dist",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register test/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appfibre/node.git"
+  },
+  "keywords": [
+    "appfibre",
+    "server",
+    "jst"
+  ],
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Soleil De Gloria",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/appfibre/node/issues"
+  },
+  "homepage": "https://appfibre.org",
+  "dependencies": {
+    "encodeurl": "~1.0.2",
+    "escape-html": "~1.0.3",
+    "parseurl": "~1.3.3",
+    "send": "0.17.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/encodeurl": "^1.0.0",
+    "@types/express-serve-static-core": "^4.17.7",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^10.17.21",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.3",
+    "ts-mocha": "^6.0.0",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2"
+  }
+}

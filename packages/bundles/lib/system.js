@@ -46,11 +46,11 @@ systemJSPrototype.instantiate = function (url, parent) {
 			try {
 				switch (response.contentType) {
 					case "application/javascript":
-							return {code: response.text};
+							return {output: response.text};
 					case "application/json":
 							return systemJSPrototype.jst(response.text, url);
 					default:
-						 return {code: "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})"};
+						 return {output: "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})"};
 				}
 			} catch (ex) {
 				console.error('Error transforming ' + url + ': ' + ex.description || ex.message, ex.stack || '', [response.text]);
@@ -61,9 +61,9 @@ systemJSPrototype.instantiate = function (url, parent) {
     try{
 		let keys = source.references ? Object.keys(source.references) : [];
 		let values = source.references ? Object.values(source.references) : [];
-		keys.push(`${source.code};\n//# sourceURL=' + ${url}`);
+		keys.push(`${source.output};\n//# sourceURL=' + ${url}`);
 		Function.apply({}, keys).apply({}, values); 
-		//Function('WebApp', `${source.code};\n//# sourceURL=' + ${url}`)(WebApp); 
+		//Function('WebApp', `${source.output};\n//# sourceURL=' + ${url}`)(WebApp); 
 	  	return loader.getRegister();  
     } catch (ex) {
       console.error('Error evaluating ' + url + ': ' + ex.description || ex.message, ex.stack || '', [source]);
@@ -79,7 +79,7 @@ systemJSPrototype.instantiate = function (url, parent) {
 		default:
 			return "return " + replace()
 	}
-	return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new externals['@appfibre/webapp'].Transformer({ module: 'amd'}).transform(source, id).code : source;
+	return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new externals['@appfibre/webapp'].Transformer({ module: 'amd'}).transform(source, id).output : source;
 }*/
 
 const resolve = systemJSPrototype.resolve;

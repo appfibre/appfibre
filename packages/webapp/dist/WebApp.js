@@ -24,6 +24,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+exports.WebApp = void 0;
 var core_1 = require("@appfibre/core");
 var WebUI_1 = require("./services/WebUI");
 var WebApp = /** @class */ (function (_super) {

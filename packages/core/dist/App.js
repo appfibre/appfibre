@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
+exports.App = void 0;
 var services_1 = require("./services");
 var types_1 = __importDefault(require("@appfibre/types"));
 var App = /** @class */ (function () {

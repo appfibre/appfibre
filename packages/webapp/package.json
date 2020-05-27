@@ -28,15 +28,15 @@
   },
   "homepage": "https://appfibre.org",
   "dependencies": {
-    "@appfibre/core": "0.0.1"
+    "@appfibre/core": "workspace:0.0.1"
   },
   "devDependencies": {
-    "@appfibre/types": "^0.0.1",
-    "@types/chai": "^4.1.2",
+    "@appfibre/types": "workspace:^0.0.1",
+    "@types/chai": "^4.2.11",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^10.5.2",
-    "chai": "^4.1.2",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.0.1"
+    "@types/node": "^10.17.21",
+    "chai": "^4.2.0",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2"
   }
 }

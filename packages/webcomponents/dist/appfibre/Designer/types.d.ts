@@ -43,7 +43,7 @@ declare let events: {
     "Intercept.Mounted": (data?: {
         file?: string | undefined;
     } | undefined, correlationId?: string | undefined) => types.app.IEventData<{
-        file?: string | undefined;
+        file?: string;
     } | undefined>;
 };
 export { events };

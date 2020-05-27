@@ -1,5 +1,8 @@
+"use strict";
+exports.__esModule = true;
+exports.css = void 0;
 var _cache = [];
-export default function Style(css) {
+function Style(css) {
     var head = document.head || document.getElementsByTagName('head')[0], style = document.createElement('style');
     style.type = 'text/css';
     if (Array.isArray(css)) {
@@ -16,7 +19,8 @@ export default function Style(css) {
     }
     return css;
 }
-export function css(name, body) {
+exports["default"] = Style;
+function css(name, body) {
     if (body && body.length > 0)
         Style(name + " {" + (Array.isArray(body) ? body.join(';') : body) + "}");
     if (name[0] == '.') {
@@ -25,3 +29,4 @@ export function css(name, body) {
     }
     return '';
 }
+exports.css = css;

@@ -4,11 +4,11 @@ import { events, Designer_Load, Designer_Select } from "./types";
 
 let DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app:types.webapp.IWebAppLoaded) {
     if (app.services.transformer.settings.parsers)
-        app.services.transformer.settings.parsers[".app"] = (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
+        app.services.transformer.settings.parsers[".app"] = (obj:any, transformer:types.app.ITransformer, tc:types.app.ITransformContext, context: types.app.ITransformProcessingContext) => {
             var obj2:{[key:string]:any} = {};
             var keys = Object.keys(obj);
             keys.forEach(z => obj2[z == ".app" ? "main" : z] = obj[z]);
-            return `[".App", {${app.services.transformer.process(obj2, context, true, true, offset)}}]`;
+            return {"format": "json", output: `[".App", {${app.services.transformer.process(obj2, tc, context).output}}]`};
         };
 
         app.services.processor.unwrapDefault = (obj:any) => {

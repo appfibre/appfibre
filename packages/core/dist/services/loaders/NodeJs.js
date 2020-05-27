@@ -43,6 +43,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     return r;
 };
 exports.__esModule = true;
+exports.Loader = void 0;
 //import path from 'path';
 var basepath;
 function nodeRequire(url) {

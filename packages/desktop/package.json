@@ -1,0 +1,69 @@
+{
+  "name": "@appfibre/desktop",
+  "productName": "desktop",
+  "version": "1.0.0",
+  "description": "appfibre Desktop Editor",
+  "main": "app/dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts ."
+  },
+  "keywords": [],
+  "author": {
+    "name": "Soleil De Gloria"
+  },
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/appfibre/node/issues"
+  },
+  "homepage": "https://appfibre.org",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "desktop"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^8.3.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "monaco-editor": "^0.20.0"
+  },
+  "dependencies": {
+    "@appfibre/core": "^0.0.3",
+    "@appfibre/types": "^0.0.3",
+    "@appfibre/webapp": "^0.0.3",
+    "@appfibre/webcomponents": "workspace:^0.0.4",
+    "@types/http-errors": "^1.6.3",
+    "@types/marked": "^0.7.4",
+    "@types/node": "12.12.21",
+    "fastify": "^2.14.1",
+    "fastify-static": "^2.7.0",
+    "http-errors": "^1.7.3",
+    "marked": "^1.0.0"
+  }
+}

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
+exports.Transformer = void 0;
 var types_1 = __importDefault(require("@appfibre/types"));
 var Parsers_1 = require("./Parsers");
 var Transformer = /** @class */ (function () {
@@ -33,31 +34,28 @@ var Transformer = /** @class */ (function () {
             return `${this.process.call(this, { ".new": {".require": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, true, true, offset)}`;
         };*/
     }
-    Transformer.prototype.loadModule = function (context, val, offset) {
+    Transformer.prototype.loadModule = function (tc, val, depth) {
         var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
         if (val[0] === "~") {
-            return "" + this.process({ ".function": null, arguments: "loader", "return": { ".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) + "')" + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '') + ";" } }, context, false, false, offset);
+            return "" + this.process({ ".function": null, arguments: "loader", "return": { ".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) + "')" + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '') + ";" } }, tc, { format: "js", esc: false, et: false, depth: depth });
         }
         if (this.settings.module.toLowerCase() === types_1["default"].app.ModuleSystem.ES.toLowerCase())
             m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
-        if (context.imports.indexOf(m) === -1)
-            context.imports.push(m);
-        return "_" + context.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
+        if (tc.imports.indexOf(m) === -1)
+            tc.imports.push(m);
+        return "_" + tc.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
     };
-    // @ts-ignore
     Transformer.prototype.format = function (lines, indent) {
         var lt = this.settings.compact ? "" : "\n";
         var tab = this.settings.compact ? "" : this.settings.indent || "\t";
         return lt + new Array(indent + 1).join(tab) + lines.join("," + lt + new Array(indent + 1).join(tab)) + lt + new Array(indent).join(tab);
     };
-    Transformer.prototype.process = function (obj, context, esc, et, offset) {
+    Transformer.prototype.process = function (obj, tc, context) {
         var _this = this;
-        var output;
-        if (obj === null)
-            output = "null";
-        else if (Array.isArray(obj))
-            output = (et ? "" : "[") + this.format.call(this, obj.map(function (e) { return _this.process(e, context, esc, false, offset + 1); }), offset) + (et ? "" : "]");
-        else if (typeof obj === "object") {
+        var result = { format: "json", output: '' };
+        if (Array.isArray(obj))
+            result.output = (context.et ? "" : "[") + this.format.call(this, obj.map(function (e) { return _this.process(e, tc, { format: context.format, esc: context.esc, et: false, depth: context.depth + 1 }).output; }), context.depth) + (context.et ? "" : "]");
+        else if (obj && typeof obj === "object") {
             var keys = Object.keys(obj);
             var processed = false;
             for (var k in keys)
@@ -66,21 +64,23 @@ var Transformer = /** @class */ (function () {
                         obj[keys[k]] = undefined;
                     else if (this.settings.parsers && this.settings.parsers[keys[k]]) {
                         processed = true;
-                        output = this.settings.parsers[keys[k]](this, context, obj, offset) || '';
+                        var r = this.settings.parsers[keys[k]](obj, this, tc, context);
+                        result.output = r.output;
+                        result.format = r.format;
                     }
                     else {
-                        debugger;
+                        //debugger;
                         throw new Error("Could not locate parser " + keys[k].substr(1));
                     }
                 }
             if (!processed)
-                output = (et ? "" : "{") + this.format.call(this, keys.filter(function (k) { return k.length < 2 || k.substr(0, 2) != '..'; }).map(function (k) { return (_this.reservedWords.indexOf(k) > -1 || /[^a-z0-9]/i.test(k) ? _this.skey(k) : k) + ":" + (_this.settings.compact ? '' : ' ') + _this.process(obj[k], context, esc, false, offset + 1); }), offset) + (et ? "" : "}");
+                result.output = (context.et ? "" : "{") + this.format.call(this, keys.filter(function (k) { return k.length < 2 || k.substr(0, 2) != '..'; }).map(function (k) { return (_this.reservedWords.indexOf(k) > -1 || /[^a-z0-9]/i.test(k) ? _this.skey(k) : k) + ":" + (_this.settings.compact ? '' : ' ') + _this.process(obj[k], tc, { format: context.format, esc: context.esc, et: false, depth: context.depth + 1 }).output; }), context.depth) + (context.et ? "" : "}");
         }
         else if (typeof obj === "function") // object not JSON...
-            output = obj.toString();
+            result.output = obj.toString();
         else
-            output = typeof obj === "string" && esc ? JSON.stringify(obj) : obj;
-        return output;
+            result.output = typeof obj === "string" && context.esc ? JSON.stringify(obj) : obj;
+        return result;
     };
     Transformer.prototype.skey = function (key) {
         return JSON.stringify(((key.charAt(0) === "'" && key.charAt(key.length - 1) === "'") || (key.charAt(0) === '"' && key.charAt(key.length - 1) === '"')) ? key.slice(1, key.length - 2) : key);
@@ -98,21 +98,32 @@ var Transformer = /** @class */ (function () {
             case "commonjs":
             case "cjs":
                 //for (var req in r) output.code += `${vr} _${r[req]}${sp}=${sp}require('${req}');${nl}`;
-                context.code += keys.map(function (key) { return "module.exports[" + _this.skey(key) + "]" + sp + "=" + sp + _this.process(obj[key], context, true, false, 0) + ";"; }).join(nl);
+                //throw this.process(obj["default"], context, { format: context.format, esc: true, et: false, depth: 0});
+                context.output += keys.map(function (key) { return "module.exports[" + _this.skey(key) + "]" + sp + "=" + sp + _this.process(obj[key], context, { format: context.format, esc: true, et: false, depth: 0 }).output + ";"; }).join(nl);
                 if (!isDefault)
-                    context.code += nl + "module.exports[\"default\"]" + sp + "=" + sp + "{" + sp + keys.map(function (key) { return _this.skey(key) + ": " + _this.process(obj[key], context, true, false, 0); }).join(nl) + " };";
+                    context.output += nl + "module.exports[\"default\"]" + sp + "=" + sp + "{" + sp + keys.map(function (key) { return _this.skey(key) + ": " + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 0 }).output; }).join(nl) + " };";
                 break;
             case "es":
                 if (isDefault)
-                    context.code += "export default" + sp + this.process(obj["default"], context, true, false, 0) + ";";
+                    context.output += "export default" + sp + this.process(obj["default"], context, { format: context.format, esc: true, et: false, depth: 0 }).output + ";";
                 else {
-                    context.code += "export default" + sp + "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], context, true, false, 0) : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], context, true, false, 2)); }), 1) + "};";
+                    context.output += "export default" + sp + "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 1 }).output : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 2 }).output); }), 1) + "};";
                     if (this.settings.namedExports && validkeys.length > 0)
-                        context.code = validkeys.map(function (key) { return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], context, true, false, 1) + ";"; }).join(nl) + ("" + (nl + context.code + nl));
+                        context.output = validkeys.map(function (key) { return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], context, { format: context.format, esc: true, et: false, depth: 1 }).output + ";"; }).join(nl) + ("" + (nl + context.output + nl));
                 }
                 break;
+            case "raw":
+                if (isDefault) {
+                    //html
+                    var result = this.process(obj["default"], context, { format: "json", esc: true, et: false, depth: 1 });
+                    context.output += result.output;
+                    context.format = result.format;
+                }
+                else
+                    context.output += "" + (isDefault ? this.process(obj["default"], context, { format: "json", esc: true, et: false, depth: 1 }).output : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 1 }).output : key + ":" + sp + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 2 }).output; }), 1) + "}");
+                break;
             default:
-                context.code += "return " + (isDefault ? this.process(obj["default"], context, true, false, 1) : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, true, false, 1) : key + ":" + sp + _this.process(obj[key], context, true, false, 2); }), 1) + "}") + ";";
+                context.output += "return " + (isDefault ? this.process(obj["default"], context, { format: "json", esc: true, et: false, depth: 1 }).output : "{" + this.format(keys.map(function (key) { return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 1 }) : key + ":" + sp + _this.process(obj[key], context, { format: "json", esc: true, et: false, depth: 2 }).output; }), 1) + "}") + ";";
         }
     };
     Transformer.prototype.resolve = function (relUrl, parentUrl) {
@@ -192,7 +203,7 @@ var Transformer = /** @class */ (function () {
         }
         return relUrl;
     };
-    Transformer.prototype.processImports = function (output) {
+    Transformer.prototype.processImports = function (transform) {
         var _this = this;
         var nl = this.settings.compact ? '' : '\n';
         var sp = this.settings.compact ? '' : ' ';
@@ -201,35 +212,35 @@ var Transformer = /** @class */ (function () {
         var r = {};
         var s2 = {};
         var r2 = {};
-        if (output.imports.length > 0)
-            for (var i = 0; i < output.imports.length; i++) {
-                var ext = output.imports[i][0] === "~";
-                if (output.imports[i].indexOf('#') > -1) {
-                    var module_name = output.imports[i].substr(0, output.imports[i].indexOf('#'));
+        if (transform.imports.length > 0)
+            for (var i = 0; i < transform.imports.length; i++) {
+                var ext = transform.imports[i][0] === "~";
+                if (transform.imports[i].indexOf('#') > -1) {
+                    var module_name = transform.imports[i].substr(0, transform.imports[i].indexOf('#'));
                     if ((ext ? s2 : s)[module_name] === undefined)
                         (ext ? s2 : s)[module_name] = {};
-                    (ext ? s2 : s)[module_name][output.imports[i].substr(module_name.length + 1)] = i;
+                    (ext ? s2 : s)[module_name][transform.imports[i].substr(module_name.length + 1)] = i;
                 }
                 else
-                    (ext ? r2 : r)[output.imports[i]] = i;
+                    (ext ? r2 : r)[transform.imports[i]] = i;
             }
         switch (this.settings.module.toLowerCase()) {
             case "umd":
             case "commonjs":
             case "cjs":
                 for (var req in r)
-                    output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+                    transform.output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
                 break;
             case "amd":
-                var exp = Object.keys(r).map(function (key, index) { return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, output.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, output.name || location.href) + "\"};"; }).join('\n');
-                output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { \n" + exp + " " + output.code + " });" + nl;
+                var exp = Object.keys(r).map(function (key, index) { return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, transform.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, transform.name || location.href) + "\"};"; }).join('\n');
+                transform.output = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) { return '_' + r[key]; }).join(", ") + ") { \n" + exp + " " + transform.output + " });" + nl;
                 break;
             case "es":
-                output.code = Object.keys(s).map(function (key) { return "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from " + _this.skey(key) + ";" + nl; }).join('') + Object.keys(r).map(function (key) { return "import * as _" + r[key] + " from " + _this.skey(key.substr(key[0] == "~" ? 1 : 0)) + ";" + nl; }).join('') + output.code;
+                transform.output = Object.keys(s).map(function (key) { return "import {" + Object.keys(s[key]).map(function (k) { return k + " as _" + s[key][k]; }).join(',' + sp) + "} from " + _this.skey(key) + ";" + nl; }).join('') + Object.keys(r).map(function (key) { return "import * as _" + r[key] + " from " + _this.skey(key.substr(key[0] == "~" ? 1 : 0)) + ";" + nl; }).join('') + transform.output;
                 break;
             default:
                 for (var req in r)
-                    output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+                    transform.output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
         }
         if (Object.keys(s2).length > 0 || Object.keys(r2).length > 0) {
             switch (this.settings.runtimeModule ? this.settings.runtimeModule.toLowerCase() : "none") {
@@ -237,22 +248,22 @@ var Transformer = /** @class */ (function () {
                 case "commonjs":
                 case "cjs":
                     for (var req in r2)
-                        output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+                        transform.output = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
                     break;
                 case "amd":
-                    output.code = "define(" + (Object.keys(r2).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r2).map(function (key) { return '_' + r2[key]; }).join(", ") + ") { " + output.code + " });" + nl;
+                    transform.output = "define(" + (Object.keys(r2).length > 0 ? "[" + Object.keys(r).map(function (key) { return "" + _this.skey(key); }).join(", ") + "], " : '') + "function (" + Object.keys(r2).map(function (key) { return '_' + r2[key]; }).join(", ") + ") { " + transform.output + " });" + nl;
                     break;
                 case "es":
-                    output.code = Object.keys(s2).map(function (key) { return "import {" + Object.keys(s2[key]).map(function (k) { return k.substr(1) + " as _" + s[key][k]; }).join(',' + sp) + "} from " + _this.skey(key.substr(1)) + ";" + nl; }).join('') + Object.keys(r2).map(function (key) { return "import * as _" + r2[key] + " from '" + key.substr(1) + "';" + nl; }).join('') + output.code;
+                    transform.output = Object.keys(s2).map(function (key) { return "import {" + Object.keys(s2[key]).map(function (k) { return k.substr(1) + " as _" + s[key][k]; }).join(',' + sp) + "} from " + _this.skey(key.substr(1)) + ";" + nl; }).join('') + Object.keys(r2).map(function (key) { return "import * as _" + r2[key] + " from '" + key.substr(1) + "';" + nl; }).join('') + transform.output;
                     break;
                 default:
                     for (var req in r2)
-                        output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+                        transform.output = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
             }
         }
     };
     Transformer.prototype.transformTemplate = function (template, name) {
-        var output = { name: name, imports: [], exports: {}, references: {}, compositeObject: false, code: '' };
+        var output = { name: name, imports: [], exports: {}, references: {}, compositeObject: false, output: '', format: "json" };
         this.processExports(output, template == undefined || template == null || Array.isArray(template) || typeof (template) !== 'object' || Object.keys(template).filter(function (k) { return k[0] == '.'; }).length > 0 ? { "default": template } : template);
         this.processImports(output);
         return output;

@@ -1,7 +1,7 @@
 import types from "@appfibre/types";
 declare let DesktopDesigner: (app: types.app.IAppLoaded<{}, {}>) => {
     new (props: {
-        src?: string | undefined;
+        src?: string;
     }): {
         iframe?: HTMLFrameElement | undefined;
         componentDidMount(): void;

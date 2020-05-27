@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -11,8 +12,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { events } from "./types";
-import { classes } from "./Styles";
+exports.__esModule = true;
+exports.Intercept = void 0;
+var types_1 = require("./types");
+var Styles_1 = require("./Styles");
 var Intercept = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(Intercept, _super);
@@ -30,17 +33,17 @@ var Intercept = function inject(app) {
         }
         Intercept.prototype.componentDidMount = function () {
             //window.addEventListener("message", this.onMessage);
-            app.services.events.subscribe(events["Designer.Select"](), this.designer_select);
-            app.services.events.subscribe(events["Edit.Event"](), this.edit_event);
+            app.services.events.subscribe(types_1.events["Designer.Select"](), this.designer_select);
+            app.services.events.subscribe(types_1.events["Edit.Event"](), this.edit_event);
             var topParent = window.parent;
             while (topParent.parent != null && topParent.parent !== topParent)
                 topParent = topParent.parent;
-            app.services.events.publish(events["Intercept.Mounted"]({ file: this.props.file }), topParent);
+            app.services.events.publish(types_1.events["Intercept.Mounted"]({ file: this.props.file }), topParent);
         };
         Intercept.prototype.componentWillUnmount = function () {
             //window.removeEventListener("message", this.onMessage);
-            app.services.events.unsubscribe(events["Designer.Select"](), this.designer_select);
-            app.services.events.unsubscribe(events["Edit.Event"](), this.edit_event);
+            app.services.events.unsubscribe(types_1.events["Designer.Select"](), this.designer_select);
+            app.services.events.unsubscribe(types_1.events["Edit.Event"](), this.edit_event);
         };
         Intercept.prototype.edit_event = function (ev) {
             var editing = this.props.file ? ev.data.activeFiles.indexOf(this.props.file) > -1 : false;
@@ -54,7 +57,7 @@ var Intercept = function inject(app) {
         Intercept.prototype.reconstruct = function (obj) {
             if (!obj[1])
                 obj[1] = {};
-            obj[1].className = (obj[1].className ? obj[1].className + ' ' : '') + classes.Intercept + (this.state.focus && !this.state.selected && !this.state.editing ? ' ' + classes.Intercept_Focus : '') + (this.state.selected ? ' ' + classes.Intercept_Selected : '') + (this.state.editing ? ' ' + classes.Intercept_Editing : '');
+            obj[1].className = (obj[1].className ? obj[1].className + ' ' : '') + Styles_1.classes.Intercept + (this.state.focus && !this.state.selected && !this.state.editing ? ' ' + Styles_1.classes.Intercept_Focus : '') + (this.state.selected ? ' ' + Styles_1.classes.Intercept_Selected : '') + (this.state.editing ? ' ' + Styles_1.classes.Intercept_Editing : '');
             if (!obj[1].style)
                 obj[1].style = {};
             if (!obj[1].style.border && !obj[1].style.padding && !obj[1].onMouseEnter && !obj[1].onMouseLeave) {
@@ -107,4 +110,4 @@ var Intercept = function inject(app) {
         return Intercept;
     }(app.services.UI.Component));
 };
-export { Intercept };
+exports.Intercept = Intercept;

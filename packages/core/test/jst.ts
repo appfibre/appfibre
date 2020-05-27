@@ -4,7 +4,7 @@ import { Transformer } from '../lib/services/Transformer'
 import { Loader } from '../lib/services/loaders/NodeJs'
 
 let jst = new Transformer({module: types.app.ModuleSystem.CommonJS, compact: true })
-let execTemplate = async (jst:Transformer, template:types.jst.template) => { let o = await Loader.import(jst.transformTemplate(template).code, './test'); return Object.getOwnPropertyDescriptor(o, 'default') != null ? o.default : o; }
+let execTemplate = async (jst:Transformer, template:types.jst.template) => { let o = await Loader.import(jst.transformTemplate(template).output, './test'); return Object.getOwnPropertyDescriptor(o, 'default') != null ? o.default : o; }
 
 execTemplate(jst, {".": "undefined"}); //warm up
 describe('jst general templating tests', () => {
@@ -47,12 +47,12 @@ describe('jst general templating tests', () => {
     it('transforms javascript strings (if enabled)', async () => {
         jst.settings.dangerouslyProcessJavaScript = true;
         let js = "{test: function() { return 'o' + \"k\";}}";
-        expect((await Loader.import(jst.transform(js).code, './test/services')).test()).to.equal("ok");
+        expect((await Loader.import(jst.transform(js).output, './test/services')).test()).to.equal("ok");
         jst.settings.dangerouslyProcessJavaScript = false;
     })
 
     it('doesn\'t transform javascript strings (when disallowed)', async () => {
-        let js = "{test: function() { return 'o' + \"k\";}}";
+        //let js = "{test: function() { return 'o' + \"k\";}}";
         //TOOD: catch exception with Chai assertion.
         //expect(jst.transform(js), './test/services').to.throw(/.+/, 'Error: Unable to parse JSON file : Unexpected token t in JSON at position 1');
     })
@@ -121,42 +121,42 @@ describe('module formats', () => {
 
     it ('AMD', () => {
         let jst = new Transformer( { module: types.app.ModuleSystem.AMD, compact: true } );
-        expect(jst.transform('[]').code).to.equal('define(function () { return []; });');
-        expect(jst.transform('{"A":1}').code).to.equal('define(function () { return {A:1}; });');
+        expect(jst.transform('[]').output).to.equal('define(function () { return []; });');
+        expect(jst.transform('{"A":1}').output).to.equal('define(function () { return {A:1}; });');
 
-        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').code).to.equal('define(["./test"], function (_0) { return [_0.abc,_0.def,_0]; });');
+        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').output).to.equal('define(["./test"], function (_0) { return [_0.abc,_0.def,_0]; });');
     })
 
     it ('UMD', () => {
         let jst = new Transformer( { module: types.app.ModuleSystem.UMD, compact: true } );
-        expect(jst.transform('[]').code).to.equal('module.exports["default"]=[];');
-        expect(jst.transform('{"A":1}').code).to.equal('module.exports["A"]=1;module.exports["default"]={"A": 1 };');
+        expect(jst.transform('[]').output).to.equal('module.exports["default"]=[];');
+        expect(jst.transform('{"A":1}').output).to.equal('module.exports["A"]=1;module.exports["default"]={"A": 1 };');
 
-        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').code).to.equal('var _0=require("./test");module.exports["default"]=[_0.abc,_0.def,_0];');
+        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').output).to.equal('var _0=require("./test");module.exports["default"]=[_0.abc,_0.def,_0];');
     })
 
     it('ES', () => {
         let jst = new Transformer( { module: types.app.ModuleSystem.ES, compact: true } );
-        expect(jst.transform('[]').code).to.equal('export default[];');
-        expect(jst.transform('{"A":1}').code).to.equal('export var A=1;export default{A:A};');
+        expect(jst.transform('[]').output).to.equal('export default[];');
+        expect(jst.transform('{"A":1}').output).to.equal('export var A=1;export default{A:A};');
 
-        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').code).to.equal('import {abc as _0,def as _1} from "./test";import * as _2 from "./test";export default[_0,_1,_2];');
+        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').output).to.equal('import {abc as _0,def as _1} from "./test";import * as _2 from "./test";export default[_0,_1,_2];');
     })
 
     it('None', () => {
         let jst = new Transformer( { module: types.app.ModuleSystem.None, compact: true } );
-        expect(jst.transform('[]').code).to.equal('return [];');
-        expect(jst.transform('{"A":1}').code).to.equal('return {A:1};');
+        expect(jst.transform('[]').output).to.equal('return [];');
+        expect(jst.transform('{"A":1}').output).to.equal('return {A:1};');
 
-        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').code).to.equal('var _0=require("./test");return [_0.abc,_0.def,_0];');
+        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').output).to.equal('var _0=require("./test");return [_0.abc,_0.def,_0];');
     })
 
     it('CommonJS', () => {
         let jst = new Transformer( { module: types.app.ModuleSystem.CommonJS, compact: true } );
-        expect(jst.transform('[]').code).to.equal('module.exports["default"]=[];');
-        expect(jst.transform('{"A":1}').code).to.equal('module.exports["A"]=1;module.exports["default"]={"A": 1 };');
+        expect(jst.transform('[]').output).to.equal('module.exports["default"]=[];');
+        expect(jst.transform('{"A":1}').output).to.equal('module.exports["A"]=1;module.exports["default"]={"A": 1 };');
 
-        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').code).to.equal('var _0=require("./test");module.exports["default"]=[_0.abc,_0.def,_0];');
+        expect(jst.transform('[{".import": "./test#abc"},{".import": "./test#def"},{".import": "./test"}]').output).to.equal('var _0=require("./test");module.exports["default"]=[_0.abc,_0.def,_0];');
     })
 
 })

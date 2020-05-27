@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "CommonJS",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "app/dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "lib": ["DOM"],
+    "paths": {
+      "*": ["node_modules/*"]
+    }, 
+  },
+  "include": [
+    "lib/**/*"
+  ]
+}

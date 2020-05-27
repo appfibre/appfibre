@@ -8,6 +8,15 @@ call :link packages\core\node_modules\@appfibre\types packages\types
 call :link packages\webapp\node_modules\@appfibre\types packages\types
 call :link packages\webapp\node_modules\@appfibre\core packages\core
 
+rem call :link packages\processors\lodash\node_modules\@appfibre\core packages\core
+rem call :link packages\processors\lodash\node_modules\@appfibre\types packages\types
+
+call :link packages\desktop\node_modules\@appfibre\core packages\core
+call :link packages\desktop\node_modules\@appfibre\types packages\types
+call :link packages\desktop\node_modules\@appfibre\webapp packages\webapp
+call :link packages\desktop\node_modules\@appfibre\webcomponents packages\webcomponents
+call :link packages\desktop\node_modules\@appfibre\server packages\server
+
 call :link packages\webcomponents\node_modules\@appfibre\core packages\core
 call :link packages\webcomponents\node_modules\@appfibre\webapp packages\webapp
 call :link packages\webcomponents\node_modules\@appfibre\types packages\types

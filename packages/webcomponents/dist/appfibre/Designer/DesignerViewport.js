@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -11,12 +12,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { types } from "@appfibre/types";
-import { events, EditMode } from "./types";
-import styles from '../Layout/Styles';
-import { classes } from './Styles';
-import { TabContainer } from "../Layout";
-import CodeMirror from "../../codemirror";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+exports.DesignerViewPort = void 0;
+var types_1 = require("@appfibre/types");
+var types_2 = require("./types");
+var Styles_1 = __importDefault(require("../Layout/Styles"));
+var Styles_2 = require("./Styles");
+var Layout_1 = require("../Layout");
+var codemirror_1 = __importDefault(require("../../codemirror"));
 var DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app) {
     return /** @class */ (function (_super) {
         __extends(DesignerViewPort, _super);
@@ -39,25 +45,25 @@ var DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app) {
             if (window === window.parent) {
                 app.services.events.subscribe({ type: "Navigation.Redirect" }, this.onRedirect);
             }
-            app.services.events.subscribe(events["Ribbon.Event"](), this.ribbon_event);
-            app.services.events.subscribe(events["Designer.Load"](), this.designer_load);
-            app.services.events.subscribe(events["Designer.Select"](), this.designer_select);
-            app.services.events.subscribe(events["Edit.Event"](), this.edit_event);
-            app.services.events.subscribe(events["Intercept.Mounted"](), this.intercept_mounted);
+            app.services.events.subscribe(types_2.events["Ribbon.Event"](), this.ribbon_event);
+            app.services.events.subscribe(types_2.events["Designer.Load"](), this.designer_load);
+            app.services.events.subscribe(types_2.events["Designer.Select"](), this.designer_select);
+            app.services.events.subscribe(types_2.events["Edit.Event"](), this.edit_event);
+            app.services.events.subscribe(types_2.events["Intercept.Mounted"](), this.intercept_mounted);
         };
         DesignerViewPort.prototype.componentWillUnmount = function () {
             if (window === window.parent) {
                 app.services.events.unsubscribe({ type: "Navigation.Redirect" }, this.onRedirect);
             }
-            app.services.events.unsubscribe(events["Ribbon.Event"](), this.ribbon_event);
-            app.services.events.unsubscribe(events["Designer.Load"](), this.designer_load);
-            app.services.events.unsubscribe(events["Designer.Select"](), this.designer_relay);
-            app.services.events.unsubscribe(events["Edit.Event"](), this.edit_event);
-            app.services.events.unsubscribe(events["Intercept.Mounted"](), this.intercept_mounted);
+            app.services.events.unsubscribe(types_2.events["Ribbon.Event"](), this.ribbon_event);
+            app.services.events.unsubscribe(types_2.events["Designer.Load"](), this.designer_load);
+            app.services.events.unsubscribe(types_2.events["Designer.Select"](), this.designer_relay);
+            app.services.events.unsubscribe(types_2.events["Edit.Event"](), this.edit_event);
+            app.services.events.unsubscribe(types_2.events["Intercept.Mounted"](), this.intercept_mounted);
         };
         DesignerViewPort.prototype.load_file = function (target, file) {
             return new Promise(function (resolve, reject) {
-                return app.services.moduleSystem.fetch(file).then(function (res) {
+                return app.services.moduleSystem.fetch(file, { "Cache-Control": "no-cache", "Mode": "edit" }).then(function (res) {
                     target[file] = { content: res.text };
                     resolve();
                 }, reject);
@@ -103,7 +109,7 @@ var DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app) {
         DesignerViewPort.prototype.designer_load = function (ev) {
             this.designer_relay(ev);
             var files = Object.keys(this.state.sources);
-            app.services.events.publish(events["Edit.Event"]({ activeFiles: files, viewSource: this.state.editMode === EditMode.Source, selectedFile: this.state.selectedIndex != undefined ? files[this.state.selectedIndex] : undefined }));
+            app.services.events.publish(types_2.events["Edit.Event"]({ activeFiles: files, viewSource: this.state.editMode === types_2.EditMode.Source, selectedFile: this.state.selectedIndex != undefined ? files[this.state.selectedIndex] : undefined }));
         };
         DesignerViewPort.prototype.designer_relay = function (ev) {
             if (this.iframe && this.iframe.contentWindow /*&& ev.data*/)
@@ -116,7 +122,7 @@ var DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app) {
         DesignerViewPort.prototype.intercept_mounted = function (ev) {
             if (ev.data.file && this.state.sources[ev.data.file]) {
                 var files = Object.keys(this.state.sources);
-                app.services.events.publish(events["Edit.Event"]({ activeFiles: files, viewSource: this.state.editMode === EditMode.Source, selectedFile: this.state.selectedIndex != undefined ? files[this.state.selectedIndex] : undefined }));
+                app.services.events.publish(types_2.events["Edit.Event"]({ activeFiles: files, viewSource: this.state.editMode === types_2.EditMode.Source, selectedFile: this.state.selectedIndex != undefined ? files[this.state.selectedIndex] : undefined }));
             }
         };
         DesignerViewPort.prototype.onSelectedIndexChanged = function (index) {
@@ -144,24 +150,19 @@ var DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app) {
             if (keys.length < selectedIndex)
                 selectedIndex = keys.length - 1;
             var src = location.href;
-            if (app.info.browser === types.webapp.browserType.IE) { // IE does not load another instance of a page with exactly the same name  
+            if (app.info.browser === types_1.types.webapp.browserType.IE) { // IE does not load another instance of a page with exactly the same name  
                 var ix = location.origin.length + 2;
                 src = src.substr(0, ix) + (src[ix].toUpperCase() == src[ix] ? src[ix].toLowerCase() : src[ix].toUpperCase()) + src.substr(ix + 1);
             }
             return _super.prototype.render.call(this, [["div",
-                    { className: styles.Table + ' ' + styles.Fill, style: { display: "table", border: "1px solid #AAA" } },
-                    [["iframe", { className: styles.TableRow + ' ' + styles.Fill, style: { background: "white", border: "0", resize: this.state.editMode === EditMode.Source ? "vertical" : "none" }, src: src, ref: function (e) { _this["iframe"] = e; } }],
-                        this.state.editMode === EditMode.Source && selectedIndex > -1 && keys.length > 0 ? ["div",
-                            { className: styles.TableRow, style: { height: "50%" } },
-                            [[TabContainer,
-                                    { tabs: keys, className: classes.SourceEdit_Files, selectedIndex: this.state.selectedIndex, onSelectedIndexChanged: this.onSelectedIndexChanged },
-                                    keys.map(function (key, index) { return [CodeMirror, { className: styles.Fill, style: index == _this.state.selectedIndex ? {} : { display: 'none' }, value: _this.state.sources[key].content, settings: { matchBrackets: true, closeBrackets: true, continueComments: "Enter", lineNumbers: true, mode: "application/ld+json", lineWrapping: true, comment: true }, onChange: function (value) { return _this.onCodeChange(keys[selectedIndex], value); } }]; })]
-                            ]
-                        ] : null
+                    { className: Styles_1["default"].Table + ' ' + Styles_1["default"].Fill, style: { border: "1px solid #AAA" } }, [["div", { className: Styles_1["default"].TableRow, style: { position: "relative", height: "100%" } }, [["iframe", { className: Styles_1["default"].Fill, style: { background: "white", border: "0", resize: this.state.editMode === types_2.EditMode.Source ? "vertical" : "none" }, src: src, ref: function (e) { _this["iframe"] = e; } }]]],
+                        ["div", { className: Styles_1["default"].TableRow, style: { display: this.state.editMode === types_2.EditMode.Source ? "table-row" : "none" } }, [selectedIndex > -1 && keys.length > 0 ? [Layout_1.TabContainer,
+                                    { tabs: keys, className: Styles_2.classes.SourceEdit_Files, selectedIndex: this.state.selectedIndex, onSelectedIndexChanged: this.onSelectedIndexChanged }, keys.map(function (key, index) { return [codemirror_1["default"], { className: Styles_1["default"].Fill, style: index == _this.state.selectedIndex ? {} : { display: 'none' }, value: _this.state.sources[key].content, settings: { matchBrackets: true, closeBrackets: true, continueComments: "Enter", lineNumbers: true, mode: "application/ld+json", lineWrapping: true, comment: true }, onChange: function (value) { return _this.onCodeChange(keys[selectedIndex], value); } }]; })] : null
+                            ]]
                     ]
                 ]]);
         };
         return DesignerViewPort;
     }(app.services.UI.Component));
 };
-export { DesignerViewPort };
+exports.DesignerViewPort = DesignerViewPort;

@@ -1,6 +1,6 @@
-import { UI } from '../app/UI';
+import { UI as _UI } from '../app/UI';
 export declare namespace UI {
-    type element = UI.Element<string | Function, {}, string> | Promise<UI.Element<string | Function, {}, string>>;
+    type element = _UI.Element<string | Function, {}, string> | Promise<_UI.Element<string | Function, {}, string>>;
     interface HTMLTagMap {
         "a": ["a", Partial<HTMLAnchorElement>, (string | Array<element>)?];
         "abbr": ["abbr", Partial<HTMLElement>, (string | Array<element>)?];

@@ -1,8 +1,11 @@
-export var EditMode;
+"use strict";
+exports.__esModule = true;
+exports.events = exports.EditMode = void 0;
+var EditMode;
 (function (EditMode) {
     EditMode[EditMode["Inline"] = 0] = "Inline";
     EditMode[EditMode["Source"] = 1] = "Source";
-})(EditMode || (EditMode = {}));
+})(EditMode = exports.EditMode || (exports.EditMode = {}));
 var events = {
     "Designer.Load": function (data) { return { type: "Designer.Load", data: data }; },
     "Designer.Intercept.Select": function (data) { return { type: "Designer.Intercept.Select", data: data }; },
@@ -16,4 +19,4 @@ var events = {
     "Edit.Event": function (data, correlationId) { return { type: "Edit.Event", correlationId: correlationId, data: data }; },
     "Intercept.Mounted": function (data, correlationId) { return { type: "Intercept.Mounted", correlationId: correlationId, data: data }; }
 };
-export { events };
+exports.events = events;

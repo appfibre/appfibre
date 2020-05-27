@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.Events = void 0;
 var Events = /** @class */ (function () {
     function Events(_a) {
         this.callbacks = {};
@@ -32,12 +33,12 @@ var Events = /** @class */ (function () {
             target.postMessage(event, location.href);
         else
             for (var s in subscriptions)
-                if (subscriptions[s].correlationId === undefined || subscriptions[s].correlationId == event.correlationId)
-                    if (subscriptions[s].callback) {
-                        var r = subscriptions[s].callback(event);
-                        if (!!r)
-                            response.push(r);
-                    }
+                if (subscriptions[s].correlationId === undefined || subscriptions[s].correlationId == event.correlationId) 
+                /*if (subscriptions[s].callback)*/ {
+                    var r = subscriptions[s].callback(event);
+                    if (!!r)
+                        response.push(r);
+                }
         ;
         return response;
     };

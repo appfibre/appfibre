@@ -51,7 +51,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
         })[])[] | (((app: types.app.IAppLoaded<{}, {}>) => {
             new (props: {
                 url?: string | undefined;
-                activeFiles: string[];
+                activeFiles: Array<string>;
                 toggleActiveFile: (file: string) => void;
             }): {
                 state: {
@@ -67,12 +67,12 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 getChildContext?(): object;
                 componentWillReceiveProps?(nextProps: Readonly<{
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }>, nextContext: any): void;
                 shouldComponentUpdate?(nextProps: Readonly<{
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }>, nextState: Readonly<{
                     url?: string | undefined;
@@ -80,7 +80,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 }>, nextContext: any): boolean;
                 componentWillUpdate?(nextProps: Readonly<{
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }>, nextState: Readonly<{
                     url?: string | undefined;
@@ -88,7 +88,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 }>, nextContext: any): void;
                 componentDidUpdate?(previousProps: Readonly<{
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }>, previousState: Readonly<{
                     url?: string | undefined;
@@ -96,7 +96,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                 }>, previousContext: any): void;
                 props: Readonly<{
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }>;
                 context: any;
@@ -109,7 +109,7 @@ declare let DesktopRibbon: (app: types.app.IAppLoaded<{}, {}>) => {
                     allowEdit: boolean;
                 }, props: {
                     url?: string | undefined;
-                    activeFiles: string[];
+                    activeFiles: Array<string>;
                     toggleActiveFile: (file: string) => void;
                 }) => Pick<{
                     url?: string | undefined;

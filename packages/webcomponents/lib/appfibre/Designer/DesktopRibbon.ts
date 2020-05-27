@@ -149,7 +149,7 @@ let DesktopRibbon /*: fibre.UI.Component */= function inject(app:types.app.IAppL
         render() {
             var menus = this.menus();
             return super.render(    [ "div"
-                                    , { className: this.props.className, style: { height: "0%", ...this.props.style} }
+                                    , { className: this.props.className, style: this.props.style }
                                     , [   [ Layout.TabContainer
                                             ,   { placement: "top", tabs: menus.map(m => m ? m[0] : [])
                                                 //, containerStyle: this.state.menuIndex < 0 ? { display: "none"} : { width: "100%", height: "100px", borderBottom: "1px solid #DDD" }

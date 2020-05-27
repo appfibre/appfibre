@@ -36,9 +36,9 @@ const Navigation:types.app.INavigation = {
             return this.main;
         for (let c in this.controllers)
             if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
-                var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
+                var match = this.controllers[c].match?.test(url);
                 this.services.logger.log(types.app.LogLevel.Trace, `Route "${url}" ${match?'matched':'did not match'} controller "${c}"`)
-                if (match) {
+                if (match === undefined || match === true) {
                     var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
                     var params:{[key:string]:string} = {};
                     var index = 0;

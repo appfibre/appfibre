@@ -25,7 +25,7 @@ function Loader(this:loader.LoaderContext, input:string, options?:ILoaderPluginA
         if (f[0] == "~") this.emitFile(f.substr(1, f.indexOf('#') > -1 ? f.indexOf('#') - 1 : f.length-1), fs.readFileSync(path.join(path.dirname(this.resourcePath), f.substr(1, f.indexOf('#') > -1 ? f.indexOf('#') - 1 : f.length-1))), null);
     });
 
-    return t.code;
+    return t.output;
 }
 
 export default Loader;

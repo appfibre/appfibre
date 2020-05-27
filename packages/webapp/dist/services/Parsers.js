@@ -11,22 +11,23 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+exports.Parsers = void 0;
 var core_1 = require("@appfibre/core");
 var WebApp_1 = require("../WebApp");
 exports.Parsers = __assign(__assign({}, core_1.Services.Parsers), { 
-    /*".app": (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
+    /*".app": (transformer:types.app.ITransformer, tc:types.app.ITransformtc, obj:any, offset:number) => {
         var obj2:{[key:string]:any} = {};
         var keys = Object.keys(obj);
         for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
         console.log(WebApp);
-        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, context, true, true, offset)}`;
+        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, tc, true, true, offset)}`;
     }*/
-    ".app": function (transformer, context, obj, offset) {
-        if (!context.references['WebApp'])
-            context.references['WebApp'] = WebApp_1.WebApp;
+    ".app": function (jst, transformer, tc, context) {
+        if (!tc.references['WebApp'])
+            tc.references['WebApp'] = WebApp_1.WebApp;
         var obj2 = {};
-        var keys = Object.keys(obj);
+        var keys = Object.keys(jst);
         for (var key in keys)
-            obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
-        return "" + transformer.process({ ".new": "WebApp", "arguments": [obj2] }, context, true, true, offset);
+            obj2[keys[key] == ".app" ? "main" : keys[key]] = jst[keys[key]];
+        return transformer.process({ ".new": "WebApp", "arguments": [obj2] }, tc, context);
     } });

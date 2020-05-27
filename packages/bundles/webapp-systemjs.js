@@ -12,6 +12,8 @@ var webapp = (function () {
 	}
 
 	function _typeof(obj) {
+	  "@babel/helpers - typeof";
+
 	  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
 	    _typeof = function (obj) {
 	      return typeof obj;
@@ -941,8 +943,10 @@ var webapp = (function () {
 	var UI_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.UI = void 0;
+	  var UI;
 
-	  (function (UI) {})();
+	  (function (UI) {})(UI = exports.UI || (exports.UI = {}));
 	});
 	unwrapExports(UI_1);
 	var UI_2 = UI_1.UI;
@@ -950,6 +954,7 @@ var webapp = (function () {
 	var app_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.app = void 0;
 	  var app;
 
 	  (function (app) {
@@ -973,14 +978,8 @@ var webapp = (function () {
 	      ModuleSystem["AMD"] = "amd";
 	      ModuleSystem["UMD"] = "umd";
 	      ModuleSystem["ES"] = "es";
+	      ModuleSystem["Raw"] = "raw";
 	    })(ModuleSystem = app.ModuleSystem || (app.ModuleSystem = {}));
-
-	    var LicenseType;
-
-	    (function (LicenseType) {
-	      LicenseType[LicenseType["MIT"] = 0] = "MIT";
-	      LicenseType[LicenseType["GNU"] = 1] = "GNU";
-	    })(LicenseType = app.LicenseType || (app.LicenseType = {}));
 	  })(app = exports.app || (exports.app = {}));
 	});
 	unwrapExports(app_1);
@@ -989,6 +988,7 @@ var webapp = (function () {
 	var webapp_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.webapp = void 0;
 	  var webapp;
 
 	  (function (webapp) {
@@ -1012,6 +1012,7 @@ var webapp = (function () {
 	var registry_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.registry = void 0;
 	  var registry;
 
 	  (function (registry) {
@@ -1036,6 +1037,7 @@ var webapp = (function () {
 	var dist = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.types = void 0;
 	  var types;
 
 	  (function (types) {
@@ -1078,6 +1080,7 @@ var webapp = (function () {
 	  }();
 
 	  exports.__esModule = true;
+	  exports.BaseComponent = void 0;
 	  var seed = '0123456789abcdefgihjlmnopqrstuvwxyzABCDEFGIHJKLMNOPQRSTUVWXYZ';
 
 	  var BaseComponent = function inject(app) {
@@ -1173,6 +1176,7 @@ var webapp = (function () {
 	  }();
 
 	  exports.__esModule = true;
+	  exports.Async = void 0;
 
 	  var Async = function inject(app) {
 	    return (
@@ -1215,12 +1219,13 @@ var webapp = (function () {
 	var components = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.Async = exports.BaseComponent = void 0;
 	  exports.BaseComponent = BaseComponent_1.BaseComponent;
 	  exports.Async = Async_1.Async;
 	});
 	unwrapExports(components);
-	var components_1 = components.BaseComponent;
-	var components_2 = components.Async;
+	var components_1 = components.Async;
+	var components_2 = components.BaseComponent;
 
 	var Data_1 = createCommonjsModule(function (module, exports) {
 
@@ -1251,6 +1256,7 @@ var webapp = (function () {
 	  }();
 
 	  exports.__esModule = true;
+	  exports.Data = void 0;
 
 	  function clone(o) {
 	    if (Array.isArray(o)) return o.map(function (o) {
@@ -1366,6 +1372,7 @@ var webapp = (function () {
 	var Events_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.Events = void 0;
 
 	  var Events =
 	  /** @class */
@@ -1404,10 +1411,12 @@ var webapp = (function () {
 	      var subscriptions = this.callbacks[event.type];
 	      var response = [];
 	      if (target) target.postMessage(event, location.href);else for (var s in subscriptions) {
-	        if (subscriptions[s].correlationId === undefined || subscriptions[s].correlationId == event.correlationId) if (subscriptions[s].callback) {
-	          var r = subscriptions[s].callback(event);
-	          if (!!r) response.push(r);
-	        }
+	        if (subscriptions[s].correlationId === undefined || subscriptions[s].correlationId == event.correlationId)
+	          /*if (subscriptions[s].callback)*/
+	          {
+	            var r = subscriptions[s].callback(event);
+	            if (!!r) response.push(r);
+	          }
 	      }
 	      return response;
 	    };
@@ -1846,7 +1855,8 @@ var webapp = (function () {
 	    return r;
 	  };
 
-	  exports.__esModule = true; //import path from 'path';
+	  exports.__esModule = true;
+	  exports.Loader = void 0; //import path from 'path';
 
 	  var basepath;
 
@@ -1980,6 +1990,7 @@ var webapp = (function () {
 	var Loader_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.Loader = void 0;
 
 	  var Loader =
 	  /** @class */
@@ -2101,30 +2112,120 @@ var webapp = (function () {
 	var Parsers = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.Parsers = void 0;
 	  exports.Parsers = {
-	    ".": function _(_transformer, _context, obj, _offset) {
-	      return obj["."];
+	    ".": function _(obj, _transformer, _tc, _context) {
+	      return {
+	        format: "json",
+	        output: obj["."]
+	      };
 	    },
-	    ".import": function _import(transformer, context, obj, offset) {
-	      return transformer.loadModule(context, transformer.process(obj[".import"], context, false, false, offset), offset);
+	    ".import": function _import(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: transformer.loadModule(tc, transformer.process(obj[".import"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output, context.depth)
+	      };
 	    },
-	    ".function": function _function(transformer, context, obj, offset) {
-	      return "function " + (obj[".function"] ? obj[".function"] : "") + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], context, false, true, offset) : "") + "){ return " + transformer.process(obj["return"], context, true, false, offset) + " }";
+	    ".function": function _function(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: "function " + (obj[".function"] ? obj[".function"] : "") + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], tc, {
+	          esc: false,
+	          et: true,
+	          depth: context.depth,
+	          format: "json"
+	        }).output : "") + "){ return " + transformer.process(obj["return"], tc, {
+	          esc: true,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + " }"
+	      };
 	    },
-	    ".map": function map(transformer, context, obj, offset) {
-	      return transformer.process(obj[".map"], context, false, false, offset) + ".map(function(" + obj["arguments"] + ") {return " + (transformer.settings && transformer.settings.indent ? new Array(offset).join(' ') : "") + transformer.process(obj["return"], context, true, false, offset) + " })";
+	    ".map": function map(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: transformer.process(obj[".map"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + ".map(function(" + obj["arguments"] + ") {return " + (transformer.settings && transformer.settings.indent ? new Array(context.depth).join(' ') : "") + transformer.process(obj["return"], tc, {
+	          esc: true,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + " })"
+	      };
 	    },
-	    ".filter": function filter(transformer, context, obj, offset) {
-	      return transformer.process(obj[".filter"], context, false, false, offset) + ".filter(function(" + obj["arguments"] + ") {return " + transformer.process(obj["condition"], context, true, false, offset) + " })";
+	    ".filter": function filter(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: transformer.process(obj[".filter"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + ".filter(function(" + obj["arguments"] + ") {return " + transformer.process(obj["condition"], tc, {
+	          esc: true,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + " })"
+	      };
 	    },
-	    ".call": function call(transformer, context, obj, offset) {
-	      return transformer.process(obj[".call"], context, false, false, offset) + ".call(" + (obj["arguments"] ? transformer.process(obj["arguments"], context, false, true, offset) : "") + ")";
+	    ".call": function call(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: transformer.process(obj[".call"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + ".call(" + (obj["arguments"] ? transformer.process(obj["arguments"], tc, {
+	          esc: false,
+	          et: true,
+	          depth: context.depth,
+	          format: "json"
+	        }).output : "") + ")"
+	      };
 	    },
-	    ".exec": function exec(transformer, context, obj, offset) {
-	      return transformer.process(obj[".exec"], context, false, false, offset) + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], context, true, true, offset) : "") + ")";
+	    ".exec": function exec(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: transformer.process(obj[".exec"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], tc, {
+	          esc: true,
+	          et: true,
+	          depth: context.depth,
+	          format: "json"
+	        }).output : "") + ")"
+	      };
 	    },
-	    ".new": function _new(transformer, context, obj, offset) {
-	      return "new " + transformer.process(obj[".new"], context, false, false, offset) + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], context, true, true, offset) : "") + ")";
+	    ".new": function _new(obj, transformer, tc, context) {
+	      return {
+	        format: "json",
+	        output: "new " + transformer.process(obj[".new"], tc, {
+	          esc: false,
+	          et: false,
+	          depth: context.depth,
+	          format: "json"
+	        }).output + "(" + (obj["arguments"] ? transformer.process(obj["arguments"], tc, {
+	          esc: true,
+	          et: true,
+	          depth: context.depth,
+	          format: "json"
+	        }).output : "") + ")"
+	      };
 	    }
 	  };
 	});
@@ -2159,7 +2260,8 @@ var webapp = (function () {
 	    };
 	  }();
 
-	  exports.__esModule = true; //import { App } from "../app";
+	  exports.__esModule = true;
+	  exports.Processor = void 0; //import { App } from "../app";
 
 	  function s_xa(a, b) {
 	    return Object.prototype.hasOwnProperty.call(a, b);
@@ -2371,7 +2473,7 @@ var webapp = (function () {
 	            obj_1 = obj_1[path[part]];
 	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
 	          } else if (obj_1["default"] && obj_1["default"][path[part]] !== undefined) {
-	            debugger;
+	            //debugger;
 	            obj_1 = obj_1["default"][path[part]];
 	            if (typeof obj_1 === "function" && this.getFunctionName(obj_1) == "inject") obj_1 = obj_1(Inject(this.app, components.BaseComponent(this.app)));
 	          } else if (path.length == 1 && path[0].length > 0 && path[0].toLowerCase() == path[0]) obj_1 = path[part];else {
@@ -2394,11 +2496,15 @@ var webapp = (function () {
 	                  }
 
 	                  class_2.prototype.render = function () {
-	                    return _super.prototype.render ? _super.prototype.render.call(this, ["span", {
-	                      "style": {
-	                        "color": "red"
-	                      }
-	                    }, (fullpath || 'undefined') + " not found!"]) : (fullpath || 'undefined') + " not found!";
+	                    return (
+	                      /*super.render ?*/
+	                      _super.prototype.render.call(this, ["span", {
+	                        "style": {
+	                          "color": "red"
+	                        }
+	                      }, (fullpath || 'undefined') + " not found!"])
+	                    );
+	                    /*: `${fullpath||'undefined'} not found!`*/
 	                  };
 
 	                  return class_2;
@@ -2522,7 +2628,7 @@ var webapp = (function () {
 	          if (isTemplate) {
 	            _this.app.services.moduleSystem.init(_this.app.settings.baseExecutionPath);
 
-	            _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).code).then(function (exported) {
+	            _this.app.services.moduleSystem["import"](_this.app.services.transformer.transform(JSON.stringify(obj)).output).then(function (exported) {
 	              try {
 	                _this.parse(exported["default"] || exported, "af", 0).then(resolve, reject);
 	              } catch (e) {
@@ -2590,7 +2696,8 @@ var webapp = (function () {
 	    return __assign.apply(this, arguments);
 	  };
 
-	  exports.__esModule = true; //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
+	  exports.__esModule = true;
+	  exports.Navigation = void 0; //import { INavigation, IAppLoaded, LogLevel, IEventData, IApp, promisedElement, element} from "../types";
 
 	  function parse(url) {
 	    var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
@@ -2620,15 +2727,17 @@ var webapp = (function () {
 	  var Navigation = {
 	    current: parse((typeof location === "undefined" ? "undefined" : _typeof(location)) === "object" ? location.href : ''),
 	    resolve: function transform(container) {
+	      var _a;
+
 	      var url = typeof location === "undefined" ? '' : location.href;
 	      if (this.controllers && Object.keys(this.controllers).length === 0) return this.main;
 
 	      for (var c in this.controllers) {
 	        if ((this.controllers[c].container ? this.controllers[c].container : '') == (container || '')) {
-	          var match = this.controllers[c].match ? this.controllers[c].match.test(url) : true;
+	          var match = (_a = this.controllers[c].match) === null || _a === void 0 ? void 0 : _a.test(url);
 	          this.services.logger.log(dist.types.app.LogLevel.Trace, "Route \"" + url + "\" " + (match ? 'matched' : 'did not match') + " controller \"" + c + "\"");
 
-	          if (match) {
+	          if (match === undefined || match === true) {
 	            var qs = /(?:\?)([^#]*)(?:#.*)?$/.exec(url);
 	            var params = {};
 	            var index = 0;
@@ -2766,6 +2875,7 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
+	  exports.Transformer = void 0;
 
 	  var types_1 = __importDefault(dist);
 
@@ -2797,7 +2907,7 @@ var webapp = (function () {
 
 	    }
 
-	    Transformer.prototype.loadModule = function (context, val, offset) {
+	    Transformer.prototype.loadModule = function (tc, val, depth) {
 	      var m = val.indexOf('#') > 0 ? val.substr(0, val.indexOf('#')) : val;
 
 	      if (val[0] === "~") {
@@ -2807,14 +2917,18 @@ var webapp = (function () {
 	          "return": {
 	            ".code": "loader.load('" + (m[1] === "/" ? '.' : '') + m.substr(1) + "')" + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '') + ";"
 	          }
-	        }, context, false, false, offset);
+	        }, tc, {
+	          format: "js",
+	          esc: false,
+	          et: false,
+	          depth: depth
+	        });
 	      }
 
 	      if (this.settings.module.toLowerCase() === types_1["default"].app.ModuleSystem.ES.toLowerCase()) m = val.indexOf('#', m.length + 2) > -1 ? val.substr(0, val.indexOf('#', m.length + 2) - 1) : val;
-	      if (context.imports.indexOf(m) === -1) context.imports.push(m);
-	      return "_" + context.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
-	    }; // @ts-ignore
-
+	      if (tc.imports.indexOf(m) === -1) tc.imports.push(m);
+	      return "_" + tc.imports.indexOf(m) + (val.length > m.length ? val.substring(m.length).replace('#', '.') : '');
+	    };
 
 	    Transformer.prototype.format = function (lines, indent) {
 	      var lt = this.settings.compact ? "" : "\n";
@@ -2822,13 +2936,21 @@ var webapp = (function () {
 	      return lt + new Array(indent + 1).join(tab) + lines.join("," + lt + new Array(indent + 1).join(tab)) + lt + new Array(indent).join(tab);
 	    };
 
-	    Transformer.prototype.process = function (obj, context, esc, et, offset) {
+	    Transformer.prototype.process = function (obj, tc, context) {
 	      var _this = this;
 
-	      var output;
-	      if (obj === null) output = "null";else if (Array.isArray(obj)) output = (et ? "" : "[") + this.format.call(this, obj.map(function (e) {
-	        return _this.process(e, context, esc, false, offset + 1);
-	      }), offset) + (et ? "" : "]");else if (_typeof(obj) === "object") {
+	      var result = {
+	        format: "json",
+	        output: ''
+	      };
+	      if (Array.isArray(obj)) result.output = (context.et ? "" : "[") + this.format.call(this, obj.map(function (e) {
+	        return _this.process(e, tc, {
+	          format: context.format,
+	          esc: context.esc,
+	          et: false,
+	          depth: context.depth + 1
+	        }).output;
+	      }), context.depth) + (context.et ? "" : "]");else if (obj && _typeof(obj) === "object") {
 	        var keys = Object.keys(obj);
 	        var processed = false;
 
@@ -2836,22 +2958,29 @@ var webapp = (function () {
 	          if (!processed && keys[k].length > 0 && keys[k].charAt(0) === '.') {
 	            if (keys[k].charAt(1) === ".") obj[keys[k]] = undefined;else if (this.settings.parsers && this.settings.parsers[keys[k]]) {
 	              processed = true;
-	              output = this.settings.parsers[keys[k]](this, context, obj, offset) || '';
+	              var r = this.settings.parsers[keys[k]](obj, this, tc, context);
+	              result.output = r.output;
+	              result.format = r.format;
 	            } else {
-	              debugger;
+	              //debugger;
 	              throw new Error("Could not locate parser " + keys[k].substr(1));
 	            }
 	          }
 	        }
 
-	        if (!processed) output = (et ? "" : "{") + this.format.call(this, keys.filter(function (k) {
+	        if (!processed) result.output = (context.et ? "" : "{") + this.format.call(this, keys.filter(function (k) {
 	          return k.length < 2 || k.substr(0, 2) != '..';
 	        }).map(function (k) {
-	          return (_this.reservedWords.indexOf(k) > -1 || /[^a-z0-9]/i.test(k) ? _this.skey(k) : k) + ":" + (_this.settings.compact ? '' : ' ') + _this.process(obj[k], context, esc, false, offset + 1);
-	        }), offset) + (et ? "" : "}");
+	          return (_this.reservedWords.indexOf(k) > -1 || /[^a-z0-9]/i.test(k) ? _this.skey(k) : k) + ":" + (_this.settings.compact ? '' : ' ') + _this.process(obj[k], tc, {
+	            format: context.format,
+	            esc: context.esc,
+	            et: false,
+	            depth: context.depth + 1
+	          }).output;
+	        }), context.depth) + (context.et ? "" : "}");
 	      } else if (typeof obj === "function") // object not JSON...
-	        output = obj.toString();else output = typeof obj === "string" && esc ? JSON.stringify(obj) : obj;
-	      return output;
+	        result.output = obj.toString();else result.output = typeof obj === "string" && context.esc ? JSON.stringify(obj) : obj;
+	      return result;
 	    };
 
 	    Transformer.prototype.skey = function (key) {
@@ -2875,28 +3004,106 @@ var webapp = (function () {
 	        case "commonjs":
 	        case "cjs":
 	          //for (var req in r) output.code += `${vr} _${r[req]}${sp}=${sp}require('${req}');${nl}`;
-	          context.code += keys.map(function (key) {
-	            return "module.exports[" + _this.skey(key) + "]" + sp + "=" + sp + _this.process(obj[key], context, true, false, 0) + ";";
+	          //throw this.process(obj["default"], context, { format: context.format, esc: true, et: false, depth: 0});
+	          context.output += keys.map(function (key) {
+	            return "module.exports[" + _this.skey(key) + "]" + sp + "=" + sp + _this.process(obj[key], context, {
+	              format: context.format,
+	              esc: true,
+	              et: false,
+	              depth: 0
+	            }).output + ";";
 	          }).join(nl);
-	          if (!isDefault) context.code += nl + "module.exports[\"default\"]" + sp + "=" + sp + "{" + sp + keys.map(function (key) {
-	            return _this.skey(key) + ": " + _this.process(obj[key], context, true, false, 0);
+	          if (!isDefault) context.output += nl + "module.exports[\"default\"]" + sp + "=" + sp + "{" + sp + keys.map(function (key) {
+	            return _this.skey(key) + ": " + _this.process(obj[key], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 0
+	            }).output;
 	          }).join(nl) + " };";
 	          break;
 
 	        case "es":
-	          if (isDefault) context.code += "export default" + sp + this.process(obj["default"], context, true, false, 0) + ";";else {
-	            context.code += "export default" + sp + "{" + this.format(keys.map(function (key) {
-	              return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], context, true, false, 0) : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], context, true, false, 2));
+	          if (isDefault) context.output += "export default" + sp + this.process(obj["default"], context, {
+	            format: context.format,
+	            esc: true,
+	            et: false,
+	            depth: 0
+	          }).output + ";";else {
+	            context.output += "export default" + sp + "{" + this.format(keys.map(function (key) {
+	              return validkeys.indexOf(key) === -1 ? "\"" + key + "\": " + _this.process(obj[key], context, {
+	                format: "json",
+	                esc: true,
+	                et: false,
+	                depth: 1
+	              }).output : key + ":" + sp + (_this.settings.namedExports ? key : _this.process(obj[key], context, {
+	                format: "json",
+	                esc: true,
+	                et: false,
+	                depth: 2
+	              }).output);
 	            }), 1) + "};";
-	            if (this.settings.namedExports && validkeys.length > 0) context.code = validkeys.map(function (key) {
-	              return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], context, true, false, 1) + ";";
-	            }).join(nl) + ("" + (nl + context.code + nl));
+	            if (this.settings.namedExports && validkeys.length > 0) context.output = validkeys.map(function (key) {
+	              return "export " + vr + " " + key + sp + "=" + sp + _this.process(obj[key], context, {
+	                format: context.format,
+	                esc: true,
+	                et: false,
+	                depth: 1
+	              }).output + ";";
+	            }).join(nl) + ("" + (nl + context.output + nl));
 	          }
 	          break;
 
+	        case "raw":
+	          if (isDefault) {
+	            //html
+	            var result = this.process(obj["default"], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 1
+	            });
+	            context.output += result.output;
+	            context.format = result.format;
+	          } else context.output += "" + (isDefault ? this.process(obj["default"], context, {
+	            format: "json",
+	            esc: true,
+	            et: false,
+	            depth: 1
+	          }).output : "{" + this.format(keys.map(function (key) {
+	            return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 1
+	            }).output : key + ":" + sp + _this.process(obj[key], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 2
+	            }).output;
+	          }), 1) + "}");
+
+	          break;
+
 	        default:
-	          context.code += "return " + (isDefault ? this.process(obj["default"], context, true, false, 1) : "{" + this.format(keys.map(function (key) {
-	            return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, true, false, 1) : key + ":" + sp + _this.process(obj[key], context, true, false, 2);
+	          context.output += "return " + (isDefault ? this.process(obj["default"], context, {
+	            format: "json",
+	            esc: true,
+	            et: false,
+	            depth: 1
+	          }).output : "{" + this.format(keys.map(function (key) {
+	            return validkeys.indexOf(key) === -1 || /[^a-z0-9]/i.test(key) ? "\"" + key + "\": " + _this.process(obj[key], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 1
+	            }) : key + ":" + sp + _this.process(obj[key], context, {
+	              format: "json",
+	              esc: true,
+	              et: false,
+	              depth: 2
+	            }).output;
 	          }), 1) + "}") + ";";
 	      }
 	    };
@@ -2972,7 +3179,7 @@ var webapp = (function () {
 	      return relUrl;
 	    };
 
-	    Transformer.prototype.processImports = function (output) {
+	    Transformer.prototype.processImports = function (transform) {
 	      var _this = this;
 
 	      var nl = this.settings.compact ? '' : '\n';
@@ -2982,14 +3189,14 @@ var webapp = (function () {
 	      var r = {};
 	      var s2 = {};
 	      var r2 = {};
-	      if (output.imports.length > 0) for (var i = 0; i < output.imports.length; i++) {
-	        var ext = output.imports[i][0] === "~";
+	      if (transform.imports.length > 0) for (var i = 0; i < transform.imports.length; i++) {
+	        var ext = transform.imports[i][0] === "~";
 
-	        if (output.imports[i].indexOf('#') > -1) {
-	          var module_name = output.imports[i].substr(0, output.imports[i].indexOf('#'));
+	        if (transform.imports[i].indexOf('#') > -1) {
+	          var module_name = transform.imports[i].substr(0, transform.imports[i].indexOf('#'));
 	          if ((ext ? s2 : s)[module_name] === undefined) (ext ? s2 : s)[module_name] = {};
-	          (ext ? s2 : s)[module_name][output.imports[i].substr(module_name.length + 1)] = i;
-	        } else (ext ? r2 : r)[output.imports[i]] = i;
+	          (ext ? s2 : s)[module_name][transform.imports[i].substr(module_name.length + 1)] = i;
+	        } else (ext ? r2 : r)[transform.imports[i]] = i;
 	      }
 
 	      switch (this.settings.module.toLowerCase()) {
@@ -2997,35 +3204,35 @@ var webapp = (function () {
 	        case "commonjs":
 	        case "cjs":
 	          for (var req in r) {
-	            output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+	            transform.output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
 	          }
 
 	          break;
 
 	        case "amd":
 	          var exp = Object.keys(r).map(function (key, index) {
-	            return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, output.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, output.name || location.href) + "\"};";
+	            return "if (typeof _" + index + " === \"object\" && !Array.isArray(_" + index + ")) { _" + index + ".__esModule = \"" + _this.resolve(key, transform.name || location.href) + "\"; } else _" + index + " = {default: _" + index + ", __esModule: \"" + _this.resolve(key, transform.name || location.href) + "\"};";
 	          }).join('\n');
-	          output.code = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) {
+	          transform.output = "define(" + (Object.keys(r).length > 0 ? "[" + Object.keys(r).map(function (key) {
 	            return "" + _this.skey(key);
 	          }).join(", ") + "], " : '') + "function (" + Object.keys(r).map(function (key) {
 	            return '_' + r[key];
-	          }).join(", ") + ") { \n" + exp + " " + output.code + " });" + nl;
+	          }).join(", ") + ") { \n" + exp + " " + transform.output + " });" + nl;
 	          break;
 
 	        case "es":
-	          output.code = Object.keys(s).map(function (key) {
+	          transform.output = Object.keys(s).map(function (key) {
 	            return "import {" + Object.keys(s[key]).map(function (k) {
 	              return k + " as _" + s[key][k];
 	            }).join(',' + sp) + "} from " + _this.skey(key) + ";" + nl;
 	          }).join('') + Object.keys(r).map(function (key) {
 	            return "import * as _" + r[key] + " from " + _this.skey(key.substr(key[0] == "~" ? 1 : 0)) + ";" + nl;
-	          }).join('') + output.code;
+	          }).join('') + transform.output;
 	          break;
 
 	        default:
 	          for (var req in r) {
-	            output.code = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+	            transform.output = vr + " _" + r[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
 	          }
 
 	      }
@@ -3036,32 +3243,32 @@ var webapp = (function () {
 	          case "commonjs":
 	          case "cjs":
 	            for (var req in r2) {
-	              output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+	              transform.output = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
 	            }
 
 	            break;
 
 	          case "amd":
-	            output.code = "define(" + (Object.keys(r2).length > 0 ? "[" + Object.keys(r).map(function (key) {
+	            transform.output = "define(" + (Object.keys(r2).length > 0 ? "[" + Object.keys(r).map(function (key) {
 	              return "" + _this.skey(key);
 	            }).join(", ") + "], " : '') + "function (" + Object.keys(r2).map(function (key) {
 	              return '_' + r2[key];
-	            }).join(", ") + ") { " + output.code + " });" + nl;
+	            }).join(", ") + ") { " + transform.output + " });" + nl;
 	            break;
 
 	          case "es":
-	            output.code = Object.keys(s2).map(function (key) {
+	            transform.output = Object.keys(s2).map(function (key) {
 	              return "import {" + Object.keys(s2[key]).map(function (k) {
 	                return k.substr(1) + " as _" + s[key][k];
 	              }).join(',' + sp) + "} from " + _this.skey(key.substr(1)) + ";" + nl;
 	            }).join('') + Object.keys(r2).map(function (key) {
 	              return "import * as _" + r2[key] + " from '" + key.substr(1) + "';" + nl;
-	            }).join('') + output.code;
+	            }).join('') + transform.output;
 	            break;
 
 	          default:
 	            for (var req in r2) {
-	              output.code = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + output.code;
+	              transform.output = vr + " _" + r2[req] + sp + "=" + sp + "require(\"" + req + "\");" + nl + transform.output;
 	            }
 
 	        }
@@ -3075,7 +3282,8 @@ var webapp = (function () {
 	        exports: {},
 	        references: {},
 	        compositeObject: false,
-	        code: ''
+	        output: '',
+	        format: "json"
 	      };
 	      this.processExports(output, template == undefined || template == null || Array.isArray(template) || _typeof(template) !== 'object' || Object.keys(template).filter(function (k) {
 	        return k[0] == '.';
@@ -3125,6 +3333,7 @@ var webapp = (function () {
 	var services = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.Transformer = exports.Processor = exports.Parsers = exports.Loader = exports.Navigation = exports.Events = exports.Data = void 0;
 	  exports.Data = Data_1.Data;
 	  exports.Events = Events_1.Events;
 	  exports.Loader = Loader_1.Loader;
@@ -3134,13 +3343,13 @@ var webapp = (function () {
 	  exports.Transformer = Transformer_1.Transformer;
 	});
 	unwrapExports(services);
-	var services_1 = services.Data;
-	var services_2 = services.Events;
-	var services_3 = services.Loader;
-	var services_4 = services.Parsers;
-	var services_5 = services.Processor;
-	var services_6 = services.Navigation;
-	var services_7 = services.Transformer;
+	var services_1 = services.Transformer;
+	var services_2 = services.Processor;
+	var services_3 = services.Parsers;
+	var services_4 = services.Loader;
+	var services_5 = services.Navigation;
+	var services_6 = services.Events;
+	var services_7 = services.Data;
 
 	var app = createCommonjsModule(function (module, exports) {
 
@@ -3151,6 +3360,7 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
+	  exports.App = void 0;
 
 	  var types_1 = __importDefault(dist);
 
@@ -3237,17 +3447,42 @@ var webapp = (function () {
 
 	var dist$1 = createCommonjsModule(function (module, exports) {
 
+	  var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function (o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    Object.defineProperty(o, k2, {
+	      enumerable: true,
+	      get: function get() {
+	        return m[k];
+	      }
+	    });
+	  } : function (o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    o[k2] = m[k];
+	  });
+
+	  var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function (o, v) {
+	    Object.defineProperty(o, "default", {
+	      enumerable: true,
+	      value: v
+	    });
+	  } : function (o, v) {
+	    o["default"] = v;
+	  });
+
 	  var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function (mod) {
 	    if (mod && mod.__esModule) return mod;
 	    var result = {};
 	    if (mod != null) for (var k in mod) {
-	      if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+	      if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
 	    }
-	    result["default"] = mod;
+
+	    __setModuleDefault(result, mod);
+
 	    return result;
 	  };
 
 	  exports.__esModule = true;
+	  exports.Services = exports.App = exports.types = void 0;
 	  exports.types = dist.types;
 	  exports.App = app.App;
 
@@ -3256,13 +3491,356 @@ var webapp = (function () {
 	  exports.Services = Services;
 	});
 	unwrapExports(dist$1);
-	var dist_1$1 = dist$1.types;
+	var dist_1$1 = dist$1.Services;
 	var dist_2 = dist$1.App;
-	var dist_3 = dist$1.Services;
+	var dist_3 = dist$1.types;
+
+	var ui = createCommonjsModule(function (module, exports) {
+	  /*interface fiber
+	  {
+	      dom?: any
+	      type:string,
+	      props: object,
+	      child: any,
+	      children: any[]
+	  }
+	  
+	  interface action
+	  */
+
+	  var __assign = commonjsGlobal && commonjsGlobal.__assign || function () {
+	    __assign = Object.assign || function (t) {
+	      for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+
+	        for (var p in s) {
+	          if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+	        }
+	      }
+
+	      return t;
+	    };
+
+	    return __assign.apply(this, arguments);
+	  };
+
+	  exports.__esModule = true;
+	  exports.createElement = exports.render = exports.Component = void 0;
+	  var requestIdleCallback = commonjsGlobal.requestIdleCallback;
+
+	  function createElement(type, props, children) {
+	    return {
+	      type: type,
+	      props: __assign(__assign({}, props), {
+	        children: children != undefined ? typeof children === "string" ? [createTextElement(children)] : children : []
+	      })
+	    };
+	  }
+
+	  exports.createElement = createElement;
+
+	  function createTextElement(text) {
+	    return {
+	      type: "TEXT_ELEMENT",
+	      props: {
+	        nodeValue: text,
+	        children: []
+	      }
+	    };
+	  }
+
+	  function createDom(fiber) {
+	    if (fiber.type == "TEXT_ELEMENT") return document.createTextNode(fiber.props.nodeValue || "");
+	    var dom = document.createElement(fiber.type);
+	    updateDom(dom, {}, fiber.props);
+	    return dom;
+	  }
+
+	  var isEvent = function isEvent(key) {
+	    return key.startsWith("on");
+	  };
+
+	  var isProperty = function isProperty(key) {
+	    return key !== "children" && !isEvent(key);
+	  };
+
+	  var isNew = function isNew(prev, next) {
+	    return function (key) {
+	      return prev[key] !== next[key];
+	    };
+	  };
+
+	  var isGone = function isGone(_prev, next) {
+	    return function (key) {
+	      return !(key in next);
+	    };
+	  };
+
+	  function updateDom(dom, prevProps, nextProps) {
+	    //Remove old or changed event listeners
+	    Object.keys(prevProps).filter(isEvent).filter(function (key) {
+	      return !(key in nextProps) || isNew(prevProps, nextProps)(key);
+	    }).forEach(function (name) {
+	      var eventType = name.toLowerCase().substring(2);
+	      dom.removeEventListener(eventType, prevProps[name]);
+	    }); // Remove old properties
+
+	    Object.keys(prevProps).filter(isProperty).filter(isGone(prevProps, nextProps)).forEach(function (name) {
+	      return dom.setAttribute(name, "");
+	    }); // Set new or changed properties
+
+	    Object.keys(nextProps).filter(isProperty).filter(isNew(prevProps, nextProps)).forEach(function (name) {
+	      return dom.setAttribute(name, typeof nextProps[name] === 'string' ? nextProps[name] : JSON.stringify(nextProps[name]));
+	    }); // Add event listeners
+
+	    Object.keys(nextProps).filter(isEvent).filter(isNew(prevProps, nextProps)).forEach(function (name) {
+	      var eventType = name.toLowerCase().substring(2);
+	      dom.addEventListener(eventType, nextProps[name]);
+	    });
+	  }
+
+	  function commitRoot() {
+	    deletions.forEach(commitWork);
+	    commitWork(wipRoot.child);
+	    currentRoot = wipRoot;
+	    wipRoot = null;
+	  }
+
+	  function commitWork(fiber) {
+	    if (!fiber) {
+	      return;
+	    }
+
+	    var domParentFiber = fiber.parent;
+
+	    while (!domParentFiber.dom) {
+	      domParentFiber = domParentFiber.parent;
+	    }
+
+	    var domParent = domParentFiber.dom;
+
+	    if (fiber.effectTag === "PLACEMENT" && fiber.dom != null) {
+	      domParent.appendChild(fiber.dom);
+	    } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
+	      updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+	    } else if (fiber.effectTag === "DELETION") {
+	      commitDeletion(fiber, domParent);
+	    }
+
+	    commitWork(fiber.child);
+	    commitWork(fiber.sibling);
+	  }
+
+	  function commitDeletion(fiber, domParent) {
+	    if (fiber.dom) {
+	      domParent.removeChild(fiber.dom);
+	    } else {
+	      commitDeletion(fiber.child, domParent);
+	    }
+	  }
+
+	  function render(element, container) {
+	    wipRoot = {
+	      dom: container,
+	      props: {
+	        children: [element]
+	      },
+	      alternate: currentRoot
+	    };
+	    deletions = [];
+	    nextUnitOfWork = wipRoot;
+	  }
+
+	  exports.render = render;
+	  var nextUnitOfWork = null;
+	  var currentRoot = null;
+	  var wipRoot = null;
+	  var deletions = null;
+
+	  function workLoop(deadline) {
+	    var shouldYield = false;
+
+	    while (nextUnitOfWork && !shouldYield) {
+	      nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+	      shouldYield = deadline.timeRemaining() < 1;
+	    }
+
+	    if (!nextUnitOfWork && wipRoot) {
+	      commitRoot();
+	    }
+
+	    requestIdleCallback(workLoop);
+	  }
+
+	  requestIdleCallback(workLoop);
+
+	  function performUnitOfWork(fiber) {
+	    var isFunctionComponent = fiber.type instanceof Function;
+
+	    if (isFunctionComponent) {
+	      updateFunctionComponent(fiber);
+	    } else {
+	      updateHostComponent(fiber);
+	    }
+
+	    if (fiber.child) {
+	      return fiber.child;
+	    }
+
+	    var nextFiber = fiber;
+
+	    while (nextFiber) {
+	      if (nextFiber.sibling) {
+	        return nextFiber.sibling;
+	      }
+
+	      nextFiber = nextFiber.parent;
+	    }
+	  }
+
+	  var wipFiber = null;
+	  var hookIndex = null;
+
+	  function updateFunctionComponent(fiber) {
+	    wipFiber = fiber;
+	    hookIndex = 0;
+	    wipFiber.hooks = [];
+	    var children = [fiber.type(fiber.props)];
+	    reconcileChildren(fiber, children);
+	  }
+
+	  function useState(initial) {
+	    var oldHook = wipFiber.alternate && wipFiber.alternate.hooks && wipFiber.alternate.hooks[hookIndex];
+	    var hook = {
+	      state: oldHook ? oldHook.state : initial,
+	      queue: []
+	    };
+	    var actions = oldHook ? oldHook.queue : [];
+	    actions.forEach(function (action) {
+	      hook.state = action(hook.state);
+	    });
+
+	    var setState = function setState(action) {
+	      hook.queue.push(action);
+	      wipRoot = {
+	        dom: currentRoot.dom,
+	        props: currentRoot.props,
+	        alternate: currentRoot
+	      };
+	      nextUnitOfWork = wipRoot;
+	      deletions = [];
+	    };
+
+	    wipFiber.hooks.push(hook);
+	    hookIndex++;
+	    return [hook.state, setState];
+	  }
+
+	  function updateHostComponent(fiber) {
+	    if (!fiber.dom) {
+	      fiber.dom = createDom(fiber);
+	    }
+
+	    reconcileChildren(fiber, fiber.props.children);
+	  }
+
+	  function reconcileChildren(wipFiber, elements) {
+	    var index = 0;
+	    var oldFiber = wipFiber.alternate && wipFiber.alternate.child;
+	    var prevSibling = null;
+
+	    while (index < elements.length || oldFiber != null) {
+	      var element = elements[index];
+	      var newFiber = null;
+	      var sameType = oldFiber && element && element.type == oldFiber.type;
+
+	      if (sameType) {
+	        newFiber = {
+	          type: oldFiber.type,
+	          props: element.props,
+	          dom: oldFiber.dom,
+	          parent: wipFiber,
+	          alternate: oldFiber,
+	          effectTag: "UPDATE"
+	        };
+	      }
+
+	      if (element && !sameType) {
+	        newFiber = {
+	          type: element.type,
+	          props: element.props,
+	          dom: null,
+	          parent: wipFiber,
+	          alternate: null,
+	          effectTag: "PLACEMENT"
+	        };
+	      }
+
+	      if (oldFiber && !sameType) {
+	        oldFiber.effectTag = "DELETION";
+	        deletions.push(oldFiber);
+	      }
+
+	      if (oldFiber) {
+	        oldFiber = oldFiber.sibling;
+	      }
+
+	      if (index === 0) {
+	        wipFiber.child = newFiber;
+	      } else if (element && prevSibling && !prevSibling.sibling) {
+	        prevSibling.sibling = newFiber;
+	      }
+
+	      prevSibling = newFiber;
+	      index++;
+	    }
+	  }
+
+	  var Component =
+	  /** @class */
+	  function () {
+	    function Component(props, context) {
+	      this.props = props || {};
+	      this.context = context;
+	      this.state = {};
+	      var s = useState({});
+	      this.state = s[0];
+
+	      this.setState = function (_args) {//console.log(args);
+	      };
+
+	      this.render = function () {
+	        debugger;
+	        return 'ok';
+	      };
+	    }
+
+	    Component.prototype.setState = function (_state, _callback) {};
+
+	    Component.prototype.forceUpdate = function (_callback) {
+	      debugger; //this.setState((prevState: S, _props: P) => prevState, callback);
+	      //updateHostComponent()
+	    };
+
+	    Component.prototype.render = function (props) {
+	      alert(JSON.stringify(props));
+	      debugger; //return createElement(this, props, props.children);
+	    };
+
+	    return Component;
+	  }();
+
+	  exports.Component = Component;
+	});
+	unwrapExports(ui);
+	var ui_1 = ui.createElement;
+	var ui_2 = ui.render;
+	var ui_3 = ui.Component;
 
 	var WebUI_1 = createCommonjsModule(function (module, exports) {
 
 	  exports.__esModule = true;
+	  exports.WebUI = void 0;
 
 	  var WebUI =
 	  /** @class */
@@ -3283,6 +3861,10 @@ var webapp = (function () {
 	          this.renderInternal = obj.value.render || (Object.getOwnPropertyDescriptor(window, "ReactDOM") || {
 	            value: null
 	          }).value.render;
+	        } else {
+	          this.createElement = ui.createElement;
+	          this.Component = ui.Component;
+	          this.renderInternal = ui.render;
 	        }
 	      }
 	    };
@@ -3347,6 +3929,7 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
+	  exports.WebApp = void 0;
 
 	  var WebApp =
 	  /** @class */
@@ -3392,7 +3975,7 @@ var webapp = (function () {
 	        if (w && g && d) {
 	          if (g.InstallTrigger !== undefined) this.info.browser = dist$1.types.webapp.browserType.FireFox;else if (
 	          /*@cc_on!@*/
-	          !!d.documentMode) bt = dist$1.types.webapp.browserType.IE;else if (!!w.StyleMedia) bt = dist$1.types.webapp.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
+	           !!d.documentMode) bt = dist$1.types.webapp.browserType.IE;else if (!!w.StyleMedia) bt = dist$1.types.webapp.browserType.Edge;else if (/constructor/i.test(w.HTMLElement) || function (p) {
 	            return p.toString() === "[object SafariRemoteNotification]";
 	          }(!w['safari'] || typeof g.safari !== 'undefined' && g.safari.pushNotification)) bt = dist$1.types.webapp.browserType.Safari;else if (!!w.chrome && (!!w.chrome.webstore || !!w.chrome.runtime)) bt = dist$1.types.webapp.browserType.Chrome;else if (Object.getOwnPropertyDescriptor(window, "opr") && Object.getOwnPropertyDescriptor(window, "addons") || Object.getOwnPropertyDescriptor(window, "opera") || navigator.userAgent.indexOf(' OPR/') >= 0) bt = dist$1.types.webapp.browserType.Opera;
 	          if ((bt === dist$1.types.webapp.browserType.Chrome || bt === dist$1.types.webapp.browserType.Opera) && !!w.CSS) bt = dist$1.types.webapp.browserType.Blink;
@@ -3509,27 +4092,28 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
+	  exports.Parsers = void 0;
 	  exports.Parsers = __assign(__assign({}, dist$1.Services.Parsers), {
-	    /*".app": (transformer:types.app.ITransformer, context:types.app.ITransformContext, obj:any, offset:number) => {
+	    /*".app": (transformer:types.app.ITransformer, tc:types.app.ITransformtc, obj:any, offset:number) => {
 	        var obj2:{[key:string]:any} = {};
 	        var keys = Object.keys(obj);
 	        for (var key in keys) obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
 	        console.log(WebApp);
-	        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, context, true, true, offset)}`;
+	        return `${transformer.process({ ".new": {".import": "@appfibre/webapp#WebApp"}, "arguments": [obj2]}, tc, true, true, offset)}`;
 	    }*/
-	    ".app": function app(transformer, context, obj, offset) {
-	      if (!context.references['WebApp']) context.references['WebApp'] = WebApp_1.WebApp;
+	    ".app": function app(jst, transformer, tc, context) {
+	      if (!tc.references['WebApp']) tc.references['WebApp'] = WebApp_1.WebApp;
 	      var obj2 = {};
-	      var keys = Object.keys(obj);
+	      var keys = Object.keys(jst);
 
 	      for (var key in keys) {
-	        obj2[keys[key] == ".app" ? "main" : keys[key]] = obj[keys[key]];
+	        obj2[keys[key] == ".app" ? "main" : keys[key]] = jst[keys[key]];
 	      }
 
-	      return "" + transformer.process({
+	      return transformer.process({
 	        ".new": "WebApp",
 	        "arguments": [obj2]
-	      }, context, true, true, offset);
+	      }, tc, context);
 	    }
 	  });
 	});
@@ -3565,6 +4149,7 @@ var webapp = (function () {
 	  }();
 
 	  exports.__esModule = true;
+	  exports.Transformer = void 0;
 
 	  var Transformer =
 	  /** @class */
@@ -3608,6 +4193,7 @@ var webapp = (function () {
 	  };
 
 	  exports.__esModule = true;
+	  exports.WebApp = exports.Services = exports.App = void 0;
 	  exports.App = dist$1.App;
 	  exports.WebApp = WebApp_1.WebApp; //import { HtmlUI } from './services/HtmlUI';
 
@@ -3616,9 +4202,9 @@ var webapp = (function () {
 	  exports.Services = services_1["default"];
 	});
 	unwrapExports(dist$2);
-	var dist_1$2 = dist$2.App;
-	var dist_2$1 = dist$2.WebApp;
-	var dist_3$1 = dist$2.Services;
+	var dist_1$2 = dist$2.WebApp;
+	var dist_2$1 = dist$2.Services;
+	var dist_3$1 = dist$2.App;
 
 	//const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
 	//const externals = { "@appfibre/core": require('@appfibre/core'), "@appfibre/webapp": require('@appfibre/webapp'), "@appfibre/types": require('@appfibre/types')  };
@@ -3675,7 +4261,7 @@ var webapp = (function () {
 	      switch (response.contentType) {
 	        case "application/javascript":
 	          return {
-	            code: response.text
+	            output: response.text
 	          };
 
 	        case "application/json":
@@ -3683,7 +4269,7 @@ var webapp = (function () {
 
 	        default:
 	          return {
-	            code: "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})"
+	            output: "define(function() { return \'" + response.text.replace(/\'/g, "\\\'").replace(/\"/g, "\\\"") + "\';})"
 	          };
 	      }
 	    } catch (ex) {
@@ -3696,8 +4282,8 @@ var webapp = (function () {
 	    try {
 	      var keys = source.references ? Object.keys(source.references) : [];
 	      var values = source.references ? Object.values(source.references) : [];
-	      keys.push("".concat(source.code, ";\n//# sourceURL=' + ").concat(url));
-	      Function.apply({}, keys).apply({}, values); //Function('WebApp', `${source.code};\n//# sourceURL=' + ${url}`)(WebApp); 
+	      keys.push("".concat(source.output, ";\n//# sourceURL=' + ").concat(url));
+	      Function.apply({}, keys).apply({}, values); //Function('WebApp', `${source.output};\n//# sourceURL=' + ${url}`)(WebApp); 
 
 	      return loader.getRegister();
 	    } catch (ex) {
@@ -3716,7 +4302,7 @@ var webapp = (function () {
 			default:
 				return "return " + replace()
 		}
-		return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new externals['@appfibre/webapp'].Transformer({ module: 'amd'}).transform(source, id).code : source;
+		return (id.indexOf('.json')>-1 || id.indexOf('.jst')>-1) ? new externals['@appfibre/webapp'].Transformer({ module: 'amd'}).transform(source, id).output : source;
 	}*/
 
 

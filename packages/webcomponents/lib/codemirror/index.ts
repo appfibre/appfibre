@@ -80,7 +80,7 @@ let CodeMirror = function transform(this:types.webapp.IWebAppLoaded, attr:{value
           let codemirror = cm[0].default || cm[0];
           if (!existing) {
             let editor = codemirror.fromTextArea(e, settings);
-            editor.on('change', () => {if (onChange) onChange(editor.getValue())}); 
+            editor.on('change', () => {e.value = editor.getValue(); if (onChange) onChange({target: e})}); 
           } else {
             console.log(' TODO ?????');
           }

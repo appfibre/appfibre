@@ -6,7 +6,7 @@ declare let Intercept: (app: types.app.IAppLoaded<{}, {}>) => {
             focus: boolean;
             selected: boolean;
             editing: boolean;
-            selectedCorrelationId?: string | undefined;
+            selectedCorrelationId?: string;
             editMode: any;
             canEdit: boolean;
         };

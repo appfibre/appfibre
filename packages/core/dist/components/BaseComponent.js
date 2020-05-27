@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+exports.BaseComponent = void 0;
 var seed = '0123456789abcdefgihjlmnopqrstuvwxyzABCDEFGIHJKLMNOPQRSTUVWXYZ';
 var BaseComponent = function inject(app) {
     function generateId() {

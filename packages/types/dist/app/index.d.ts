@@ -14,7 +14,7 @@ export declare namespace app {
         info?: IInfo & I;
         services?: IServices<IAppLoaded<O, I>>;
         controllers?: {
-            [index: number]: IController | Constructable<IController, IApp<O, I>>;
+            [name: string]: IController | Constructable<IController, IApp<O, I>>;
         };
         components?: {
             [name: string]: any;
@@ -38,8 +38,8 @@ export declare namespace app {
     interface IInfo {
     }
     interface IController {
-        path: string;
-        match: {
+        path?: string;
+        match?: {
             test: (url: string) => boolean;
         };
         resolve(args: {
@@ -145,9 +145,15 @@ export declare namespace app {
     }
     interface ITransformer {
         transform(input: jst.template, name?: string): ITransformOutput;
-        process(obj: any, context: ITransformContext, esc: boolean, et: boolean, offset: number): string;
-        loadModule(context: ITransformContext, val: string, offset: number): string;
+        process(obj: any, tc: ITransformContext, context: ITransformProcessingContext): IProcessOutput;
+        loadModule(context: ITransformContext, val: string, depth: number): string;
         settings: ITransformSettings;
+    }
+    interface ITransformProcessingContext {
+        depth: number;
+        esc: boolean;
+        et: boolean;
+        format: "json" | "javascript" | "xml" | "html" | string;
     }
     interface ITransformContext {
         references: {
@@ -160,10 +166,13 @@ export declare namespace app {
         compositeObject: boolean;
         name?: string;
     }
-    interface ITransformOutput extends ITransformContext {
-        code: string;
+    interface IProcessOutput {
+        output: string;
+        format: "json" | "javascript" | "xml" | "html" | string;
     }
-    type IParser = (transformer: ITransformer, context: ITransformContext, obj: any, offset: number) => string | undefined;
+    interface ITransformOutput extends ITransformContext, IProcessOutput {
+    }
+    type IParser = (obj: any, transformer: ITransformer, transform: ITransformContext, context: ITransformProcessingContext) => IProcessOutput;
     enum LogLevel {
         "None" = 0,
         "Exception" = 1,
@@ -177,11 +186,8 @@ export declare namespace app {
         CommonJS = "commonjs",
         AMD = "amd",
         UMD = "umd",
-        ES = "es"
-    }
-    enum LicenseType {
-        "MIT" = 0,
-        "GNU" = 1
+        ES = "es",
+        Raw = "raw"
     }
 }
 //# sourceMappingURL=index.d.ts.map

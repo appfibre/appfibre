@@ -17,7 +17,7 @@ export namespace app {
     settings?:ISettings&O
     info?:IInfo&I
     services?:IServices<IAppLoaded<O, I>>
-    controllers?:{[index:number]:IController|Constructable<IController, IApp<O, I>>}
+    controllers?:{[name:string]:IController|Constructable<IController, IApp<O, I>>}
     components?:{[name:string]:any}|Function
   }
     
@@ -42,8 +42,8 @@ export namespace app {
   }
       
   export interface IController {
-      path:string
-      match:{test:(url:string)=>boolean}
+      path?:string
+      match?:{test:(url:string)=>boolean}
       resolve(args:{
         [key:string]:string;
         [index:number]:string
@@ -159,9 +159,16 @@ export namespace app {
   export interface ITransformer {
     transform (input:jst.template, name?:string):ITransformOutput
     //_process(obj:any, esc:boolean, et:boolean, parseSettings:ITransformOutput, offset:number) : string
-    process(obj:any, context:ITransformContext, esc:boolean, et:boolean, offset:number) : string
-    loadModule(context:ITransformContext, val:string, offset:number) : string
+    process(obj:any, tc:ITransformContext, context:ITransformProcessingContext) : IProcessOutput
+    loadModule(context:ITransformContext, val:string, depth:number) : string
     settings:ITransformSettings
+  }
+
+  export interface ITransformProcessingContext {
+    depth: number,
+    esc: boolean,
+    et: boolean,
+    format: "json"|"javascript"|"xml"|"html"|string
   }
   
   export interface ITransformContext {
@@ -172,11 +179,21 @@ export namespace app {
     name?:string
   }
 
-  export interface ITransformOutput extends ITransformContext {
-    code: string
+  export interface IProcessOutput {
+    output: string
+    format: "json"|"javascript"|"xml"|"html"|string
+
+/*
+    processed: boolean
+    async: boolean
+    schema: any
+*/
+  }
+
+  export interface ITransformOutput extends ITransformContext, IProcessOutput {
   }
     
-  export type IParser = (transformer:ITransformer, context:ITransformContext, obj:any, offset:number /*output:ITransformOutput, offset:number, resolve?:Function, reject?:Function*/) => string|undefined;
+  export type IParser = (obj:any, transformer:ITransformer, transform:ITransformContext, context:ITransformProcessingContext /*output:ITransformOutput, offset:number, resolve?:Function, reject?:Function*/) => IProcessOutput;
 
   export enum LogLevel {
       "None"=0,
@@ -192,11 +209,13 @@ export namespace app {
       CommonJS = "commonjs",
       AMD = "amd",
       UMD = "umd",
-      ES = "es"
+      ES = "es",
+      Raw = "raw"
   }
 
-  export enum LicenseType {
+  /*export enum LicenseType {
     "MIT",
     "GNU"         
-  }
+  }*/
+
 }

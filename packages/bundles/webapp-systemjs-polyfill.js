@@ -2,6 +2,8 @@ var appfibre_polyfill = (function () {
   'use strict';
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -21,15 +23,13 @@ var appfibre_polyfill = (function () {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  var O = 'object';
-
   var check = function check(it) {
     return it && it.Math == Math && it;
   }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
 
 
   var global_1 = // eslint-disable-next-line no-undef
-  check((typeof globalThis === "undefined" ? "undefined" : _typeof(globalThis)) == O && globalThis) || check((typeof window === "undefined" ? "undefined" : _typeof(window)) == O && window) || check((typeof self === "undefined" ? "undefined" : _typeof(self)) == O && self) || check(_typeof(commonjsGlobal) == O && commonjsGlobal) || // eslint-disable-next-line no-new-func
+  check((typeof globalThis === "undefined" ? "undefined" : _typeof(globalThis)) == 'object' && globalThis) || check((typeof window === "undefined" ? "undefined" : _typeof(window)) == 'object' && window) || check((typeof self === "undefined" ? "undefined" : _typeof(self)) == 'object' && self) || check(_typeof(commonjsGlobal) == 'object' && commonjsGlobal) || // eslint-disable-next-line no-new-func
   Function('return this')();
 
   var fails = function fails(exec) {
@@ -41,11 +41,11 @@ var appfibre_polyfill = (function () {
   };
 
   var descriptors = !fails(function () {
-    return Object.defineProperty({}, 'a', {
+    return Object.defineProperty({}, 1, {
       get: function get() {
         return 7;
       }
-    }).a != 7;
+    })[1] != 7;
   });
 
   var nativePropertyIsEnumerable = {}.propertyIsEnumerable;
@@ -123,12 +123,12 @@ var appfibre_polyfill = (function () {
     return hasOwnProperty.call(it, key);
   };
 
-  var document = global_1.document; // typeof document.createElement is 'object' in old IE
+  var document$1 = global_1.document; // typeof document.createElement is 'object' in old IE
 
-  var EXISTS = isObject(document) && isObject(document.createElement);
+  var EXISTS = isObject(document$1) && isObject(document$1.createElement);
 
   var documentCreateElement = function documentCreateElement(it) {
-    return EXISTS ? document.createElement(it) : {};
+    return EXISTS ? document$1.createElement(it) : {};
   };
 
   var ie8DomDefine = !descriptors && !fails(function () {
@@ -184,7 +184,7 @@ var appfibre_polyfill = (function () {
     f: f$2
   };
 
-  var hide = descriptors ? function (object, key, value) {
+  var createNonEnumerableProperty = descriptors ? function (object, key, value) {
     return objectDefineProperty.f(object, key, createPropertyDescriptor(1, value));
   } : function (object, key, value) {
     object[key] = value;
@@ -193,7 +193,7 @@ var appfibre_polyfill = (function () {
 
   var setGlobal = function setGlobal(key, value) {
     try {
-      hide(global_1, key, value);
+      createNonEnumerableProperty(global_1, key, value);
     } catch (error) {
       global_1[key] = value;
     }
@@ -201,24 +201,34 @@ var appfibre_polyfill = (function () {
     return value;
   };
 
+  var SHARED = '__core-js_shared__';
+  var store = global_1[SHARED] || setGlobal(SHARED, {});
+  var sharedStore = store;
+
+  var functionToString = Function.toString; // this helper broken in `3.4.1-3.4.4`, so we can't use `shared` helper
+
+  if (typeof sharedStore.inspectSource != 'function') {
+    sharedStore.inspectSource = function (it) {
+      return functionToString.call(it);
+    };
+  }
+
+  var inspectSource = sharedStore.inspectSource;
+
+  var WeakMap = global_1.WeakMap;
+  var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(inspectSource(WeakMap));
+
   var isPure = false;
 
   var shared = createCommonjsModule(function (module) {
-    var SHARED = '__core-js_shared__';
-    var store = global_1[SHARED] || setGlobal(SHARED, {});
     (module.exports = function (key, value) {
-      return store[key] || (store[key] = value !== undefined ? value : {});
+      return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
     })('versions', []).push({
-      version: '3.1.3',
-      mode: 'global',
-      copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
+      version: '3.6.5',
+      mode:  'global',
+      copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
     });
   });
-
-  var functionToString = shared('native-function-to-string', Function.toString);
-
-  var WeakMap = global_1.WeakMap;
-  var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(functionToString.call(WeakMap));
 
   var id = 0;
   var postfix = Math.random();
@@ -255,29 +265,29 @@ var appfibre_polyfill = (function () {
   };
 
   if (nativeWeakMap) {
-    var store = new WeakMap$1();
-    var wmget = store.get;
-    var wmhas = store.has;
-    var wmset = store.set;
+    var store$1 = new WeakMap$1();
+    var wmget = store$1.get;
+    var wmhas = store$1.has;
+    var wmset = store$1.set;
 
     set = function set(it, metadata) {
-      wmset.call(store, it, metadata);
+      wmset.call(store$1, it, metadata);
       return metadata;
     };
 
     get = function get(it) {
-      return wmget.call(store, it) || {};
+      return wmget.call(store$1, it) || {};
     };
 
     has$1 = function has(it) {
-      return wmhas.call(store, it);
+      return wmhas.call(store$1, it);
     };
   } else {
     var STATE = sharedKey('state');
     hiddenKeys[STATE] = true;
 
     set = function set(it, metadata) {
-      hide(it, STATE, metadata);
+      createNonEnumerableProperty(it, STATE, metadata);
       return metadata;
     };
 
@@ -301,17 +311,14 @@ var appfibre_polyfill = (function () {
   var redefine = createCommonjsModule(function (module) {
     var getInternalState = internalState.get;
     var enforceInternalState = internalState.enforce;
-    var TEMPLATE = String(functionToString).split('toString');
-    shared('inspectSource', function (it) {
-      return functionToString.call(it);
-    });
+    var TEMPLATE = String(String).split('String');
     (module.exports = function (O, key, value, options) {
       var unsafe = options ? !!options.unsafe : false;
       var simple = options ? !!options.enumerable : false;
       var noTargetGet = options ? !!options.noTargetGet : false;
 
       if (typeof value == 'function') {
-        if (typeof key == 'string' && !has(value, 'name')) hide(value, 'name', key);
+        if (typeof key == 'string' && !has(value, 'name')) createNonEnumerableProperty(value, 'name', key);
         enforceInternalState(value).source = TEMPLATE.join(typeof key == 'string' ? key : '');
       }
 
@@ -324,9 +331,9 @@ var appfibre_polyfill = (function () {
         simple = true;
       }
 
-      if (simple) O[key] = value;else hide(O, key, value); // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
+      if (simple) O[key] = value;else createNonEnumerableProperty(O, key, value); // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
     })(Function.prototype, 'toString', function toString() {
-      return typeof this == 'function' && getInternalState(this).source || functionToString.call(this);
+      return typeof this == 'function' && getInternalState(this).source || inspectSource(this);
     });
   });
 
@@ -358,7 +365,7 @@ var appfibre_polyfill = (function () {
   var max = Math.max;
   var min$1 = Math.min; // Helper for a popular repeating case of the spec:
   // Let integer be ? ToInteger(index).
-  // If integer < 0, let result be max((length + integer), 0); else let result be min(length, length).
+  // If integer < 0, let result be max((length + integer), 0); else let result be min(integer, length).
 
   var toAbsoluteIndex = function toAbsoluteIndex(index, length) {
     var integer = toInteger(index);
@@ -514,7 +521,7 @@ var appfibre_polyfill = (function () {
 
 
       if (options.sham || targetProperty && targetProperty.sham) {
-        hide(sourceProperty, 'sham', true);
+        createNonEnumerableProperty(sourceProperty, 'sham', true);
       } // extend global
 
 
@@ -600,11 +607,20 @@ var appfibre_polyfill = (function () {
     return !String(Symbol());
   });
 
+  var useSymbolAsUid = nativeSymbol // eslint-disable-next-line no-undef
+  && !Symbol.sham // eslint-disable-next-line no-undef
+  && _typeof(Symbol.iterator) == 'symbol';
+
+  var WellKnownSymbolsStore = shared('wks');
   var _Symbol = global_1.Symbol;
-  var store$1 = shared('wks');
+  var createWellKnownSymbol = useSymbolAsUid ? _Symbol : _Symbol && _Symbol.withoutSetter || uid;
 
   var wellKnownSymbol = function wellKnownSymbol(name) {
-    return store$1[name] || (store$1[name] = nativeSymbol && _Symbol[name] || (nativeSymbol ? _Symbol : uid)('Symbol.' + name));
+    if (!has(WellKnownSymbolsStore, name)) {
+      if (nativeSymbol && has(_Symbol, name)) WellKnownSymbolsStore[name] = _Symbol[name];else WellKnownSymbolsStore[name] = createWellKnownSymbol('Symbol.' + name);
+    }
+
+    return WellKnownSymbolsStore[name];
   };
 
   var iterators = {};
@@ -624,7 +640,7 @@ var appfibre_polyfill = (function () {
     return it;
   };
 
-  var bindContext = function bindContext(fn, that, length) {
+  var functionBindContext = function functionBindContext(fn, that, length) {
     aFunction$1(fn);
     if (that === undefined) return fn;
 
@@ -657,7 +673,12 @@ var appfibre_polyfill = (function () {
     };
   };
 
-  var TO_STRING_TAG = wellKnownSymbol('toStringTag'); // ES3 wrong here
+  var TO_STRING_TAG = wellKnownSymbol('toStringTag');
+  var test = {};
+  test[TO_STRING_TAG] = 'z';
+  var toStringTagSupport = String(test) === '[object z]';
+
+  var TO_STRING_TAG$1 = wellKnownSymbol('toStringTag'); // ES3 wrong here
 
   var CORRECT_ARGUMENTS = classofRaw(function () {
     return arguments;
@@ -672,10 +693,10 @@ var appfibre_polyfill = (function () {
   }; // getting tag from ES6+ `Object.prototype.toString`
 
 
-  var classof = function classof(it) {
+  var classof = toStringTagSupport ? classofRaw : function (it) {
     var O, tag, result;
     return it === undefined ? 'Undefined' : it === null ? 'Null' // @@toStringTag case
-    : typeof (tag = tryGet(O = Object(it), TO_STRING_TAG)) == 'string' ? tag // builtinTag case
+    : typeof (tag = tryGet(O = Object(it), TO_STRING_TAG$1)) == 'string' ? tag // builtinTag case
     : CORRECT_ARGUMENTS ? classofRaw(O) // ES3 arguments fallback
     : (result = classofRaw(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : result;
   };
@@ -703,8 +724,8 @@ var appfibre_polyfill = (function () {
     };
 
     var iterate = module.exports = function (iterable, fn, that, AS_ENTRIES, IS_ITERATOR) {
-      var boundFunction = bindContext(fn, that, AS_ENTRIES ? 2 : 1);
-      var iterator, iterFn, index, length, result, step;
+      var boundFunction = functionBindContext(fn, that, AS_ENTRIES ? 2 : 1);
+      var iterator, iterFn, index, length, result, next, step;
 
       if (IS_ITERATOR) {
         iterator = iterable;
@@ -724,9 +745,11 @@ var appfibre_polyfill = (function () {
         iterator = iterFn.call(iterable);
       }
 
-      while (!(step = iterator.next()).done) {
+      next = iterator.next;
+
+      while (!(step = next.call(iterator)).done) {
         result = callWithSafeIterationClosing(iterator, boundFunction, step.value, AS_ENTRIES);
-        if (result && result instanceof Result) return result;
+        if (_typeof(result) == 'object' && result && result instanceof Result) return result;
       }
 
       return new Result(false);
@@ -799,11 +822,11 @@ var appfibre_polyfill = (function () {
   };
 
   var defineProperty = objectDefineProperty.f;
-  var TO_STRING_TAG$1 = wellKnownSymbol('toStringTag');
+  var TO_STRING_TAG$2 = wellKnownSymbol('toStringTag');
 
   var setToStringTag = function setToStringTag(it, TAG, STATIC) {
-    if (it && !has(it = STATIC ? it : it.prototype, TO_STRING_TAG$1)) {
-      defineProperty(it, TO_STRING_TAG$1, {
+    if (it && !has(it = STATIC ? it : it.prototype, TO_STRING_TAG$2)) {
+      defineProperty(it, TO_STRING_TAG$2, {
         configurable: true,
         value: TAG
       });
@@ -852,26 +875,28 @@ var appfibre_polyfill = (function () {
     return $this;
   };
 
-  var collection = function collection(CONSTRUCTOR_NAME, wrapper, common, IS_MAP, IS_WEAK) {
+  var collection = function collection(CONSTRUCTOR_NAME, wrapper, common) {
+    var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
+    var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
+    var ADDER = IS_MAP ? 'set' : 'add';
     var NativeConstructor = global_1[CONSTRUCTOR_NAME];
     var NativePrototype = NativeConstructor && NativeConstructor.prototype;
     var Constructor = NativeConstructor;
-    var ADDER = IS_MAP ? 'set' : 'add';
     var exported = {};
 
     var fixMethod = function fixMethod(KEY) {
       var nativeMethod = NativePrototype[KEY];
-      redefine(NativePrototype, KEY, KEY == 'add' ? function add(a) {
-        nativeMethod.call(this, a === 0 ? 0 : a);
+      redefine(NativePrototype, KEY, KEY == 'add' ? function add(value) {
+        nativeMethod.call(this, value === 0 ? 0 : value);
         return this;
-      } : KEY == 'delete' ? function (a) {
-        return IS_WEAK && !isObject(a) ? false : nativeMethod.call(this, a === 0 ? 0 : a);
-      } : KEY == 'get' ? function get(a) {
-        return IS_WEAK && !isObject(a) ? undefined : nativeMethod.call(this, a === 0 ? 0 : a);
-      } : KEY == 'has' ? function has(a) {
-        return IS_WEAK && !isObject(a) ? false : nativeMethod.call(this, a === 0 ? 0 : a);
-      } : function set(a, b) {
-        nativeMethod.call(this, a === 0 ? 0 : a, b);
+      } : KEY == 'delete' ? function (key) {
+        return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+      } : KEY == 'get' ? function get(key) {
+        return IS_WEAK && !isObject(key) ? undefined : nativeMethod.call(this, key === 0 ? 0 : key);
+      } : KEY == 'has' ? function has(key) {
+        return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+      } : function set(key, value) {
+        nativeMethod.call(this, key === 0 ? 0 : key, value);
         return this;
       });
     }; // eslint-disable-next-line max-len
@@ -886,7 +911,7 @@ var appfibre_polyfill = (function () {
     } else if (isForced_1(CONSTRUCTOR_NAME, true)) {
       var instance = new Constructor(); // early implementations not supports chaining
 
-      var HASNT_CHAINING = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance; // V8 ~  Chromium 40- weak-collections throws on primitives, but should return false
+      var HASNT_CHAINING = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance; // V8 ~ Chromium 40- weak-collections throws on primitives, but should return false
 
       var THROWS_ON_PRIMITIVES = fails(function () {
         instance.has(1);
@@ -965,56 +990,88 @@ var appfibre_polyfill = (function () {
 
   var html = getBuiltIn('document', 'documentElement');
 
-  var IE_PROTO = sharedKey('IE_PROTO');
+  var GT = '>';
+  var LT = '<';
   var PROTOTYPE = 'prototype';
+  var SCRIPT = 'script';
+  var IE_PROTO = sharedKey('IE_PROTO');
 
-  var Empty = function Empty() {
+  var EmptyConstructor = function EmptyConstructor() {
     /* empty */
+  };
+
+  var scriptTag = function scriptTag(content) {
+    return LT + SCRIPT + GT + content + LT + '/' + SCRIPT + GT;
+  }; // Create object with fake `null` prototype: use ActiveX Object with cleared prototype
+
+
+  var NullProtoObjectViaActiveX = function NullProtoObjectViaActiveX(activeXDocument) {
+    activeXDocument.write(scriptTag(''));
+    activeXDocument.close();
+    var temp = activeXDocument.parentWindow.Object;
+    activeXDocument = null; // avoid memory leak
+
+    return temp;
   }; // Create object with fake `null` prototype: use iframe Object with cleared prototype
 
 
-  var _createDict = function createDict() {
+  var NullProtoObjectViaIFrame = function NullProtoObjectViaIFrame() {
     // Thrash, waste and sodomy: IE GC bug
     var iframe = documentCreateElement('iframe');
-    var length = enumBugKeys.length;
-    var lt = '<';
-    var script = 'script';
-    var gt = '>';
-    var js = 'java' + script + ':';
+    var JS = 'java' + SCRIPT + ':';
     var iframeDocument;
     iframe.style.display = 'none';
-    html.appendChild(iframe);
-    iframe.src = String(js);
+    html.appendChild(iframe); // https://github.com/zloirock/core-js/issues/475
+
+    iframe.src = String(JS);
     iframeDocument = iframe.contentWindow.document;
     iframeDocument.open();
-    iframeDocument.write(lt + script + gt + 'document.F=Object' + lt + '/' + script + gt);
+    iframeDocument.write(scriptTag('document.F=Object'));
     iframeDocument.close();
-    _createDict = iframeDocument.F;
+    return iframeDocument.F;
+  }; // Check for document.domain and active x support
+  // No need to use active x approach when document.domain is not set
+  // see https://github.com/es-shims/es5-shim/issues/150
+  // variation of https://github.com/kitcambridge/es5-shim/commit/4f738ac066346
+  // avoid IE GC bug
 
-    while (length--) {
-      delete _createDict[PROTOTYPE][enumBugKeys[length]];
+
+  var activeXDocument;
+
+  var _NullProtoObject = function NullProtoObject() {
+    try {
+      /* global ActiveXObject */
+      activeXDocument = document.domain && new ActiveXObject('htmlfile');
+    } catch (error) {
+      /* ignore */
     }
 
-    return _createDict();
-  }; // `Object.create` method
-  // https://tc39.github.io/ecma262/#sec-object.create
+    _NullProtoObject = activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) : NullProtoObjectViaIFrame();
+    var length = enumBugKeys.length;
 
+    while (length--) {
+      delete _NullProtoObject[PROTOTYPE][enumBugKeys[length]];
+    }
+
+    return _NullProtoObject();
+  };
+
+  hiddenKeys[IE_PROTO] = true; // `Object.create` method
+  // https://tc39.github.io/ecma262/#sec-object.create
 
   var objectCreate = Object.create || function create(O, Properties) {
     var result;
 
     if (O !== null) {
-      Empty[PROTOTYPE] = anObject(O);
-      result = new Empty();
-      Empty[PROTOTYPE] = null; // add "__proto__" for Object.getPrototypeOf polyfill
+      EmptyConstructor[PROTOTYPE] = anObject(O);
+      result = new EmptyConstructor();
+      EmptyConstructor[PROTOTYPE] = null; // add "__proto__" for Object.getPrototypeOf polyfill
 
       result[IE_PROTO] = O;
-    } else result = _createDict();
+    } else result = _NullProtoObject();
 
     return Properties === undefined ? result : objectDefineProperties(result, Properties);
   };
-
-  hiddenKeys[IE_PROTO] = true;
 
   var redefineAll = function redefineAll(target, src, options) {
     for (var key in src) {
@@ -1076,7 +1133,10 @@ var appfibre_polyfill = (function () {
 
   if (IteratorPrototype == undefined) IteratorPrototype = {}; // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
 
-  if (!has(IteratorPrototype, ITERATOR$3)) hide(IteratorPrototype, ITERATOR$3, returnThis);
+  if ( !has(IteratorPrototype, ITERATOR$3)) {
+    createNonEnumerableProperty(IteratorPrototype, ITERATOR$3, returnThis);
+  }
+
   var iteratorsCore = {
     IteratorPrototype: IteratorPrototype,
     BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS
@@ -1150,11 +1210,11 @@ var appfibre_polyfill = (function () {
       CurrentIteratorPrototype = objectGetPrototypeOf(anyNativeIterator.call(new Iterable()));
 
       if (IteratorPrototype$2 !== Object.prototype && CurrentIteratorPrototype.next) {
-        if (objectGetPrototypeOf(CurrentIteratorPrototype) !== IteratorPrototype$2) {
+        if ( objectGetPrototypeOf(CurrentIteratorPrototype) !== IteratorPrototype$2) {
           if (objectSetPrototypeOf) {
             objectSetPrototypeOf(CurrentIteratorPrototype, IteratorPrototype$2);
           } else if (typeof CurrentIteratorPrototype[ITERATOR$4] != 'function') {
-            hide(CurrentIteratorPrototype, ITERATOR$4, returnThis$2);
+            createNonEnumerableProperty(CurrentIteratorPrototype, ITERATOR$4, returnThis$2);
           }
         } // Set @@toStringTag to native iterators
 
@@ -1173,8 +1233,8 @@ var appfibre_polyfill = (function () {
     } // define iterator
 
 
-    if (IterablePrototype[ITERATOR$4] !== defaultIterator) {
-      hide(IterablePrototype, ITERATOR$4, defaultIterator);
+    if ( IterablePrototype[ITERATOR$4] !== defaultIterator) {
+      createNonEnumerableProperty(IterablePrototype, ITERATOR$4, defaultIterator);
     }
 
     iterators[NAME] = defaultIterator; // export additional methods
@@ -1319,7 +1379,7 @@ var appfibre_polyfill = (function () {
         /* , that = undefined */
         ) {
           var state = getInternalState(this);
-          var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+          var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
           var entry;
 
           while (entry = entry ? entry.next : state.first) {
@@ -1414,17 +1474,32 @@ var appfibre_polyfill = (function () {
   // https://tc39.github.io/ecma262/#sec-map-objects
 
 
-  var es_map = collection('Map', function (get) {
+  var es_map = collection('Map', function (init) {
     return function Map() {
-      return get(this, arguments.length ? arguments[0] : undefined);
+      return init(this, arguments.length ? arguments[0] : undefined);
     };
-  }, collectionStrong, true);
+  }, collectionStrong);
 
-  var nativeAssign = Object.assign; // `Object.assign` method
+  var nativeAssign = Object.assign;
+  var defineProperty$2 = Object.defineProperty; // `Object.assign` method
   // https://tc39.github.io/ecma262/#sec-object.assign
-  // should work with symbols and should have deterministic property order (V8 bug)
 
   var objectAssign = !nativeAssign || fails(function () {
+    // should have correct order of operations (Edge bug)
+    if (descriptors && nativeAssign({
+      b: 1
+    }, nativeAssign(defineProperty$2({}, 'a', {
+      enumerable: true,
+      get: function get() {
+        defineProperty$2(this, 'b', {
+          value: 3,
+          enumerable: false
+        });
+      }
+    }), {
+      b: 2
+    })).b !== 1) return true; // should work with symbols and should have deterministic property order (V8 bug)
+
     var A = {};
     var B = {}; // eslint-disable-next-line no-undef
 
@@ -1469,20 +1544,17 @@ var appfibre_polyfill = (function () {
     assign: objectAssign
   });
 
-  var TO_STRING_TAG$2 = wellKnownSymbol('toStringTag');
-  var test = {};
-  test[TO_STRING_TAG$2] = 'z'; // `Object.prototype.toString` method implementation
   // https://tc39.github.io/ecma262/#sec-object.prototype.tostring
 
-  var objectToString = String(test) !== '[object z]' ? function toString() {
+
+  var objectToString = toStringTagSupport ? {}.toString : function toString() {
     return '[object ' + classof(this) + ']';
-  } : test.toString;
+  };
 
-  var ObjectPrototype$1 = Object.prototype; // `Object.prototype.toString` method
   // https://tc39.github.io/ecma262/#sec-object.prototype.tostring
 
-  if (objectToString !== ObjectPrototype$1.toString) {
-    redefine(ObjectPrototype$1, 'toString', objectToString, {
+  if (!toStringTagSupport) {
+    redefine(Object.prototype, 'toString', objectToString, {
       unsafe: true
     });
   }
@@ -1534,9 +1606,9 @@ var appfibre_polyfill = (function () {
   // https://tc39.github.io/ecma262/#sec-set-objects
 
 
-  var es_set = collection('Set', function (get) {
+  var es_set = collection('Set', function (init) {
     return function Set() {
-      return get(this, arguments.length ? arguments[0] : undefined);
+      return init(this, arguments.length ? arguments[0] : undefined);
     };
   }, collectionStrong);
 
@@ -1597,9 +1669,11 @@ var appfibre_polyfill = (function () {
     var collection = anObject(this);
     var remover = aFunction$1(collection['delete']);
     var allDeleted = true;
+    var wasDeleted;
 
     for (var k = 0, len = arguments.length; k < len; k++) {
-      allDeleted = allDeleted && remover.call(collection, arguments[k]);
+      wasDeleted = remover.call(collection, arguments[k]);
+      allDeleted = allDeleted && wasDeleted;
     }
 
     return !!allDeleted;
@@ -1631,7 +1705,7 @@ var appfibre_polyfill = (function () {
     return anObject(iteratorMethod.call(it));
   };
 
-  var getMapIterator = function (it) {
+  var getMapIterator =  function (it) {
     // eslint-disable-next-line no-undef
     return Map.prototype.entries.call(it);
   };
@@ -1650,7 +1724,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return !iterate_1(iterator, function (key, value) {
         if (!boundFunction(value, key, map)) return iterate_1.stop();
       }, undefined, true, true).stopped;
@@ -1680,7 +1754,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       var newMap = new (speciesConstructor(map, getBuiltIn('Map')))();
       var setter = aFunction$1(newMap.set);
       iterate_1(iterator, function (key, value) {
@@ -1704,7 +1778,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return iterate_1(iterator, function (key, value) {
         if (boundFunction(value, key, map)) return iterate_1.stop(value);
       }, undefined, true, true).result;
@@ -1725,7 +1799,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return iterate_1(iterator, function (key, value) {
         if (boundFunction(value, key, map)) return iterate_1.stop(key);
       }, undefined, true, true).result;
@@ -1746,7 +1820,7 @@ var appfibre_polyfill = (function () {
 
     if (mapping) {
       n = 0;
-      boundFunction = bindContext(mapFn, length > 2 ? arguments[2] : undefined, 2);
+      boundFunction = functionBindContext(mapFn, length > 2 ? arguments[2] : undefined, 2);
       iterate_1(source, function (nextItem) {
         A.push(boundFunction(nextItem, n++));
       });
@@ -1858,7 +1932,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       var newMap = new (speciesConstructor(map, getBuiltIn('Map')))();
       var setter = aFunction$1(newMap.set);
       iterate_1(iterator, function (key, value) {
@@ -1882,7 +1956,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       var newMap = new (speciesConstructor(map, getBuiltIn('Map')))();
       var setter = aFunction$1(newMap.set);
       iterate_1(iterator, function (key, value) {
@@ -1951,16 +2025,18 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var accumulator, step;
+      var noInitial = arguments.length < 2;
+      var accumulator = noInitial ? undefined : arguments[1];
       aFunction$1(callbackfn);
-      if (arguments.length > 1) accumulator = arguments[1];else {
-        step = iterator.next();
-        if (step.done) throw TypeError('Reduce of empty map with no initial value');
-        accumulator = step.value[1];
-      }
       iterate_1(iterator, function (key, value) {
-        accumulator = callbackfn(accumulator, value, key, map);
+        if (noInitial) {
+          noInitial = false;
+          accumulator = value;
+        } else {
+          accumulator = callbackfn(accumulator, value, key, map);
+        }
       }, undefined, true, true);
+      if (noInitial) throw TypeError('Reduce of empty map with no initial value');
       return accumulator;
     }
   });
@@ -1979,7 +2055,7 @@ var appfibre_polyfill = (function () {
     ) {
       var map = anObject(this);
       var iterator = getMapIterator(map);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return iterate_1(iterator, function (key, value) {
         if (boundFunction(value, key, map)) return iterate_1.stop();
       }, undefined, true, true).stopped;
@@ -2078,7 +2154,7 @@ var appfibre_polyfill = (function () {
     }
   });
 
-  var getSetIterator = function (it) {
+  var getSetIterator =  function (it) {
     // eslint-disable-next-line no-undef
     return Set.prototype.values.call(it);
   };
@@ -2097,7 +2173,7 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return !iterate_1(iterator, function (value) {
         if (!boundFunction(value, value, set)) return iterate_1.stop();
       }, undefined, false, true).stopped;
@@ -2118,7 +2194,7 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       var newSet = new (speciesConstructor(set, getBuiltIn('Set')))();
       var adder = aFunction$1(newSet.add);
       iterate_1(iterator, function (value) {
@@ -2142,7 +2218,7 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return iterate_1(iterator, function (value) {
         if (boundFunction(value, value, set)) return iterate_1.stop(value);
       }, undefined, false, true).result;
@@ -2273,7 +2349,7 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       var newSet = new (speciesConstructor(set, getBuiltIn('Set')))();
       var adder = aFunction$1(newSet.add);
       iterate_1(iterator, function (value) {
@@ -2306,16 +2382,18 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var accumulator, step;
+      var noInitial = arguments.length < 2;
+      var accumulator = noInitial ? undefined : arguments[1];
       aFunction$1(callbackfn);
-      if (arguments.length > 1) accumulator = arguments[1];else {
-        step = iterator.next();
-        if (step.done) throw TypeError('Reduce of empty set with no initial value');
-        accumulator = step.value;
-      }
       iterate_1(iterator, function (value) {
-        accumulator = callbackfn(accumulator, value, value, set);
+        if (noInitial) {
+          noInitial = false;
+          accumulator = value;
+        } else {
+          accumulator = callbackfn(accumulator, value, value, set);
+        }
       }, undefined, false, true);
+      if (noInitial) throw TypeError('Reduce of empty set with no initial value');
       return accumulator;
     }
   });
@@ -2334,7 +2412,7 @@ var appfibre_polyfill = (function () {
     ) {
       var set = anObject(this);
       var iterator = getSetIterator(set);
-      var boundFunction = bindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+      var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
       return iterate_1(iterator, function (value) {
         if (boundFunction(value, value, set)) return iterate_1.stop();
       }, undefined, false, true).stopped;
@@ -2420,7 +2498,10 @@ var appfibre_polyfill = (function () {
   // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
 
   if (ArrayPrototype$1[UNSCOPABLES] == undefined) {
-    hide(ArrayPrototype$1, UNSCOPABLES, objectCreate(null));
+    objectDefineProperty.f(ArrayPrototype$1, UNSCOPABLES, {
+      configurable: true,
+      value: objectCreate(null)
+    });
   } // add a key to Array.prototype[@@unscopables]
 
 
@@ -2499,15 +2580,19 @@ var appfibre_polyfill = (function () {
     if (CollectionPrototype) {
       // some Chrome versions have non-configurable methods on DOMTokenList
       if (CollectionPrototype[ITERATOR$5] !== ArrayValues) try {
-        hide(CollectionPrototype, ITERATOR$5, ArrayValues);
+        createNonEnumerableProperty(CollectionPrototype, ITERATOR$5, ArrayValues);
       } catch (error) {
         CollectionPrototype[ITERATOR$5] = ArrayValues;
       }
-      if (!CollectionPrototype[TO_STRING_TAG$3]) hide(CollectionPrototype, TO_STRING_TAG$3, COLLECTION_NAME);
+
+      if (!CollectionPrototype[TO_STRING_TAG$3]) {
+        createNonEnumerableProperty(CollectionPrototype, TO_STRING_TAG$3, COLLECTION_NAME);
+      }
+
       if (domIterables[COLLECTION_NAME]) for (var METHOD_NAME in es_array_iterator) {
         // some Chrome versions have non-configurable methods on DOMTokenList
         if (CollectionPrototype[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
-          hide(CollectionPrototype, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+          createNonEnumerableProperty(CollectionPrototype, METHOD_NAME, es_array_iterator[METHOD_NAME]);
         } catch (error) {
           CollectionPrototype[METHOD_NAME] = es_array_iterator[METHOD_NAME];
         }

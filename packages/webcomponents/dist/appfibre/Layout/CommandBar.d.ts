@@ -19,6 +19,7 @@ export interface attr {
     section_style?: object;
     placement?: "top" | "bottom" | "left" | "right";
 }
-declare let CommandBar: (this: types.app.IAppLoaded<{}, {}>, props: attr, children: any[]) => ["div", attr, any[]];
+declare type CommandBarElement = ["div", attr, Array<any>];
+declare let CommandBar: (this: types.app.IAppLoaded, props: attr, children: Array<any>) => CommandBarElement;
 export { CommandBar };
 //# sourceMappingURL=CommandBar.d.ts.map

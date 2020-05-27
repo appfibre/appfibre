@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -20,6 +21,7 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+exports.__esModule = true;
 var CodeMirror = function transform(attr) {
     var _this = this;
     var settings = attr.settings, style = attr.style, className = attr.className, onChange = attr.onChange, props = __rest(attr, ["settings", "style", "className", "onChange"]);
@@ -43,8 +45,8 @@ var CodeMirror = function transform(attr) {
                     var codemirror = cm[0]["default"] || cm[0];
                     if (!existing_1) {
                         var editor_1 = codemirror.fromTextArea(e, settings);
-                        editor_1.on('change', function () { if (onChange)
-                            onChange(editor_1.getValue()); });
+                        editor_1.on('change', function () { e.value = editor_1.getValue(); if (onChange)
+                            onChange({ target: e }); });
                     }
                     else {
                         console.log(' TODO ?????');
@@ -57,4 +59,4 @@ var CodeMirror = function transform(attr) {
     return ["div", { style: style, className: className }, [["textarea", __assign({ style: { height: "100%", width: "100%" }, ref: init, onChange: function (e) { if (attr.onChange)
                         attr.onChange(e.target.value); } }, props)]]];
 };
-export default CodeMirror;
+exports["default"] = CodeMirror;

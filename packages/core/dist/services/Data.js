@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+exports.Data = void 0;
 var components_1 = require("../components");
 function clone(o) {
     if (Array.isArray(o))

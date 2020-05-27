@@ -16,6 +16,7 @@ export interface props {
     containerStyle?: object;
     onSelectedIndexChanged?: (index: number) => void;
 }
-declare let TabContainer: (this: types.app.IAppLoaded<{}, {}>, a: props, c: any[]) => ["div", props, any[]];
+declare type Container = ["div", props, Array<any>];
+declare let TabContainer: (this: types.app.IAppLoaded, a: props, c: Array<any>) => Container;
 export { TabContainer };
 //# sourceMappingURL=TabContainer.d.ts.map

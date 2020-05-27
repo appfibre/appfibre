@@ -174,7 +174,7 @@ export class Processor implements types.app.IProcessor
                     if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
                 }
                 else if (obj.default && obj.default[path[part]] !== undefined) {
-                    debugger;
+                    //debugger;
                     obj = obj.default[path[part]];
                     if (typeof obj === "function" && this.getFunctionName(obj) == "inject") obj = obj(Inject(this.app, BaseComponent(this.app)));
                 }
@@ -186,7 +186,7 @@ export class Processor implements types.app.IProcessor
                     else {
                         debugger;
                         this.app.services.logger.log.call(this, types.app.LogLevel.Error, 'Unable to resolve "App.components.' + (fullpath || 'undefined') + "'" );
-                        return class extends BaseComponent(this.app) { render () { return super.render ? super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) : `${fullpath||'undefined'} not found!`  }};
+                        return class extends BaseComponent(this.app) { render () { return /*super.render ?*/ super.render(["span", {"style":{"color":"red"}}, `${fullpath||'undefined'} not found!`]) /*: `${fullpath||'undefined'} not found!`*/  }};
                     }
                 }
             }
@@ -287,7 +287,7 @@ export class Processor implements types.app.IProcessor
             try {
                 if (isTemplate) {
                     this.app.services.moduleSystem.init(this.app.settings.baseExecutionPath);
-                    this.app.services.moduleSystem.import(this.app.services.transformer.transform(JSON.stringify(obj)).code).then((exported:any) => {
+                    this.app.services.moduleSystem.import(this.app.services.transformer.transform(JSON.stringify(obj)).output).then((exported:any) => {
                         try{
                             this.parse(exported.default || exported, "af", 0).then(resolve, reject);
                         }

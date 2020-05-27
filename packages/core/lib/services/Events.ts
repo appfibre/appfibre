@@ -44,7 +44,7 @@ export class Events {
         else 
             for (var s in subscriptions)
                 if (subscriptions[s].correlationId === undefined || subscriptions[s].correlationId == event.correlationId) 
-                    if (subscriptions[s].callback) {var r = subscriptions[s].callback(event); if (!!r) response.push(r);};                
+                    /*if (subscriptions[s].callback)*/ {var r = subscriptions[s].callback(event); if (!!r) response.push(r);};                
 
         return response;
     }

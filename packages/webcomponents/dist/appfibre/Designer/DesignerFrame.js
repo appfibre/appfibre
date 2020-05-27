@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -11,19 +12,21 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { Intercept } from "./Intercept";
-import { events } from "./types";
+exports.__esModule = true;
+exports.DesignerFrame = void 0;
+var Intercept_1 = require("./Intercept");
+var types_1 = require("./types");
 var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
     if (app.services.transformer.settings.parsers)
-        app.services.transformer.settings.parsers[".app"] = function (transformer, context, obj, offset) {
+        app.services.transformer.settings.parsers[".app"] = function (obj, transformer, tc, context) {
             var obj2 = {};
             var keys = Object.keys(obj);
             keys.forEach(function (z) { return obj2[z == ".app" ? "main" : z] = obj[z]; });
-            return "[\".App\", {" + app.services.transformer.process(obj2, context, true, true, offset) + "}]";
+            return { "format": "json", output: "[\".App\", {" + app.services.transformer.process(obj2, tc, context).output + "}]" };
         };
     app.services.processor.unwrapDefault = function (obj) {
         if (typeof obj === "object" && typeof obj.__esModule === "string")
-            return app.services.processor.processElement([Intercept, { file: obj.__esModule }, typeof obj["default"] === "string" ? obj["default"] : [obj["default"]]]);
+            return app.services.processor.processElement([Intercept_1.Intercept, { file: obj.__esModule }, typeof obj["default"] === "string" ? obj["default"] : [obj["default"]]]);
         if (obj && obj["default"])
             obj = obj["default"];
         if (Array.isArray(obj)) {
@@ -33,7 +36,7 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
                 return app.services.processor.processElement([Intercept, {file: __esModule}, [obj]]);
             }*/
             if (typeof obj[2] === "object" && typeof obj[2].__esModule === "string" && obj[2]["default"]) {
-                obj[2] = [[Intercept, { file: obj[2].__esModule }, obj[2]["default"]]];
+                obj[2] = [[Intercept_1.Intercept, { file: obj[2].__esModule }, obj[2]["default"]]];
             }
             return obj.map(function (e) { return e && e["default"] ? e["default"] : e; });
         }
@@ -51,7 +54,7 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
         }
         Designer.prototype.componentWillMount = function () {
             window.addEventListener("click", this.window_click);
-            app.services.events.subscribe(events["Designer.Load"](), this.designer_Load);
+            app.services.events.subscribe(types_1.events["Designer.Load"](), this.designer_Load);
             //document.body.onclick = function () {debugger;};
         };
         Designer.prototype.window_click = function (ev) {
@@ -59,7 +62,7 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
             //parent.postMessage({eventType: "select", correlationId: Date.now().toString()}, location.href); ev.returnValue = false; 
         };
         Designer.prototype.componentWillUnmount = function () {
-            app.services.events.unsubscribe(events["Designer.Load"](), this.designer_Load);
+            app.services.events.unsubscribe(types_1.events["Designer.Load"](), this.designer_Load);
             window.removeEventListener("click", this.window_click);
         };
         Designer.prototype.designer_Load = function (ev) {
@@ -79,4 +82,4 @@ var DesignerFrame /*: fibre.UI.Component<any,any>*/ = function inject(app) {
         return Designer;
     }(app.services.UI.Component));
 };
-export { DesignerFrame };
+exports.DesignerFrame = DesignerFrame;

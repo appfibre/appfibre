@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.Loader = void 0;
 var Loader = /** @class */ (function () {
     function Loader(app) {
         var _this = this;

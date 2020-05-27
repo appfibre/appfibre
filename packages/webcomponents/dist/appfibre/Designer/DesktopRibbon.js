@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -22,10 +23,34 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { events, EditMode } from "./types";
-import * as Layout from "../Layout";
-import { classes } from './Styles';
-import styles from "../Layout/Styles";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+exports.DesktopRibbon = void 0;
+var types_1 = require("./types");
+var Layout = __importStar(require("../Layout"));
+var Styles_1 = require("./Styles");
+var Styles_2 = __importDefault(require("../Layout/Styles"));
 var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
     var navigator = function inject(app) {
         return /** @class */ (function (_super) {
@@ -41,18 +66,15 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                 this.setState({ url: ev.target.value });
             };
             Navigator.prototype.navigate_click = function () {
-                app.services.events.publish(events["Designer.Load"]({ url: this.state.url }));
+                app.services.events.publish(types_1.events["Designer.Load"]({ url: this.state.url }));
             };
             Navigator.prototype.render = function () {
                 var _this = this;
-                var toggle = (this.state.url && this.props.activeFiles.indexOf(this.state.url) > -1) ? classes.CommandButton_ToggleOn : classes.CommandButton_ToggleOff;
+                var toggle = (this.state.url && this.props.activeFiles.indexOf(this.state.url) > -1) ? Styles_1.classes.CommandButton_ToggleOn : Styles_1.classes.CommandButton_ToggleOff;
                 return _super.prototype.render.call(this, ["div",
-                    { className: classes.RibbonNavigator, style: { background: "#DDD", overflow: "hidden" } },
-                    [["div",
-                            {},
-                            [["div", {}, [['input', { type: 'text', style: {}, value: this.state.url, onChange: this.url_change }]]],
-                                ["div", { title: 'Navigate To', style: { width: "25px" }, className: classes.CommandButton_NavigateTo, onClick: this.navigate_click }, [['div']]],
-                                ["div", { title: 'Edit', style: { width: '20px' }, className: toggle, onClick: function () { return _this.props.toggleActiveFile(_this.state.url); } }, [['div']]]
+                    { className: Styles_1.classes.RibbonNavigator, style: { background: "#DDD", overflow: "hidden" } }, [["div",
+                            {}, [["div", {}, [['input', { type: 'text', style: {}, value: this.state.url, onChange: this.url_change }]]],
+                                ["div", { title: 'Navigate To', style: { width: "25px" }, className: Styles_1.classes.CommandButton_NavigateTo, onClick: this.navigate_click }, [['div']]], ["div", { title: 'Edit', style: { width: '20px' }, className: toggle, onClick: function () { return _this.props.toggleActiveFile(_this.state.url); } }, [['div']]]
                             ]
                         ]
                     ]
@@ -77,19 +99,19 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
         }
         DesktopRibbon.prototype.command_button = function (editMode, title, className) {
             var _this = this;
-            return { title: title, className: classes.CommandButton + ' ' + className + ' ' + (this.state.allowEdit ? this.state.editMode === editMode ? classes.CommandButton_Active : classes.CommandButton_Enabled : classes.CommandButton_Disabled), onClick: function () { return _this.command_click(editMode); } };
+            return { title: title, className: Styles_1.classes.CommandButton + ' ' + className + ' ' + (this.state.allowEdit ? this.state.editMode === editMode ? Styles_1.classes.CommandButton_Active : Styles_1.classes.CommandButton_Enabled : Styles_1.classes.CommandButton_Disabled), onClick: function () { return _this.command_click(editMode); } };
         };
         DesktopRibbon.prototype.menus = function () {
             return [
-                [["div", { className: styles.TableCell, style: { width: '40px', textAlign: 'center', verticalAlign: 'middle' } }, [["a", { className: classes.logo_Fibre }]]]],
+                [["div", { className: Styles_2["default"].TableCell, style: { width: '40px', textAlign: 'center', verticalAlign: 'middle' } }, [["a", { className: Styles_1.classes.logo_Fibre }]]]],
                 ["File", ["div", {},
                         [['label', {}, this.state.selectedContext && this.state.selectedContext.data.control ? this.state.selectedContext.data.control.url : '(none)'],
                             this.state.selectedContext && this.state.selectedContext.data.control && this.state.selectedContext.data.canEdit ? ['button', { onClick: this.nav_click }, 'Edit'] : ['span', {}, '------']
                         ]]
                 ],
                 ["Edit", [Layout.CommandBar, { sections: [{ title: "Edit",
-                                    commands: [this.command_button(EditMode.Inline, 'Edit', classes.CommandButton_Edit),
-                                        this.command_button(EditMode.Source, 'Edit Source', classes.CommandButton_Source)
+                                    commands: [this.command_button(types_1.EditMode.Inline, 'Edit', Styles_1.classes.CommandButton_Edit),
+                                        this.command_button(types_1.EditMode.Source, 'Edit Source', Styles_1.classes.CommandButton_Source)
                                     ]
                                 },
                                 { title: "Format" }
@@ -110,22 +132,22 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                 files.splice(index, 1);
             else
                 files.push(filename);
-            this.setState({ editing: __assign(__assign({}, this.state.editing), { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(events["Edit.Event"](_this.state.editing)); });
+            this.setState({ editing: __assign(__assign({}, this.state.editing), { activeFiles: files, selectedFile: filename }) }, function () { return app.services.events.publish(types_1.events["Edit.Event"](_this.state.editing)); });
         };
         DesktopRibbon.prototype.componentDidMount = function () {
             //this.setState({url: this.props.document});
             //window.addEventListener('message', this.onMessage);
-            app.services.events.subscribe(events["Designer.Intercept.Select"](), this.onSelect);
-            app.services.events.subscribe(events["Designer.Ribbon.ToggleEdit"](), this.ribbon_toggle_edit);
+            app.services.events.subscribe(types_1.events["Designer.Intercept.Select"](), this.onSelect);
+            app.services.events.subscribe(types_1.events["Designer.Ribbon.ToggleEdit"](), this.ribbon_toggle_edit);
         };
         DesktopRibbon.prototype.componentWillUnmount = function () {
             //window.removeEventListener('message', this.onMessage);
-            app.services.events.unsubscribe(events["Designer.Intercept.Select"](), this.onSelect);
-            app.services.events.unsubscribe(events["Designer.Ribbon.ToggleEdit"](), this.ribbon_toggle_edit);
+            app.services.events.unsubscribe(types_1.events["Designer.Intercept.Select"](), this.onSelect);
+            app.services.events.unsubscribe(types_1.events["Designer.Ribbon.ToggleEdit"](), this.ribbon_toggle_edit);
         };
         DesktopRibbon.prototype.nav_click = function () {
             if (this.state.selectedContext && this.state.selectedContext.data.control)
-                app.services.events.publish(events["Designer.Load"]({ url: this.state.selectedContext.data.control.url }));
+                app.services.events.publish(types_1.events["Designer.Load"]({ url: this.state.selectedContext.data.control.url }));
         };
         DesktopRibbon.prototype.command_click = function (editMode) {
             if (this.state.allowEdit && this.state.selectedContext && this.state.selectedContext.data.control) {
@@ -133,7 +155,7 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
                 if (this.state.editMode === editMode)
                     editMode = undefined;
                 this.setState({ editMode: editMode }, function () {
-                    app.services.events.publish(events["Ribbon.Event"]({ editMode: editMode }));
+                    app.services.events.publish(types_1.events["Ribbon.Event"]({ editMode: editMode }));
                 });
             }
         };
@@ -144,18 +166,10 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
             var _this = this;
             var menus = this.menus();
             return _super.prototype.render.call(this, ["div",
-                { className: this.props.className, style: __assign({ height: "0%" }, this.props.style) },
-                [[Layout.TabContainer,
-                        { placement: "top", tabs: menus.map(function (m) { return m ? m[0] : []; })
+                { className: this.props.className, style: this.props.style }, [[Layout.TabContainer, { placement: "top", tabs: menus.map(function (m) { return m ? m[0] : []; })
                             //, containerStyle: this.state.menuIndex < 0 ? { display: "none"} : { width: "100%", height: "100px", borderBottom: "1px solid #DDD" }
-                            ,
-                            selectedIndex: this.state.menuIndex,
-                            onSelectedIndexChanged: function (index) { return _this.setState({ menuIndex: _this.state.menuIndex === index ? -1 : index }); },
-                            className: classes.DesktopRibbon_TabContainer,
-                            className_Tab: this.props.className_Tab
-                        },
-                        this.state.menuIndex >= 0 ? [menus[this.state.menuIndex][1]] : undefined
-                    ]
+                            , selectedIndex: this.state.menuIndex, onSelectedIndexChanged: function (index) { return _this.setState({ menuIndex: _this.state.menuIndex === index ? -1 : index }); }, className: Styles_1.classes.DesktopRibbon_TabContainer,
+                            className_Tab: this.props.className_Tab }, this.state.menuIndex >= 0 ? [menus[this.state.menuIndex][1]] : undefined]
                 ]
             ]);
         };
@@ -187,9 +201,9 @@ var DesktopRibbon /*: fibre.UI.Component */ = function inject(app) {
         }*/
         DesktopRibbon.prototype.onSelect = function (ev) {
             this.setState({ selectedContext: ev, allowEdit: ev.data.control ? true : false });
-            app.services.events.publish(events["Designer.Select"](ev));
+            app.services.events.publish(types_1.events["Designer.Select"](ev));
         };
         return DesktopRibbon;
     }(app.services.UI.Component));
 };
-export { DesktopRibbon };
+exports.DesktopRibbon = DesktopRibbon;

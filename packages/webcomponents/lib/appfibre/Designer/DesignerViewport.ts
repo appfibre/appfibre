@@ -1,5 +1,4 @@
 import { types } from "@appfibre/types";
-import { Intercept } from "./Intercept";
 import { events, Designer_Load, Designer_Select, Ribbon_Event, EditMode, Edit_Event } from "./types";
 import styles from '../Layout/Styles';
 import { classes } from './Styles';
@@ -64,7 +63,7 @@ let DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app:typ
 
         load_file(target: {[filename:string]:file}, file: string) {
             return new Promise( (resolve, reject) => {
-                return app.services.moduleSystem.fetch(file).then(res => {
+                return app.services.moduleSystem.fetch(file, {"Cache-Control": "no-cache", "Mode": "edit"} ).then(res => {
                     target[file] = {content: res.text}
                     resolve();
                 }, reject);
@@ -155,15 +154,13 @@ let DesignerViewPort /*: fibre.UI.Component<any,any>*/ = function inject(app:typ
             }
 
             return super.render([ ["div"
-                                  , { className: styles.Table + ' ' + styles.Fill, style: {display: "table", border: "1px solid #AAA"}}
-                                  , [   [ "iframe" , { className: styles.TableRow + ' ' + styles.Fill, style: { background: "white", border: "0",resize: this.state.editMode === EditMode.Source ? "vertical" : "none"}, src: src, ref: (e:HTMLFrameElement) => {this["iframe"] = e; }}] 
-                                        ,  this.state.editMode === EditMode.Source && selectedIndex > -1 && keys.length > 0 ?   [ "div"
-                                                                                                                                , { className: styles.TableRow, style: {height: "50%"} }
-                                                                                                                                , [ [ TabContainer
-                                                                                                                                    , { tabs: keys, className: classes.SourceEdit_Files, selectedIndex: this.state.selectedIndex, onSelectedIndexChanged: this.onSelectedIndexChanged}
-                                                                                                                                    , keys.map( (key, index) => [ CodeMirror, { className: styles.Fill, style: index==this.state.selectedIndex ? {} : {display: 'none'}, value: this.state.sources[key].content, settings: {matchBrackets: true, closeBrackets: true , continueComments: "Enter", lineNumbers: true, mode: "application/ld+json", lineWrapping: true, comment: true}, onChange: (value: string) => this.onCodeChange(keys[selectedIndex], value) } ] ) ]
-                                                                                                                                  ]
-                                                                                                                                ]: null
+                                  , { className: styles.Table + ' ' + styles.Fill, style: { border: "1px solid #AAA",}}
+                                  , [   [ "div",  { className: styles.TableRow, style: {  position: "relative", height: "100%"}}, [[ "iframe" , { className: styles.Fill, style: { background: "white", border: "0", resize: this.state.editMode === EditMode.Source ? "vertical" : "none"}, src: src, ref: (e:HTMLFrameElement) => {this["iframe"] = e; }}]]  ]
+                                    ,   [ "div" , { className: styles.TableRow, style: {  display: this.state.editMode === EditMode.Source ? "table-row" : "none"} }
+                                                                                                            , [ selectedIndex > -1 && keys.length > 0 ? [ TabContainer
+                                                                                                            , { tabs: keys, className: classes.SourceEdit_Files, selectedIndex: this.state.selectedIndex, onSelectedIndexChanged: this.onSelectedIndexChanged}
+                                                                                                            , keys.map( (key, index) => [ CodeMirror, { className: styles.Fill, style: index==this.state.selectedIndex ? {} : {display: 'none'}, value: this.state.sources[key].content, settings: {matchBrackets: true, closeBrackets: true , continueComments: "Enter", lineNumbers: true, mode: "application/ld+json", lineWrapping: true, comment: true}, onChange: (value: string) => this.onCodeChange(keys[selectedIndex], value) } ] ) ] : null
+                                                                                                            ] ]
                                     ] 
                                  ] ]
                                   );

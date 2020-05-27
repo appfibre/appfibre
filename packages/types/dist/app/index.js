@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.app = void 0;
 var UI_1 = require("./UI");
 var app;
 (function (app) {
@@ -20,10 +21,6 @@ var app;
         ModuleSystem["AMD"] = "amd";
         ModuleSystem["UMD"] = "umd";
         ModuleSystem["ES"] = "es";
+        ModuleSystem["Raw"] = "raw";
     })(ModuleSystem = app.ModuleSystem || (app.ModuleSystem = {}));
-    var LicenseType;
-    (function (LicenseType) {
-        LicenseType[LicenseType["MIT"] = 0] = "MIT";
-        LicenseType[LicenseType["GNU"] = 1] = "GNU";
-    })(LicenseType = app.LicenseType || (app.LicenseType = {}));
 })(app = exports.app || (exports.app = {}));

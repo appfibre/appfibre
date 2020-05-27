@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>appfibre Desktop</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+  </head>
+  <body>
+    <div style="display: table; height: 100%; width: 100%;">
+        <section class="controls" style="display: table-row; width: 100%">
+          <div class="table-cell; width:100%">
+            <button id="new-file">New File</button>
+            <button id="open-file">Open File</button>
+            <button id="save-markdown" disabled>Save File</button>
+            <button id="revert" disabled>Revert</button>
+            <button id="save-html">Save HTML</button>
+            <button id="show-file" disabled>Show File</button>
+            <button id="open-in-default" disabled>Open in Default Application</button>
+          </div>
+        </section>
+      <section class="content" style="display: table-row; height: 100%; width: 100%">
+        <div style="display: table-cell; height: 100%; width: 100%;">
+          <div style="display: table; width: 100%; height: 100%;">
+            <div  id="container" style="display: table-cell; width: 100%; height: 100%"></div>
+            <textarea class="raw-markdown" id="markdown" style="display: none; width: 100%; height: 100%"></textarea>
+            <div class="rendered-html" id="html" style="display: table-cell; height: 100%; width: 50%; "></div> 
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+  <script>
+
+  (function() {
+      const path = require('path');
+      const amdLoader = require('../node_modules/monaco-editor/min/vs/loader.js');
+
+      const amdRequire = amdLoader.require;
+      const amdDefine = amdLoader.require.define;
+
+      function uriFromPath(_path) {
+        var pathName = path.resolve(_path).replace(/\\/g, '/');
+        if (pathName.length > 0 && pathName.charAt(0) !== '/') {
+          pathName = '/' + pathName;
+        }
+        return encodeURI('file://' + pathName);
+      }
+
+      amdRequire.config({
+        baseUrl: uriFromPath(path.join(__dirname, '../node_modules/monaco-editor/min'))
+      });
+
+      // workaround monaco-css not understanding the environment
+      self.module = undefined;
+
+      amdRequire(['vs/editor/editor.main'], function() {
+        /*var editor = monaco.editor.create(document.getElementById('container'), {
+          value: [
+            'function x() {',
+            '\tconsole.log("Hello world!");',
+            '}'
+          ].join('\n'),
+          language: 'json'
+        });*/
+        require('./dist/designer');
+
+      });
+    })();
+       
+  </script>
+</html>
